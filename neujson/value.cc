@@ -4,8 +4,6 @@
 
 #include <neujson/value.h>
 
-neujson::Value::~Value() = default;
-
 neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
   switch (type_) {
     case NEU_NULL:
@@ -23,10 +21,6 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
   }
 }
 
-neujson::Value::Value(const neujson::Value &_val) = default;
-
-neujson::Value::Value(neujson::Value &&_val) noexcept: type_(_val.type_), data_(::std::move(_val.data_)) {}
-
 ::std::size_t neujson::Value::getSize() {
   switch (type_) {
     case NEU_ARRAY:return ::std::get<StringWithSharedPtr>(data_)->size();
@@ -35,19 +29,11 @@ neujson::Value::Value(neujson::Value &&_val) noexcept: type_(_val.type_), data_(
   }
 }
 
-neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
-  assert(this != &_val);
-  this->~Value();
-  type_ = _val.type_;
-  data_ = _val.data_;
-  return *this;
-}
-
-neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept {
-  assert(this != &_val);
-  this->~Value();
-  type_ = _val.type_;
-  data_ = std::move(_val.data_);
-  _val.type_ = NEU_NULL;
-  return *this;
+neujson::Value::MemberIterator neujson::Value::findMember(std::string_view _key) {
+  assert(type_ == NEU_OBJECT);
+  return std::find_if(::std::get<ObjectWithSharedPtr>(data_)->begin(),
+                      ::std::get<ObjectWithSharedPtr>(data_)->end(),
+                      [_key](const Member &_m) -> bool {
+                        return _m.key_.getStringView() == _key;
+                      });
 }
