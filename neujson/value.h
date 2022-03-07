@@ -59,9 +59,9 @@ class Value {
   explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(std::make_shared<String>(_s.begin(), _s.end())) {};
   explicit Value(const char *_s) : type_(NEU_STRING), data_(std::make_shared<String>(_s, _s + strlen(_s))) {};
   Value(const char *_s, ::std::size_t _len) : Value(::std::string_view(_s, _len)) {};
-  Value(const Value &_val);
-  Value(Value &&_val) noexcept;
-  ~Value();
+  Value(const Value &_val) = default;
+  Value(Value &&_val) noexcept: type_(_val.type_), data_(::std::move(_val.data_)) {};
+  ~Value() = default;
 
   [[nodiscard]] Type getType() const { return type_; };
   ::std::size_t getSize();
@@ -146,6 +146,26 @@ class Value {
 
   Value &operator=(const Value &_val);
   Value &operator=(Value &&_val) noexcept;
+
+  Value &operator[](size_t _index);
+  const Value &operator[](size_t _index) const;
+  Value &operator[](std::string_view _key);
+  const Value &operator[](std::string_view _key) const;
+
+  MemberIterator memberBegin();
+  MemberIterator memberEnd();
+  MemberIterator findMember(std::string_view _key);
+
+  [[nodiscard]] ConstMemberIterator MemberBegin() const;
+  [[nodiscard]] ConstMemberIterator MemberEnd() const;
+  [[nodiscard]] ConstMemberIterator findMember(std::string_view _key) const;
+
+  template<typename T>
+  Value &addMember(const char *_key, T &&_value);
+  Value &addMember(Value &&_key, Value &&_value);
+
+  template<typename Handler>
+  bool writeTo(Handler &_handler) const;
 };
 
 struct Member {
@@ -155,6 +175,126 @@ struct Member {
   Value key_;
   Value value_;
 };
+
+inline neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
+  assert(this != &_val);
+  this->~Value();
+  type_ = _val.type_;
+  data_ = _val.data_;
+  return *this;
+}
+
+inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept {
+  assert(this != &_val);
+  this->~Value();
+  type_ = _val.type_;
+  data_ = std::move(_val.data_);
+  _val.type_ = NEU_NULL;
+  return *this;
+}
+
+inline neujson::Value &neujson::Value::operator[](size_t _index) {
+  assert(type_ == NEU_ARRAY);
+  return ::std::get<ArrayWithSharedPtr>(data_)->at(_index);
+}
+
+inline const neujson::Value &neujson::Value::operator[](size_t _index) const {
+  assert(type_ == NEU_ARRAY);
+  return ::std::get<ArrayWithSharedPtr>(data_)->at(_index);
+}
+
+inline neujson::Value &neujson::Value::operator[](std::string_view _key) {
+  assert(type_ == NEU_OBJECT);
+  auto it = findMember(_key);
+  if (it != ::std::get<ObjectWithSharedPtr>(data_)->end()) {
+    return it->value_;
+  }
+
+  assert(false && "value no found");
+  static Value fake(NEU_NULL);
+  return fake;
+}
+
+inline const neujson::Value &neujson::Value::operator[](std::string_view _key) const {
+  assert(type_ == NEU_OBJECT);
+  return const_cast<Value &>(*this)[_key];
+}
+
+inline neujson::Value::MemberIterator neujson::Value::memberBegin() {
+  assert(type_ == NEU_OBJECT);
+  return ::std::get<ObjectWithSharedPtr>(data_)->begin();
+}
+
+inline neujson::Value::MemberIterator neujson::Value::memberEnd() {
+  assert(type_ == NEU_OBJECT);
+  return ::std::get<ObjectWithSharedPtr>(data_)->end();
+}
+
+inline neujson::Value::ConstMemberIterator neujson::Value::MemberBegin() const {
+  assert(type_ == NEU_OBJECT);
+  return const_cast<Value &>(*this).memberBegin();
+}
+
+inline neujson::Value::ConstMemberIterator neujson::Value::MemberEnd() const {
+  assert(type_ == NEU_OBJECT);
+  return const_cast<Value &>(*this).memberEnd();
+}
+
+inline neujson::Value::ConstMemberIterator neujson::Value::findMember(std::string_view _key) const {
+  assert(type_ == NEU_OBJECT);
+  return const_cast<Value &>(*this).findMember(_key);
+}
+
+template<typename T>
+inline neujson::Value &neujson::Value::addMember(const char *_key, T &&_value) {
+  return addMember(Value(_key), Value(std::forward<T>(_value)));
+}
+
+inline neujson::Value &neujson::Value::addMember(neujson::Value &&_key, neujson::Value &&_value) {
+  assert(type_ == NEU_OBJECT);
+  assert(_key.type_ == NEU_STRING);
+  assert(findMember(_key.getStringView()) == memberEnd());
+  auto o_ptr = ::std::get<ObjectWithSharedPtr>(data_);
+  o_ptr->emplace_back(::std::move(_key), ::std::move(_value));
+  return o_ptr->back().value_;
+}
+
+#define CALL_HANDLER(_expr) do { if (!(_expr)) { return false; } } while(false)
+
+template<typename Handler>
+bool Value::writeTo(Handler &_handler) const {
+  switch (type_) {
+    case NEU_NULL:CALL_HANDLER(_handler.Null());
+      break;
+    case NEU_BOOL:CALL_HANDLER(_handler.Bool(::std::get<bool>(data_)));
+      break;
+    case NEU_INT32:CALL_HANDLER(_handler.Int32(::std::get<int32_t>(data_)));
+      break;
+    case NEU_INT64:CALL_HANDLER(_handler.Int64(::std::get<int64_t>(data_)));
+      break;
+    case NEU_DOUBLE:CALL_HANDLER(_handler.Double(::std::get<double>(data_)));
+      break;
+    case NEU_STRING:CALL_HANDLER(_handler.String(getStringView()));
+      break;
+    case NEU_ARRAY:CALL_HANDLER(_handler.StartArray());
+      for (auto &val: *getArray()) {
+        CALL_HANDLER(val.writeTo(_handler));
+      }
+      CALL_HANDLER(_handler.EndArray());
+      break;
+    case NEU_OBJECT:CALL_HANDLER(_handler.StartObject());
+      for (auto &mem: *getObject()) {
+        _handler.Key(mem.key_.getStringView());
+        CALL_HANDLER(mem.value_.writeTo(_handler));
+      }
+      CALL_HANDLER(_handler.EndObject());
+      break;
+    default:assert(false && "bad type");
+  }
+  return true;
+}
+
+#undef CALL_HANDLER
 
 } // namespace neujson
 
