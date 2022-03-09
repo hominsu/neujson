@@ -6,9 +6,11 @@
 #define NEUJSON_NEUJSON_VALUE_H_
 
 #include <cassert>
+#include <cstring>
 
 #include <atomic>
 #include <vector>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -19,11 +21,11 @@ enum Type {
   NEU_NULL, NEU_BOOL, NEU_INT32, NEU_INT64, NEU_DOUBLE, NEU_STRING, NEU_ARRAY, NEU_OBJECT
 };
 
+class Value;
 struct Member;
 
-class Value;
-
 using Data = std::variant<
+    ::std::monostate,
     bool,
     int32_t,
     int64_t,
@@ -33,12 +35,16 @@ using Data = std::variant<
     ::std::shared_ptr<::std::vector<Member>>
 >;
 
+class Document;
+
 class Value {
  public:
   using MemberIterator = ::std::vector<Member>::iterator;
   using ConstMemberIterator = ::std::vector<Member>::const_iterator;
 
  private:
+  friend class Document;
+
   using String = ::std::vector<char>;
   using Array = ::std::vector<Value>;
   using Object = ::std::vector<Member>;
@@ -152,6 +158,9 @@ class Value {
   Value &operator[](std::string_view _key);
   const Value &operator[](std::string_view _key) const;
 
+  template<typename T>
+  Value &addValue(T &&_value);
+
   MemberIterator memberBegin();
   MemberIterator memberEnd();
   MemberIterator findMember(std::string_view _key);
@@ -178,7 +187,6 @@ struct Member {
 
 inline neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
   assert(this != &_val);
-  this->~Value();
   type_ = _val.type_;
   data_ = _val.data_;
   return *this;
@@ -186,7 +194,6 @@ inline neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
 
 inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept {
   assert(this != &_val);
-  this->~Value();
   type_ = _val.type_;
   data_ = std::move(_val.data_);
   _val.type_ = NEU_NULL;
@@ -218,6 +225,14 @@ inline neujson::Value &neujson::Value::operator[](std::string_view _key) {
 inline const neujson::Value &neujson::Value::operator[](std::string_view _key) const {
   assert(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this)[_key];
+}
+
+template<typename T>
+inline Value &Value::addValue(T &&_value) {
+  assert(type_ == NEU_ARRAY);
+  auto a_ptr = ::std::get<ArrayWithSharedPtr>(data_);
+  a_ptr->template emplace_back(::std::forward<T>(_value));
+  return a_ptr->back();
 }
 
 inline neujson::Value::MemberIterator neujson::Value::memberBegin() {
@@ -278,14 +293,14 @@ bool Value::writeTo(Handler &_handler) const {
       break;
     case NEU_ARRAY:CALL_HANDLER(_handler.StartArray());
       for (auto &val: *getArray()) {
-        CALL_HANDLER(val.writeTo(_handler));
+        CALL_HANDLER(val.template writeTo(_handler));
       }
       CALL_HANDLER(_handler.EndArray());
       break;
     case NEU_OBJECT:CALL_HANDLER(_handler.StartObject());
       for (auto &mem: *getObject()) {
         _handler.Key(mem.key_.getStringView());
-        CALL_HANDLER(mem.value_.writeTo(_handler));
+        CALL_HANDLER(mem.value_.template writeTo(_handler));
       }
       CALL_HANDLER(_handler.EndObject());
       break;

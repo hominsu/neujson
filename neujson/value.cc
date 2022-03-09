@@ -4,6 +4,8 @@
 
 #include <neujson/value.h>
 
+#include <algorithm>
+
 neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
   switch (type_) {
     case NEU_NULL:
