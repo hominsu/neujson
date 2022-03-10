@@ -1,6 +1,10 @@
 //
 // Created by Homin Su on 2022/3/5.
 //
+#ifdef _WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
 
 #include <neujson/value.h>
 

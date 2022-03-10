@@ -1,6 +1,10 @@
 //
 // Created by Homin Su on 2022/3/9.
 //
+#ifdef _WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
 
 #include "document.h"
 
