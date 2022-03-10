@@ -1,3 +1,8 @@
+#ifdef _WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
+
 #include <neujson/document.h>
 
 #include <cstdio>
@@ -16,7 +21,9 @@
   } while (false) \
 
 int main() {
-
+#ifdef _WINDOWS
+  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
   neujson::Value value(neujson::NEU_OBJECT);
 
   TEST_VALUE(value, "string", "this is a string", getString().c_str(), "%s");
@@ -35,7 +42,7 @@ int main() {
           "precision": "zip",
           "Latitude": 37.766800000000003,
           "Longitude": -122.3959,
-          "Address": "",
+          "Address": "asd",
           "City": "SAN FRANCISCO",
           "State": "CA",
           "Zip": "94107",

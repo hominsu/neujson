@@ -69,7 +69,14 @@ unsigned Reader::parseHex4(ReadStream &_rs) {
   unsigned u = 0;
   for (int i = 0; i < 4; i++) {
     u <<= 4;
-    switch (char ch = _rs.next()) {
+    char ch = _rs.next();
+#if defined(_MSC_VER)
+    if (ch >= '0' && ch <= '9') { u |= ch - '0'; }
+    else if (ch >= 'a' && ch <= 'f') { u |= ch - 'a' + 10; }
+    else if (ch >= 'A' && ch <= 'F') { u |= ch - 'A' + 10; }
+    else { throw Exception(error::PARSE_BAD_UNICODE_HEX); }
+#elif defined(__clang__) || defined(__GNUC__)
+    switch (ch) {
       case '0'...'9': u |= ch - '0';
         break;
       case 'a'...'f': u |= ch - 'a' + 10;
@@ -78,6 +85,7 @@ unsigned Reader::parseHex4(ReadStream &_rs) {
         break;
       default: throw Exception(error::PARSE_BAD_UNICODE_HEX);
     }
+#endif
   }
   return u;
 }
@@ -169,7 +177,7 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
     } else {
       int64_t i64;
 #if defined(__clang__) || defined(_MSC_VER)
-      ::std::stol(::std::string(start, end), &idx, 10);
+      i64 = ::std::stol(::std::string(start, end), &idx, 10);
 #elif defined(__GNUC__)
       i64 = __gnu_cxx::__stoa(&std::strtol, "stol", &*start, &idx, 10);
 #else
@@ -197,7 +205,9 @@ void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
         if (_is_key) { CALL(_handler.Key(std::move(buffer))); }
         else { CALL(_handler.String(std::move(buffer))); }
         return;
-      case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
+#if defined(__clang__) || defined(__GNUC__)
+        case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
+#endif
       case '\\':
         switch (_rs.next()) {
           case '"': buffer.push_back('"');
@@ -235,7 +245,11 @@ void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
           default: throw Exception(error::PARSE_BAD_STRING_ESCAPE);
         }
         break;
-      default: buffer.push_back(ch);
+      default:
+#if defined(_MSC_VER)
+        if (static_cast<unsigned char>(ch) < 0x20) { throw Exception(error::PARSE_BAD_STRING_CHAR); }
+#endif
+        buffer.push_back(ch);
     }
   }
   throw Exception(error::PARSE_MISS_QUOTATION_MARK);

@@ -231,7 +231,7 @@ template<typename T>
 inline Value &Value::addValue(T &&_value) {
   assert(type_ == NEU_ARRAY);
   auto a_ptr = ::std::get<ArrayWithSharedPtr>(data_);
-  a_ptr->template emplace_back(::std::forward<T>(_value));
+  a_ptr->emplace_back(::std::forward<T>(_value));
   return a_ptr->back();
 }
 
