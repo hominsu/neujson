@@ -102,7 +102,7 @@ class Value {
     assert(type_ == NEU_STRING);
     auto s_ptr = ::std::get<StringWithSharedPtr>(data_);
     // Avoid repeating the return type from the declaration; use a braced initializer list instead
-    return {&*s_ptr->begin(), s_ptr->size()};
+    return {s_ptr->data(), s_ptr->size()};
   }
   [[nodiscard]] ::std::string getString() const {
     return ::std::string(getStringView());
