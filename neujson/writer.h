@@ -26,74 +26,122 @@ class Writer : noncopyable {
     explicit Level(bool _in_array_flag) : in_array_flag_(_in_array_flag), value_count_(0) {}
   };
 
- private:
+ protected:
   ::std::vector<Level> stack_;
   WriteStream &os_;
-  bool see_value_;
+  bool has_root_;
 
  public:
-  explicit Writer(WriteStream &_os) : os_(_os), see_value_(false) {}
-
- private:
-  void prefix(Type type_);
+  explicit Writer(WriteStream &_os) : os_(_os), has_root_(false) {}
 
  public:
-  bool Null();
-  bool Bool(bool _b);
-  bool Int32(int32_t _i32);
-  bool Int64(int64_t _i64);
-  bool Double(double _d);
-  bool String(::std::string_view _str);
-  bool Key(::std::string_view _str);
-  bool StartObject();
-  bool EndObject();
-  bool StartArray();
-  bool EndArray();
+  virtual bool Null() {
+    Prefix(NEU_NULL);
+    return EndValue(WriteNull());
+  }
+  virtual bool Bool(bool _b) {
+    Prefix(NEU_BOOL);
+    return EndValue(WriteBool(_b));
+  }
+  virtual bool Int32(int32_t _i32) {
+    Prefix(NEU_INT32);
+    return EndValue(WriteInt32(_i32));
+  }
+  virtual bool Int64(int64_t _i64) {
+    Prefix(NEU_INT64);
+    return EndValue(WriteInt64(_i64));
+  }
+  virtual bool Double(double _d) {
+    Prefix(NEU_DOUBLE);
+    return EndValue(WriteDouble(_d));
+  }
+  virtual bool String(::std::string_view _str) {
+    Prefix(NEU_STRING);
+    return EndValue(WriteString(_str));
+  }
+  virtual bool Key(::std::string_view _str) {
+    Prefix(NEU_STRING);
+    return EndValue(WriteKey(_str));
+  }
+
+  virtual bool StartObject() {
+    Prefix(NEU_OBJECT);
+    stack_.emplace_back(false);
+    return EndValue(WriteStartObject());
+  }
+
+  virtual bool EndObject() {
+    assert(!stack_.empty());
+    assert(!stack_.back().in_array_flag_);
+    stack_.pop_back();
+    return EndValue(WriteEndObject());
+  }
+
+  virtual bool StartArray() {
+    Prefix(NEU_ARRAY);
+    stack_.emplace_back(true);
+    return EndValue(WriteStartArray());
+  }
+
+  virtual bool EndArray() {
+    assert(!stack_.empty());
+    assert(stack_.back().in_array_flag_);
+    stack_.pop_back();
+    return EndValue(WriteEndArray());
+  }
+
+ protected:
+  void Prefix(Type type_);
+
+  bool WriteNull();
+  bool WriteBool(bool _b);
+  bool WriteInt32(int32_t _i32);
+  bool WriteInt64(int64_t _i64);
+  bool WriteDouble(double _d);
+  bool WriteString(::std::string_view _str);
+  bool WriteKey(::std::string_view _str);
+  bool WriteStartObject();
+  bool WriteEndObject();
+  bool WriteStartArray();
+  bool WriteEndArray();
+  bool EndValue(bool _ret);
+
+  void Flush();
 };
 
 template<typename WriteStream>
-void Writer<WriteStream>::prefix(Type type_) {
-  if (see_value_) {
-    assert(!stack_.empty() && "root not singular");
-  } else {
-    see_value_ = true;
-  }
-
-  if (stack_.empty()) { return; }
-
-  auto &top = stack_.back();
-  if (top.in_array_flag_) {
-    if (top.value_count_ > 0) { os_.put(','); }
-  } else {
-    if (top.value_count_ % 2 == 1) {
-      os_.put(':');
-    } else {
-      assert(type_ == NEU_STRING && "miss quotation mark");
-      if (top.value_count_ > 0) {
-        os_.put(',');
-      }
+void Writer<WriteStream>::Prefix(Type type_) {
+  if (!stack_.empty()) {
+    auto &level = stack_.back();
+    if (level.value_count_ > 0) {
+      if (level.in_array_flag_) { os_.put(','); }
+      else { os_.put((level.value_count_ % 2 == 0) ? ',' : ':'); }
     }
+
+    if (!level.in_array_flag_ && level.value_count_ % 2 == 0) {
+      assert(type_ == NEU_STRING && "miss quotation mark");
+    }
+    level.value_count_++;
+  } else {
+    assert(!has_root_ && "root not singular");
+    has_root_ = true;
   }
-  top.value_count_++;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::Null() {
-  prefix(NEU_NULL);
+inline bool Writer<WriteStream>::WriteNull() {
   os_.put("null");
   return true;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::Bool(bool _b) {
-  prefix(NEU_BOOL);
+inline bool Writer<WriteStream>::WriteBool(bool _b) {
   os_.put(_b ? "true" : "false");
   return true;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::Int32(int32_t _i32) {
-  prefix(NEU_INT32);
+inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
   char buf[16]{};
   internal::i32toa(_i32, buf);
   os_.put(::std::string_view(buf, internal::CountDecimalDigit32(_i32)));
@@ -101,8 +149,7 @@ inline bool Writer<WriteStream>::Int32(int32_t _i32) {
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::Int64(int64_t _i64) {
-  prefix(NEU_INT64);
+inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
   char buf[32]{};
   internal::i64toa(_i64, buf);
   os_.put(::std::string_view(buf, internal::CountDecimalDigit64(_i64)));
@@ -110,22 +157,19 @@ inline bool Writer<WriteStream>::Int64(int64_t _i64) {
 }
 
 template<typename WriteStream>
-bool Writer<WriteStream>::Double(double _d) {
-  prefix(NEU_DOUBLE);
-
+bool Writer<WriteStream>::WriteDouble(double _d) {
   char buf[32];
   if (std::isinf(_d)) {
-    strcpy(buf, "Infinity");
+    strcpy_s(buf, "Infinity");
   } else if (std::isnan(_d)) {
-    strcpy(buf, "NaN");
+    strcpy_s(buf, "NaN");
   } else {
     int n = sprintf(buf, "%.17g", _d);
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     assert(n > 0 && n < 32);
-    auto it = std::find_if_not(buf, buf + n, isdigit);
-    if (it == buf + n) {
-      strcat(buf, ".0");
+    if (std::find_if_not(buf, buf + n, isdigit) == buf + n) {
+      strcat_s(buf, ".0");
     }
   }
 
@@ -134,8 +178,7 @@ bool Writer<WriteStream>::Double(double _d) {
 }
 
 template<typename WriteStream>
-bool Writer<WriteStream>::String(::std::string_view _str) {
-  prefix(NEU_STRING);
+bool Writer<WriteStream>::WriteString(::std::string_view _str) {
   os_.put('"');
   for (auto c: _str) {
     auto u = static_cast<unsigned char>(c);
@@ -169,8 +212,7 @@ bool Writer<WriteStream>::String(::std::string_view _str) {
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::Key(::std::string_view _str) {
-  prefix(NEU_STRING);
+inline bool Writer<WriteStream>::WriteKey(::std::string_view _str) {
   os_.put('"');
   os_.put(_str);
   os_.put('"');
@@ -178,37 +220,39 @@ inline bool Writer<WriteStream>::Key(::std::string_view _str) {
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::StartObject() {
-  prefix(NEU_OBJECT);
-  stack_.emplace_back(false);
+inline bool Writer<WriteStream>::WriteStartObject() {
   os_.put('{');
   return true;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::EndObject() {
-  assert(!stack_.empty());
-  assert(!stack_.back().in_array_flag_);
-  stack_.pop_back();
+inline bool Writer<WriteStream>::WriteEndObject() {
   os_.put('}');
   return true;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::StartArray() {
-  prefix(NEU_ARRAY);
-  stack_.emplace_back(true);
+inline bool Writer<WriteStream>::WriteStartArray() {
   os_.put('[');
   return true;
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::EndArray() {
-  assert(!stack_.empty());
-  assert(stack_.back().in_array_flag_);
-  stack_.pop_back();
+inline bool Writer<WriteStream>::WriteEndArray() {
   os_.put(']');
   return true;
+}
+
+template<typename WriteStream>
+inline bool Writer<WriteStream>::EndValue(bool _ret) {
+  // end of json text
+  if (stack_.empty()) { Flush(); }
+  return _ret;
+}
+
+template<typename WriteStream>
+inline void Writer<WriteStream>::Flush() {
+  os_.flush();
 }
 
 } // namespace neujson

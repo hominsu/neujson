@@ -32,6 +32,10 @@ class FileWriteStream : public noncopyable {
     fprintf(out_, "%.*s", static_cast<int>(_sv.length()), _sv.data());
   }
 
+  void flush() {
+    fflush(out_);
+  }
+
 };
 
 } // namespace neujson

@@ -4,7 +4,7 @@
 #endif
 
 #include <neujson/document.h>
-#include <neujson/writer.h>
+#include <neujson/pretty_writer.h>
 #include <neujson/file_write_stream.h>
 #include "example/sample.h"
 
@@ -110,7 +110,7 @@ int main() {
       }
 
       neujson::FileWriteStream os(stdout);
-      neujson::Writer writer(os);
+      neujson::PrettyWriter writer(os);
       document.writeTo(writer);
 
       fprintf(stdout, "\n");
