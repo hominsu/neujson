@@ -26,7 +26,8 @@ namespace neujson {
   ERR(MISS_KEY, "miss key") \
   ERR(MISS_COLON, "miss colon") \
   ERR(MISS_COMMA_OR_CURLY_BRACKET, "miss comma or curly bracket") \
-  ERR(USER_STOPPED, "user stopped parse")
+  ERR(USER_STOPPED, "user stopped parse") \
+  //
 
 namespace error {
 enum ParseError {

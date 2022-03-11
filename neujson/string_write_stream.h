@@ -28,6 +28,9 @@ class StringWriteStream : public noncopyable {
   [[nodiscard]] ::std::string_view get() const {
     return {buffer_.data(), buffer_.size()};
   }
+
+  void flush() {}
+
 };
 
 } // namespace neujson
