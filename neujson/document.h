@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_DOCUMENT_H_
 #define NEUJSON_NEUJSON_DOCUMENT_H_
 
-#include <neujson/exception.h>
-#include <neujson/value.h>
-#include <neujson/reader.h>
-#include <neujson/string_read_stream.h>
+#include "exception.h"
+#include "value.h"
+#include "reader.h"
+#include "string_read_stream.h"
 
 namespace neujson {
 
@@ -25,13 +25,13 @@ class Document : public Value {
   };
 
  private:
-  std::vector<Level> stack_;
+  ::std::vector<Level> stack_;
   Value key_;
-  bool seeValue_ = false;
+  bool see_value_ = false;
 
  public:
   error::ParseError parse(const char *_json, size_t _len);
-  error::ParseError parse(std::string_view _json);
+  error::ParseError parse(::std::string_view _json);
 
   template<typename ReadStream>
   error::ParseError parseStream(ReadStream &_rs);
@@ -42,8 +42,8 @@ class Document : public Value {
   bool Int32(int32_t _i32);
   bool Int64(int64_t _i64);
   bool Double(double _d);
-  bool String(std::string_view _string_view);
-  bool Key(std::string_view _string_view);
+  bool String(::std::string_view _str);
+  bool Key(::std::string_view _str);
   bool StartObject();
   bool EndObject();
   bool StartArray();
@@ -62,10 +62,10 @@ inline Value *Document::Level::lastValue() {
 }
 
 inline error::ParseError Document::parse(const char *_json, size_t _len) {
-  return parse(std::string_view(_json, _len));
+  return parse(::std::string_view(_json, _len));
 }
 
-inline error::ParseError Document::parse(std::string_view _json) {
+inline error::ParseError Document::parse(::std::string_view _json) {
   StringReadStream string_read_stream(_json);
   return parseStream(string_read_stream);
 }
@@ -100,13 +100,13 @@ inline bool Document::Double(double _d) {
   return true;
 }
 
-inline bool Document::String(std::string_view _string_view) {
-  addValue(Value(_string_view));
+inline bool Document::String(::std::string_view _str) {
+  addValue(Value(_str));
   return true;
 }
 
-inline bool Document::Key(std::string_view _string_view) {
-  addValue(Value(_string_view));
+inline bool Document::Key(::std::string_view _str) {
+  addValue(Value(_str));
   return true;
 }
 

@@ -1,14 +1,14 @@
 //
 // Created by Homin Su on 2022/3/7.
 //
-#ifdef _WINDOWS
+#if defined(_WINDOWS) && defined(Debug)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
 
 #include "reader.h"
 
-void neujson::Reader::encodeUtf8(std::string &_buffer, unsigned int _u) {
+void neujson::Reader::encodeUtf8(::std::string &_buffer, unsigned int _u) {
 #if defined(_MSC_VER)
   if (_u >= 0x0 && _u <= 0x7F) {
     _buffer.push_back(_u & 0xFF);

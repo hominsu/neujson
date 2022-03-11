@@ -24,7 +24,7 @@ enum Type {
 class Value;
 struct Member;
 
-using Data = std::variant<
+using Data = ::std::variant<
     ::std::monostate,
     bool,
     int32_t,
@@ -62,8 +62,8 @@ class Value {
   explicit Value(int32_t _i32) : type_(NEU_INT32), data_(_i32) {};
   explicit Value(int64_t _i64) : type_(NEU_INT64), data_(_i64) {};
   explicit Value(double _d) : type_(NEU_DOUBLE), data_(_d) {};
-  explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(std::make_shared<String>(_s.begin(), _s.end())) {};
-  explicit Value(const char *_s) : type_(NEU_STRING), data_(std::make_shared<String>(_s, _s + strlen(_s))) {};
+  explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s.begin(), _s.end())) {};
+  explicit Value(const char *_s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s, _s + strlen(_s))) {};
   Value(const char *_s, ::std::size_t _len) : Value(::std::string_view(_s, _len)) {};
   Value(const Value &_val) = default;
   Value(Value &&_val) noexcept: type_(_val.type_), data_(::std::move(_val.data_)) {};
@@ -155,19 +155,19 @@ class Value {
 
   Value &operator[](size_t _index);
   const Value &operator[](size_t _index) const;
-  Value &operator[](std::string_view _key);
-  const Value &operator[](std::string_view _key) const;
+  Value &operator[](::std::string_view _key);
+  const Value &operator[](::std::string_view _key) const;
 
   template<typename T>
   Value &addValue(T &&_value);
 
   MemberIterator memberBegin();
   MemberIterator memberEnd();
-  MemberIterator findMember(std::string_view _key);
+  MemberIterator findMember(::std::string_view _key);
 
   [[nodiscard]] ConstMemberIterator MemberBegin() const;
   [[nodiscard]] ConstMemberIterator MemberEnd() const;
-  [[nodiscard]] ConstMemberIterator findMember(std::string_view _key) const;
+  [[nodiscard]] ConstMemberIterator findMember(::std::string_view _key) const;
 
   template<typename T>
   Value &addMember(const char *_key, T &&_value);
@@ -178,8 +178,8 @@ class Value {
 };
 
 struct Member {
-  Member(Value &&_key, Value &&_value) : key_(std::move(_key)), value_(std::move(_value)) {}
-  Member(std::string_view _key, Value &&_value) : key_(_key), value_(std::move(_value)) {}
+  Member(Value &&_key, Value &&_value) : key_(::std::move(_key)), value_(::std::move(_value)) {}
+  Member(::std::string_view _key, Value &&_value) : key_(_key), value_(::std::move(_value)) {}
 
   Value key_;
   Value value_;
@@ -195,7 +195,7 @@ inline neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
 inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept {
   assert(this != &_val);
   type_ = _val.type_;
-  data_ = std::move(_val.data_);
+  data_ = ::std::move(_val.data_);
   _val.type_ = NEU_NULL;
   return *this;
 }
@@ -210,7 +210,7 @@ inline const neujson::Value &neujson::Value::operator[](size_t _index) const {
   return ::std::get<ArrayWithSharedPtr>(data_)->at(_index);
 }
 
-inline neujson::Value &neujson::Value::operator[](std::string_view _key) {
+inline neujson::Value &neujson::Value::operator[](::std::string_view _key) {
   assert(type_ == NEU_OBJECT);
   auto it = findMember(_key);
   if (it != ::std::get<ObjectWithSharedPtr>(data_)->end()) {
@@ -222,7 +222,7 @@ inline neujson::Value &neujson::Value::operator[](std::string_view _key) {
   return fake;
 }
 
-inline const neujson::Value &neujson::Value::operator[](std::string_view _key) const {
+inline const neujson::Value &neujson::Value::operator[](::std::string_view _key) const {
   assert(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this)[_key];
 }
@@ -255,14 +255,14 @@ inline neujson::Value::ConstMemberIterator neujson::Value::MemberEnd() const {
   return const_cast<Value &>(*this).memberEnd();
 }
 
-inline neujson::Value::ConstMemberIterator neujson::Value::findMember(std::string_view _key) const {
+inline neujson::Value::ConstMemberIterator neujson::Value::findMember(::std::string_view _key) const {
   assert(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this).findMember(_key);
 }
 
 template<typename T>
 inline neujson::Value &neujson::Value::addMember(const char *_key, T &&_value) {
-  return addMember(Value(_key), Value(std::forward<T>(_value)));
+  return addMember(Value(_key), Value(::std::forward<T>(_value)));
 }
 
 inline neujson::Value &neujson::Value::addMember(neujson::Value &&_key, neujson::Value &&_value) {
@@ -293,14 +293,14 @@ bool Value::writeTo(Handler &_handler) const {
       break;
     case NEU_ARRAY:CALL_HANDLER(_handler.StartArray());
       for (auto &val: *getArray()) {
-        CALL_HANDLER(val.template writeTo(_handler));
+        CALL_HANDLER(val.writeTo(_handler));
       }
       CALL_HANDLER(_handler.EndArray());
       break;
     case NEU_OBJECT:CALL_HANDLER(_handler.StartObject());
       for (auto &mem: *getObject()) {
         _handler.Key(mem.key_.getStringView());
-        CALL_HANDLER(mem.value_.template writeTo(_handler));
+        CALL_HANDLER(mem.value_.writeTo(_handler));
       }
       CALL_HANDLER(_handler.EndObject());
       break;

@@ -5,9 +5,9 @@
 #ifndef NEUJSON_NEUJSON_READER_H_
 #define NEUJSON_NEUJSON_READER_H_
 
-#include <neujson/noncopyable.h>
-#include <neujson/exception.h>
-#include <neujson/value.h>
+#include "noncopyable.h"
+#include "exception.h"
+#include "value.h"
 
 #include <cmath>
 
@@ -48,7 +48,7 @@ class Reader : noncopyable {
  private:
   static bool isDigit(char _ch) { return _ch >= '0' && _ch <= '9'; }
   static bool isDigit1to9(char _ch) { return _ch >= '1' && _ch <= '9'; }
-  static void encodeUtf8(std::string &_buffer, unsigned _u);
+  static void encodeUtf8(::std::string &_buffer, unsigned _u);
 };
 
 template<typename ReadStream, typename Handler>
@@ -162,13 +162,13 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
   if (start == end) { throw Exception(error::PARSE_BAD_VALUE); }
 
   try {
-    std::size_t idx;
+    ::std::size_t idx;
     if (expectType == NEU_DOUBLE) {
       double d;
 #if defined(__clang__) || defined(_MSC_VER)
       d = ::std::stod(::std::string(start, end), &idx);
 #elif defined(__GNUC__)
-      d = __gnu_cxx::__stoa(&std::strtod, "stod", &*start, &idx);
+      d = __gnu_cxx::__stoa(&::std::strtod, "stod", &*start, &idx);
 #else
       assert(false && "complier no support");
 #endif
@@ -179,11 +179,11 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 #if defined(__clang__) || defined(_MSC_VER)
       i64 = ::std::stol(::std::string(start, end), &idx, 10);
 #elif defined(__GNUC__)
-      i64 = __gnu_cxx::__stoa(&std::strtol, "stol", &*start, &idx, 10);
+      i64 = __gnu_cxx::__stoa(&::std::strtol, "stol", &*start, &idx, 10);
 #else
       assert(false && "complier no support");
 #endif
-      if (i64 <= std::numeric_limits<int32_t>::max() && i64 >= std::numeric_limits<int32_t>::min()) {
+      if (i64 <= ::std::numeric_limits<int32_t>::max() && i64 >= ::std::numeric_limits<int32_t>::min()) {
         CALL(_handler.Int32(static_cast<int32_t>(i64)));
       } else {
         CALL(_handler.Int64(i64));
@@ -198,12 +198,12 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 template<typename ReadStream, typename Handler>
 void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
   _rs.assertNext('"');
-  std::string buffer;
+  ::std::string buffer;
   while (_rs.hasNext()) {
     switch (char ch = _rs.next()) {
       case '"':
-        if (_is_key) { CALL(_handler.Key(std::move(buffer))); }
-        else { CALL(_handler.String(std::move(buffer))); }
+        if (_is_key) { CALL(_handler.Key(::std::move(buffer))); }
+        else { CALL(_handler.String(::std::move(buffer))); }
         return;
 #if defined(__clang__) || defined(__GNUC__)
         case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
