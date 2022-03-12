@@ -1,10 +1,6 @@
 //
 // Created by Homin Su on 2022/3/9.
 //
-#if defined(_WINDOWS) && defined(Debug)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
 
 #include "document.h"
 
@@ -19,22 +15,22 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
 
     switch (type) {
       case NEU_NULL: break;
-      case NEU_BOOL:data_ = ::std::get<bool>(_value.data_);
+      case NEU_BOOL:data_ = ::std::get<NEU_BOOL_TYPE>(_value.data_);
         break;
-      case NEU_INT32:data_ = ::std::get<int32_t>(_value.data_);
+      case NEU_INT32:data_ = ::std::get<NEU_INT32_TYPE>(_value.data_);
         break;
-      case NEU_INT64:data_ = ::std::get<int64_t>(_value.data_);
+      case NEU_INT64:data_ = ::std::get<NEU_INT64_TYPE>(_value.data_);
         break;
-      case NEU_DOUBLE:data_ = ::std::get<double>(_value.data_);
+      case NEU_DOUBLE:data_ = ::std::get<NEU_DOUBLE_TYPE>(_value.data_);
         break;
-      case NEU_STRING:data_ = ::std::get<StringWithSharedPtr>(_value.data_);
-        ::std::get<StringWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_STRING:data_ = ::std::get<NEU_STRING_TYPE>(_value.data_);
+        ::std::get<NEU_STRING_TYPE>(_value.data_) = nullptr;
         break;
-      case NEU_ARRAY:data_ = ::std::get<ArrayWithSharedPtr>(_value.data_);
-        ::std::get<ArrayWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_ARRAY:data_ = ::std::get<NEU_ARRAY_TYPE>(_value.data_);
+        ::std::get<NEU_ARRAY_TYPE>(_value.data_) = nullptr;
         break;
-      case NEU_OBJECT:data_ = ::std::get<ObjectWithSharedPtr>(_value.data_);
-        ::std::get<ObjectWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_OBJECT:data_ = ::std::get<NEU_OBJECT_TYPE>(_value.data_);
+        ::std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
         break;
     }
     _value.type_ = NEU_NULL;

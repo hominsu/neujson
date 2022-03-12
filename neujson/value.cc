@@ -1,10 +1,6 @@
 //
 // Created by Homin Su on 2022/3/5.
 //
-#if defined(_WINDOWS) && defined(Debug)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
 
 #include "value.h"
 
@@ -29,16 +25,16 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
 
 ::std::size_t neujson::Value::getSize() {
   switch (type_) {
-    case NEU_ARRAY:return ::std::get<StringWithSharedPtr>(data_)->size();
-    case NEU_OBJECT:return ::std::get<ObjectWithSharedPtr>(data_)->size();
+    case NEU_ARRAY:return ::std::get<NEU_STRING_TYPE>(data_)->size();
+    case NEU_OBJECT:return ::std::get<NEU_OBJECT_TYPE>(data_)->size();
     default: return 1;
   }
 }
 
 neujson::Value::MemberIterator neujson::Value::findMember(::std::string_view _key) {
   assert(type_ == NEU_OBJECT);
-  return ::std::find_if(::std::get<ObjectWithSharedPtr>(data_)->begin(),
-                        ::std::get<ObjectWithSharedPtr>(data_)->end(),
+  return ::std::find_if(::std::get<NEU_OBJECT_TYPE>(data_)->begin(),
+                        ::std::get<NEU_OBJECT_TYPE>(data_)->end(),
                         [_key](const Member &_m) -> bool {
                           return _m.key_.getStringView() == _key;
                         });
