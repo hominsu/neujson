@@ -17,22 +17,35 @@
 
 namespace neujson {
 
+#undef SUFFIX
+#define VALUE(NEU) \
+  NEU(NULL, ::std::monostate)SUFFIX \
+  NEU(BOOL, bool)SUFFIX \
+  NEU(INT32, int32_t)SUFFIX \
+  NEU(INT64, int64_t)SUFFIX \
+  NEU(DOUBLE, double)SUFFIX \
+  NEU(STRING, ::std::shared_ptr<::std::vector<char>>)SUFFIX \
+  NEU(ARRAY, ::std::shared_ptr<::std::vector<Value>>)SUFFIX \
+  NEU(OBJECT, ::std::shared_ptr<::std::vector<Member>>) \
+  //
+
 enum Type {
-  NEU_NULL, NEU_BOOL, NEU_INT32, NEU_INT64, NEU_DOUBLE, NEU_STRING, NEU_ARRAY, NEU_OBJECT
+#define VALUE_NAME(_name, _type) NEU_##_name
+#define SUFFIX ,
+  VALUE(VALUE_NAME)
+#undef SUFFIX
+#undef VALUE_NAME
 };
 
 class Value;
 struct Member;
 
 using Data = ::std::variant<
-    ::std::monostate,
-    bool,
-    int32_t,
-    int64_t,
-    double,
-    ::std::shared_ptr<::std::vector<char>>,
-    ::std::shared_ptr<::std::vector<Value>>,
-    ::std::shared_ptr<::std::vector<Member>>
+#define VALUE_TYPE(_name, _type) _type
+#define SUFFIX ,
+    VALUE(VALUE_TYPE)
+#undef SUFFIX
+#undef VALUE_TYPE
 >;
 
 class Document;
@@ -42,15 +55,18 @@ class Value {
   using MemberIterator = ::std::vector<Member>::iterator;
   using ConstMemberIterator = ::std::vector<Member>::const_iterator;
 
+#define VALUE_TYPE(_name, _type) using NEU_##_name##_TYPE = _type;
+#define SUFFIX
+  VALUE(VALUE_TYPE)
+#undef SUFFIX
+#undef VALUE_TYPE
+
  private:
   friend class Document;
 
   using String = ::std::vector<char>;
   using Array = ::std::vector<Value>;
   using Object = ::std::vector<Member>;
-  using StringWithSharedPtr = ::std::shared_ptr<String>;
-  using ArrayWithSharedPtr = ::std::shared_ptr<Array>;
-  using ObjectWithSharedPtr = ::std::shared_ptr<Object>;
 
  private:
   Type type_;
@@ -82,73 +98,39 @@ class Value {
   [[nodiscard]] bool isObject() const { return type_ == NEU_OBJECT; }
 
   // getter
-  [[nodiscard]] bool getBool() const {
-    assert(type_ == NEU_BOOL);
-    return ::std::get<bool>(data_);
-  }
-  [[nodiscard]] int32_t getInt32() const {
-    assert(type_ == NEU_INT32);
-    return ::std::get<int32_t>(data_);
-  }
+  //@formatter:off
+  [[nodiscard]] bool getBool() const { assert(type_ == NEU_BOOL); return ::std::get<NEU_BOOL_TYPE>(data_); }
+  [[nodiscard]] int32_t getInt32() const { assert(type_ == NEU_INT32); return ::std::get<NEU_INT32_TYPE>(data_); }
+
   [[nodiscard]] int64_t getInt64() const {
     assert(type_ == NEU_INT64 || type_ == NEU_INT32);
-    return type_ == NEU_INT64 ? ::std::get<int64_t>(data_) : ::std::get<int32_t>(data_);
-  }
-  [[nodiscard]] double getDouble() const {
-    assert(type_ == NEU_DOUBLE);
-    return ::std::get<double>(data_);
-  }
-  [[nodiscard]] ::std::string_view getStringView() const {
-    assert(type_ == NEU_STRING);
-    auto s_ptr = ::std::get<StringWithSharedPtr>(data_);
-    // Avoid repeating the return type from the declaration; use a braced initializer list instead
-    return {s_ptr->data(), s_ptr->size()};
-  }
-  [[nodiscard]] ::std::string getString() const {
-    return ::std::string(getStringView());
-  }
-  [[nodiscard]] const auto &getArray() const {
-    assert(type_ == NEU_ARRAY);
-    return ::std::get<ArrayWithSharedPtr>(data_);
-  }
-  [[nodiscard]] const auto &getObject() const {
-    assert(type_ == NEU_OBJECT);
-    return ::std::get<ObjectWithSharedPtr>(data_);
+    return type_ == NEU_INT64 ? ::std::get<NEU_INT64_TYPE>(data_) : ::std::get<NEU_INT32_TYPE>(data_);
   }
 
+  [[nodiscard]] double getDouble() const { assert(type_ == NEU_DOUBLE); return ::std::get<NEU_DOUBLE_TYPE>(data_); }
+
+  [[nodiscard]] ::std::string_view getStringView() const {
+    assert(type_ == NEU_STRING);
+    auto s_ptr = ::std::get<NEU_STRING_TYPE>(data_);
+    return {s_ptr->data(), s_ptr->size()};
+  }
+
+  [[nodiscard]] ::std::string getString() const { return ::std::string(getStringView()); }
+  [[nodiscard]] const auto &getArray() const { assert(type_ == NEU_ARRAY); return ::std::get<NEU_ARRAY_TYPE>(data_); }
+  [[nodiscard]] const auto &getObject() const { assert(type_ == NEU_OBJECT); return ::std::get<NEU_OBJECT_TYPE>(data_); }
+  //@formatter:on
+
   // setter
-  Value &setNull() {
-    this->~Value();
-    return *new(this) Value(NEU_NULL);
-  }
-  Value &setBool(bool _b) {
-    this->~Value();
-    return *new(this) Value(_b);
-  }
-  Value &setInt32(int32_t _i32) {
-    this->~Value();
-    return *new(this) Value(_i32);
-  }
-  Value &getInt64(int64_t _i64) {
-    this->~Value();
-    return *new(this) Value(_i64);
-  }
-  Value &setDouble(double _d) {
-    this->~Value();
-    return *new(this) Value(_d);
-  }
-  Value &setString(::std::string_view _s) {
-    this->~Value();
-    return *new(this) Value(_s);
-  }
-  Value &setArray() {
-    this->~Value();
-    return *new(this) Value(NEU_ARRAY);
-  }
-  Value &setObject() {
-    this->~Value();
-    return *new(this) Value(NEU_OBJECT);
-  }
+  //@formatter:off
+  Value &setNull() { this->~Value(); return *new(this) Value(NEU_NULL); }
+  Value &setBool(bool _b) { this->~Value(); return *new(this) Value(_b); }
+  Value &setInt32(int32_t _i32) { this->~Value(); return *new(this) Value(_i32); }
+  Value &getInt64(int64_t _i64) { this->~Value(); return *new(this) Value(_i64); }
+  Value &setDouble(double _d) { this->~Value(); return *new(this) Value(_d); }
+  Value &setString(::std::string_view _s) { this->~Value(); return *new(this) Value(_s); }
+  Value &setArray() { this->~Value(); return *new(this) Value(NEU_ARRAY); }
+  Value &setObject() { this->~Value(); return *new(this) Value(NEU_OBJECT); }
+  //@formatter:off
 
   Value &operator=(const Value &_val);
   Value &operator=(Value &&_val) noexcept;
@@ -177,6 +159,8 @@ class Value {
   bool writeTo(Handler &_handler) const;
 };
 
+#undef VALUE
+
 struct Member {
   Member(Value &&_key, Value &&_value) : key_(::std::move(_key)), value_(::std::move(_value)) {}
   Member(::std::string_view _key, Value &&_value) : key_(_key), value_(::std::move(_value)) {}
@@ -202,18 +186,18 @@ inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept
 
 inline neujson::Value &neujson::Value::operator[](size_t _index) {
   assert(type_ == NEU_ARRAY);
-  return ::std::get<ArrayWithSharedPtr>(data_)->at(_index);
+  return ::std::get<NEU_ARRAY_TYPE>(data_)->at(_index);
 }
 
 inline const neujson::Value &neujson::Value::operator[](size_t _index) const {
   assert(type_ == NEU_ARRAY);
-  return ::std::get<ArrayWithSharedPtr>(data_)->at(_index);
+  return ::std::get<NEU_ARRAY_TYPE>(data_)->at(_index);
 }
 
 inline neujson::Value &neujson::Value::operator[](::std::string_view _key) {
   assert(type_ == NEU_OBJECT);
   auto it = findMember(_key);
-  if (it != ::std::get<ObjectWithSharedPtr>(data_)->end()) {
+  if (it != ::std::get<NEU_OBJECT_TYPE>(data_)->end()) {
     return it->value_;
   }
 
@@ -230,19 +214,19 @@ inline const neujson::Value &neujson::Value::operator[](::std::string_view _key)
 template<typename T>
 inline Value &Value::addValue(T &&_value) {
   assert(type_ == NEU_ARRAY);
-  auto a_ptr = ::std::get<ArrayWithSharedPtr>(data_);
+  auto a_ptr = ::std::get<NEU_ARRAY_TYPE>(data_);
   a_ptr->emplace_back(::std::forward<T>(_value));
   return a_ptr->back();
 }
 
 inline neujson::Value::MemberIterator neujson::Value::memberBegin() {
   assert(type_ == NEU_OBJECT);
-  return ::std::get<ObjectWithSharedPtr>(data_)->begin();
+  return ::std::get<NEU_OBJECT_TYPE>(data_)->begin();
 }
 
 inline neujson::Value::MemberIterator neujson::Value::memberEnd() {
   assert(type_ == NEU_OBJECT);
-  return ::std::get<ObjectWithSharedPtr>(data_)->end();
+  return ::std::get<NEU_OBJECT_TYPE>(data_)->end();
 }
 
 inline neujson::Value::ConstMemberIterator neujson::Value::MemberBegin() const {
@@ -269,7 +253,7 @@ inline neujson::Value &neujson::Value::addMember(neujson::Value &&_key, neujson:
   assert(type_ == NEU_OBJECT);
   assert(_key.type_ == NEU_STRING);
   assert(findMember(_key.getStringView()) == memberEnd());
-  auto o_ptr = ::std::get<ObjectWithSharedPtr>(data_);
+  auto o_ptr = ::std::get<NEU_OBJECT_TYPE>(data_);
   o_ptr->emplace_back(::std::move(_key), ::std::move(_value));
   return o_ptr->back().value_;
 }

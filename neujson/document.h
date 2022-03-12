@@ -21,7 +21,7 @@ class Document : public Value {
     explicit Level(Value *value_) : value(value_), valueCount(0) {}
 
     [[nodiscard]] Type type() const { return value->getType(); }
-    [[nodiscard]] Value *lastValue();
+    [[nodiscard]] Value *lastValue() const;
   };
 
  private:
@@ -53,11 +53,11 @@ class Document : public Value {
   Value *addValue(Value &&_value);
 };
 
-inline Value *Document::Level::lastValue() {
+inline Value *Document::Level::lastValue() const {
   if (type() == NEU_ARRAY) {
-    return &::std::get<Value::ArrayWithSharedPtr>(value->data_)->back();
+    return &::std::get<Value::NEU_ARRAY_TYPE>(value->data_)->back();
   } else {
-    return &::std::get<Value::ObjectWithSharedPtr>(value->data_)->back().value_;
+    return &::std::get<Value::NEU_OBJECT_TYPE>(value->data_)->back().value_;
   }
 }
 

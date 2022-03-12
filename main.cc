@@ -1,8 +1,3 @@
-#if defined(_WINDOWS) && defined(Debug)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
-
 #include <neujson/document.h>
 #include <neujson/pretty_writer.h>
 #include <neujson/file_write_stream.h>
@@ -24,9 +19,6 @@
   } while (false) \
 
 int main() {
-#if defined(_WINDOWS) && defined(Debug)
-  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
   {
     neujson::Value value(neujson::NEU_OBJECT);
 
@@ -111,6 +103,7 @@ int main() {
 
       neujson::FileWriteStream os(stdout);
       neujson::PrettyWriter writer(os);
+      writer.SetIndent(' ', 2);
       document.writeTo(writer);
 
       fprintf(stdout, "\n");

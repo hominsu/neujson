@@ -59,6 +59,8 @@ class Exception : public ::std::exception {
   [[nodiscard]] error::ParseError err() const { return err_; }
 };
 
+#undef ERR_TABLE
+
 } // namespace neujson
 
 #endif //NEUJSON_NEUJSON_EXCEPTION_H_

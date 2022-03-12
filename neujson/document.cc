@@ -1,10 +1,6 @@
 //
 // Created by Homin Su on 2022/3/9.
 //
-#if defined(_WINDOWS) && defined(Debug)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
 
 #include "document.h"
 
@@ -27,14 +23,14 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
         break;
       case NEU_DOUBLE:data_ = ::std::get<double>(_value.data_);
         break;
-      case NEU_STRING:data_ = ::std::get<StringWithSharedPtr>(_value.data_);
-        ::std::get<StringWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_STRING:data_ = ::std::get<NEU_STRING_TYPE>(_value.data_);
+        ::std::get<NEU_STRING_TYPE>(_value.data_) = nullptr;
         break;
-      case NEU_ARRAY:data_ = ::std::get<ArrayWithSharedPtr>(_value.data_);
-        ::std::get<ArrayWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_ARRAY:data_ = ::std::get<NEU_ARRAY_TYPE>(_value.data_);
+        ::std::get<NEU_ARRAY_TYPE>(_value.data_) = nullptr;
         break;
-      case NEU_OBJECT:data_ = ::std::get<ObjectWithSharedPtr>(_value.data_);
-        ::std::get<ObjectWithSharedPtr>(_value.data_) = nullptr;
+      case NEU_OBJECT:data_ = ::std::get<NEU_OBJECT_TYPE>(_value.data_);
+        ::std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
         break;
     }
     _value.type_ = NEU_NULL;

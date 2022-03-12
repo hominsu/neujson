@@ -35,34 +35,15 @@ class Writer : noncopyable {
   explicit Writer(WriteStream &_os) : os_(_os), has_root_(false) {}
 
  public:
-  virtual bool Null() {
-    Prefix(NEU_NULL);
-    return EndValue(WriteNull());
-  }
-  virtual bool Bool(bool _b) {
-    Prefix(NEU_BOOL);
-    return EndValue(WriteBool(_b));
-  }
-  virtual bool Int32(int32_t _i32) {
-    Prefix(NEU_INT32);
-    return EndValue(WriteInt32(_i32));
-  }
-  virtual bool Int64(int64_t _i64) {
-    Prefix(NEU_INT64);
-    return EndValue(WriteInt64(_i64));
-  }
-  virtual bool Double(double _d) {
-    Prefix(NEU_DOUBLE);
-    return EndValue(WriteDouble(_d));
-  }
-  virtual bool String(::std::string_view _str) {
-    Prefix(NEU_STRING);
-    return EndValue(WriteString(_str));
-  }
-  virtual bool Key(::std::string_view _str) {
-    Prefix(NEU_STRING);
-    return EndValue(WriteKey(_str));
-  }
+  //@formatter:off
+  virtual bool Null() { Prefix(NEU_NULL); return EndValue(WriteNull()); }
+  virtual bool Bool(bool _b) { Prefix(NEU_BOOL); return EndValue(WriteBool(_b)); }
+  virtual bool Int32(int32_t _i32) { Prefix(NEU_INT32); return EndValue(WriteInt32(_i32)); }
+  virtual bool Int64(int64_t _i64) { Prefix(NEU_INT64); return EndValue(WriteInt64(_i64)); }
+  virtual bool Double(double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(_d)); }
+  virtual bool String(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteString(_str)); }
+  virtual bool Key(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteKey(_str)); }
+  //@formatter:on
 
   virtual bool StartObject() {
     Prefix(NEU_OBJECT);
@@ -213,9 +194,7 @@ bool Writer<WriteStream>::WriteString(::std::string_view _str) {
 
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteKey(::std::string_view _str) {
-  os_.put('"');
-  os_.put(_str);
-  os_.put('"');
+  WriteString(_str);
   return true;
 }
 
