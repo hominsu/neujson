@@ -32,11 +32,15 @@ class FileReadStream : noncopyable {
 
   char next();
 
+  void next(size_t _n);
+
   void assertNext(char _ch);
 
   char peek() { return hasNext() ? *iter_ : '\0'; }
 
   [[nodiscard]] Iterator getIter() const { return iter_; }
+
+  [[nodiscard]] const char *getAddr() const { return buffer_.data() + (iter_ - buffer_.begin()); }
 
  private:
   void readStream(FILE *_in);
@@ -58,6 +62,13 @@ inline char FileReadStream::next() {
     return ch;
   }
   return '\0';
+}
+
+inline void FileReadStream::next(size_t _n) {
+  for (size_t i = 0; i < _n; ++i) {
+    if (hasNext()) { iter_++; }
+    else { break; }
+  }
 }
 
 inline void FileReadStream::assertNext(char _ch) {

@@ -265,13 +265,13 @@ bool Value::writeTo(Handler &_handler) const {
   switch (type_) {
     case NEU_NULL:CALL_HANDLER(_handler.Null());
       break;
-    case NEU_BOOL:CALL_HANDLER(_handler.Bool(::std::get<bool>(data_)));
+    case NEU_BOOL:CALL_HANDLER(_handler.Bool(::std::get<NEU_BOOL_TYPE>(data_)));
       break;
-    case NEU_INT32:CALL_HANDLER(_handler.Int32(::std::get<int32_t>(data_)));
+    case NEU_INT32:CALL_HANDLER(_handler.Int32(::std::get<NEU_INT32_TYPE>(data_)));
       break;
-    case NEU_INT64:CALL_HANDLER(_handler.Int64(::std::get<int64_t>(data_)));
+    case NEU_INT64:CALL_HANDLER(_handler.Int64(::std::get<NEU_INT64_TYPE>(data_)));
       break;
-    case NEU_DOUBLE:CALL_HANDLER(_handler.Double(::std::get<double>(data_)));
+    case NEU_DOUBLE:CALL_HANDLER(_handler.Double(::std::get<NEU_DOUBLE_TYPE>(data_)));
       break;
     case NEU_STRING:CALL_HANDLER(_handler.String(getStringView()));
       break;

@@ -30,6 +30,8 @@ class StringReadStream : public noncopyable {
 
   [[nodiscard]] Iterator getIter() const { return iter_; }
 
+  [[nodiscard]] const char *getAddr() const { return json_.data() + (iter_ - json_.begin()); }
+
   char next() {
     if (hasNext()) {
       char ch = *iter_;
@@ -38,6 +40,14 @@ class StringReadStream : public noncopyable {
     }
     return '\0';
   };
+
+  void next(size_t _n) {
+    for (size_t i = 0; i < _n; ++i) {
+      if (hasNext()) {
+        iter_++;
+      }
+    }
+  }
 
   void assertNext(char ch) {
     assert(peek() == ch);

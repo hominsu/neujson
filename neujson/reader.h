@@ -10,6 +10,13 @@
 #include "value.h"
 
 #include <cmath>
+#if defined(NEUJSON_SIMD) && defined(_MSC_VER)
+#include <intrin.h>
+#pragma intrinsic(_BitScanForward)
+#endif
+#if defined(NEUJSON_SSE42)
+#include <nmmintrin.h>
+#endif
 
 #include <exception>
 
@@ -23,6 +30,14 @@ class Reader : noncopyable {
  private:
   template<typename ReadStream>
   static unsigned parseHex4(ReadStream &_rs);
+
+#if defined(NEUJSON_SSE42)
+  template<typename ReadStream>
+  static void parseWhitespace_SIMD(ReadStream &_rs);
+#else
+  template<typename ReadStream>
+  static void parseWhitespace_BASIC(ReadStream &_rs);
+#endif
 
   template<typename ReadStream>
   static void parseWhitespace(ReadStream &_rs);
@@ -52,7 +67,7 @@ class Reader : noncopyable {
 };
 
 template<typename ReadStream, typename Handler>
-error::ParseError Reader::parse(ReadStream &_rs, Handler &_handler) {
+inline error::ParseError Reader::parse(ReadStream &_rs, Handler &_handler) {
   try {
     parseWhitespace(_rs);
     parseValue(_rs, _handler);
@@ -65,7 +80,7 @@ error::ParseError Reader::parse(ReadStream &_rs, Handler &_handler) {
 }
 
 template<typename ReadStream>
-unsigned Reader::parseHex4(ReadStream &_rs) {
+inline unsigned Reader::parseHex4(ReadStream &_rs) {
   unsigned u = 0;
   for (int i = 0; i < 4; i++) {
     u <<= 4;
@@ -90,19 +105,59 @@ unsigned Reader::parseHex4(ReadStream &_rs) {
   return u;
 }
 
+#if defined(NEUJSON_SSE42)
 template<typename ReadStream>
-void Reader::parseWhitespace(ReadStream &_rs) {
+inline void Reader::parseWhitespace_SIMD(ReadStream &_rs) {
+  char ch = _rs.peek();
+  if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
+  else { return; }
+
+  // 16-byte align to the next boundary
+  const char *p = _rs.getAddr();
+  const char
+      *nextAligned = reinterpret_cast<const char *>((reinterpret_cast<size_t>(p) + 15) & static_cast<size_t>(~15));
+  while (p != nextAligned)
+    if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') { ++p; _rs.next(); }
+    else { return; }
+
+  // The rest of string using SIMD
+  static const char whitespace[16] = " \n\r\t";
+  const __m128i w = _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespace[0]));
+
+  for (;; p += 16, _rs.next(16)) {
+    const __m128i s = _mm_load_si128(reinterpret_cast<const __m128i *>(p));
+    const int r = _mm_cmpistri(w, s, _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_LEAST_SIGNIFICANT | _SIDD_NEGATIVE_POLARITY);
+    // some characters are non-whitespace
+    if (r != 16) {
+      _rs.next(r);
+      return;
+    }
+  }
+}
+#else
+template<typename ReadStream>
+inline void Reader::parseWhitespace_BASIC(ReadStream &_rs) {
   while (_rs.hasNext()) {
     char ch = _rs.peek();
     if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
     else { break; }
   }
 }
+#endif
+
+template<typename ReadStream>
+void Reader::parseWhitespace(ReadStream &_rs) {
+#if defined(NEUJSON_SSE42)
+  return parseWhitespace_SIMD(_rs);
+#else
+  return parseWhitespace_BASIC(_rs);
+#endif
+}
 
 #define CALL(_expr) if (!(_expr)) throw Exception(error::PARSE_USER_STOPPED)
 
 template<typename ReadStream, typename Handler>
-void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type) {
+inline void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type) {
   char c = *_literal;
 
   _rs.assertNext(*_literal++);
@@ -122,7 +177,7 @@ void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char *_liter
 }
 
 template<typename ReadStream, typename Handler>
-void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
+inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
   // parse 'NaN' (Not a Number) && 'Infinity'
   if (_rs.peek() == 'N') {
     parseLiteral(_rs, _handler, "NaN", NEU_DOUBLE);
@@ -170,18 +225,18 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 #elif defined(__GNUC__)
       d = __gnu_cxx::__stoa(&::std::strtod, "stod", &*start, &idx);
 #else
-      assert(false && "complier no support");
+#error "complier no support"
 #endif
       assert(start + idx == end);
       CALL(_handler.Double(d));
     } else {
       int64_t i64;
 #if defined(__clang__) || defined(_MSC_VER)
-      i64 = ::std::stol(::std::string(start, end), &idx, 10);
+      i64 = ::std::stoll(::std::string(start, end), &idx, 10);
 #elif defined(__GNUC__)
-      i64 = __gnu_cxx::__stoa(&::std::strtol, "stol", &*start, &idx, 10);
+      i64 = __gnu_cxx::__stoa(&::std::strtoll, "stoll", &*start, &idx, 10);
 #else
-      assert(false && "complier no support");
+#error "complier no support"
 #endif
       if (i64 <= ::std::numeric_limits<int32_t>::max() && i64 >= ::std::numeric_limits<int32_t>::min()) {
         CALL(_handler.Int32(static_cast<int32_t>(i64)));
@@ -196,7 +251,7 @@ void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 }
 
 template<typename ReadStream, typename Handler>
-void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
+inline void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
   _rs.assertNext('"');
   ::std::string buffer;
   while (_rs.hasNext()) {
@@ -256,7 +311,7 @@ void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
 }
 
 template<typename ReadStream, typename Handler>
-void Reader::parseArray(ReadStream &_rs, Handler &_handler) {
+inline void Reader::parseArray(ReadStream &_rs, Handler &_handler) {
   CALL(_handler.StartArray());
 
   _rs.assertNext('[');
@@ -281,7 +336,7 @@ void Reader::parseArray(ReadStream &_rs, Handler &_handler) {
 }
 
 template<typename ReadStream, typename Handler>
-void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
+inline void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
   CALL(_handler.StartObject());
 
   _rs.assertNext('{');
@@ -318,7 +373,7 @@ void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
 #undef CALL
 
 template<typename ReadStream, typename Handler>
-void Reader::parseValue(ReadStream &_rs, Handler &_handler) {
+inline void Reader::parseValue(ReadStream &_rs, Handler &_handler) {
   if (!_rs.hasNext()) { throw Exception(error::PARSE_EXPECT_VALUE); }
 
   switch (_rs.peek()) {
