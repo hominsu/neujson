@@ -5,13 +5,17 @@
 #include "neujson/document.h"
 #include "neujson/pretty_writer.h"
 #include "neujson/file_read_stream.h"
-#include "example/sample.h"
+#include "neujson/file_write_stream.h"
 
 #include <cstdio>
 
 int main() {
+#if defined(_MSC_VER)
   FILE *input;
-  fopen_s(&input, "../../citm_catalog.json", "r");
+    fopen_s(&input, _extra_args..., "r");
+#else
+  FILE *input = fopen("../../citm_catalog.json", "r");
+#endif
   if (input == nullptr) { exit(EXIT_FAILURE); }
   neujson::FileReadStream is(input);
   fclose(input);
@@ -23,7 +27,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  neujson::FileReadStream os(stdout);
+  neujson::FileWriteStream os(stdout);
   neujson::PrettyWriter writer(os);
   writer.SetIndent(' ', 2);
   doc.writeTo(writer);

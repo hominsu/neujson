@@ -5,9 +5,8 @@
 #ifndef NEUJSON_NEUJSON_STRING_READ_STREAM_H_
 #define NEUJSON_NEUJSON_STRING_READ_STREAM_H_
 
-#include <neujson/noncopyable.h>
-
-#include <cassert>
+#include "neujson.h"
+#include "noncopyable.h"
 
 #include <string_view>
 
@@ -32,28 +31,33 @@ class StringReadStream : public noncopyable {
 
   [[nodiscard]] const char *getAddr() const { return json_.data() + (iter_ - json_.begin()); }
 
-  char next() {
-    if (hasNext()) {
-      char ch = *iter_;
-      iter_++;
-      return ch;
-    }
-    return '\0';
-  };
+  char next();
 
-  void next(size_t _n) {
-    for (size_t i = 0; i < _n; ++i) {
-      if (hasNext()) {
-        iter_++;
-      }
-    }
-  }
+  template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
+  void next(Tint &&_n);
 
   void assertNext(char ch) {
-    assert(peek() == ch);
+    NEUJSON_ASSERT(peek() == ch);
     next();
   }
 };
+
+inline char StringReadStream::next() {
+  if (hasNext()) {
+    char ch = *iter_;
+    iter_++;
+    return ch;
+  }
+  return '\0';
+}
+
+template<typename Tint, class>
+inline void StringReadStream::next(Tint &&_n) {
+  NEUJSON_ASSERT(_n >= 0);
+  for (Tint i = 0; i < _n; ++i) {
+    if (hasNext()) { iter_++; }
+  }
+}
 
 } // namespace neujson
 

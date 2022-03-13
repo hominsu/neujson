@@ -41,7 +41,7 @@ void neujson::Reader::encodeUtf8(::std::string &_buffer, unsigned int _u) {
       _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
       _buffer.push_back(0x80 | (_u & 0x3F));
       break;
-    default: assert(false && "out of range");
+    default: NEUJSON_ASSERT(false && "out of range");
   }
 #endif
 }

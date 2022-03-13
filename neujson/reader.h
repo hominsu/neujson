@@ -8,14 +8,14 @@
 #include "noncopyable.h"
 #include "exception.h"
 #include "value.h"
+#include "internal/cllzl.h"
 
 #include <cmath>
-#if defined(NEUJSON_SIMD) && defined(_MSC_VER)
-#include <intrin.h>
-#pragma intrinsic(_BitScanForward)
-#endif
+
 #if defined(NEUJSON_SSE42)
 #include <nmmintrin.h>
+#elif defined(NEUJSON_NEON)
+#include <arm_neon.h>
 #endif
 
 #include <exception>
@@ -33,7 +33,10 @@ class Reader : noncopyable {
 
 #if defined(NEUJSON_SSE42)
   template<typename ReadStream>
-  static void parseWhitespace_SIMD(ReadStream &_rs);
+  static void parseWhitespace_SIMD_SSE42(ReadStream &_rs);
+#elif defined(NEUJSON_NEON)
+  template<typename ReadStream>
+  static void parseWhitespace_SIMD_NEON(ReadStream &_rs);
 #else
   template<typename ReadStream>
   static void parseWhitespace_BASIC(ReadStream &_rs);
@@ -106,8 +109,13 @@ inline unsigned Reader::parseHex4(ReadStream &_rs) {
 }
 
 #if defined(NEUJSON_SSE42)
+/**
+ * @brief Skip whitespace with SSE 4.2 pcmpistrm instruction, testing 16 8-byte characters at once.
+ * @tparam ReadStream
+ * @param _rs
+ */
 template<typename ReadStream>
-inline void Reader::parseWhitespace_SIMD(ReadStream &_rs) {
+inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
   char ch = _rs.peek();
   if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
   else { return; }
@@ -119,6 +127,7 @@ inline void Reader::parseWhitespace_SIMD(ReadStream &_rs) {
   while (p != nextAligned)
     if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') { ++p; _rs.next(); }
     else { return; }
+  }
 
   // The rest of string using SIMD
   static const char whitespace[16] = " \n\r\t";
@@ -130,6 +139,60 @@ inline void Reader::parseWhitespace_SIMD(ReadStream &_rs) {
     // some characters are non-whitespace
     if (r != 16) {
       _rs.next(r);
+      return;
+    }
+  }
+}
+#elif defined(NEUJSON_NEON)
+/**
+ * @brief Skip whitespace with ARM Neon instructions, testing 16 8-byte characters at once.
+ * @tparam ReadStream
+ * @param _rs
+ */
+template<typename ReadStream>
+inline void Reader::parseWhitespace_SIMD_NEON(ReadStream &_rs) {
+  char ch = _rs.peek();
+  if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
+  else { return; }
+
+  // 16-byte align to the next boundary
+  const char *p = _rs.getAddr();
+  const char
+      *nextAligned = reinterpret_cast<const char *>((reinterpret_cast<size_t>(p) + 15) & static_cast<size_t>(~15));
+  while (p != nextAligned) {
+    if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') {
+      ++p;
+      _rs.next();
+    }
+    else { return; }
+  }
+
+  const uint8x16_t w0 = vmovq_n_u8(' ');
+  const uint8x16_t w1 = vmovq_n_u8('\n');
+  const uint8x16_t w2 = vmovq_n_u8('\r');
+  const uint8x16_t w3 = vmovq_n_u8('\t');
+
+  for (;; p += 16, _rs.next(16)) {
+    const uint8x16_t s = vld1q_u8(reinterpret_cast<const uint8_t *>(p));
+    uint8x16_t x = vceqq_u8(s, w0);
+    x = vorrq_u8(x, vceqq_u8(s, w1));
+    x = vorrq_u8(x, vceqq_u8(s, w2));
+    x = vorrq_u8(x, vceqq_u8(s, w3));
+
+    x = vmvnq_u8(x);                       // Negate
+    x = vrev64q_u8(x);                     // Rev in 64
+    uint64_t low = vgetq_lane_u64(vreinterpretq_u64_u8(x), 0);   // extract
+    uint64_t high = vgetq_lane_u64(vreinterpretq_u64_u8(x), 1);  // extract
+
+    if (low == 0) {
+      if (high != 0) {
+        uint32_t lz = internal::clzll(high);
+        _rs.next(8 + (lz >> 3));
+        return;
+      }
+    } else {
+      uint32_t lz = internal::clzll(low);
+      _rs.next(lz >> 3);
       return;
     }
   }
@@ -146,9 +209,11 @@ inline void Reader::parseWhitespace_BASIC(ReadStream &_rs) {
 #endif
 
 template<typename ReadStream>
-void Reader::parseWhitespace(ReadStream &_rs) {
+inline void Reader::parseWhitespace(ReadStream &_rs) {
 #if defined(NEUJSON_SSE42)
-  return parseWhitespace_SIMD(_rs);
+  return parseWhitespace_SIMD_SSE42(_rs);
+#elif defined(NEUJSON_NEON)
+  return parseWhitespace_SIMD_NEON(_rs);
 #else
   return parseWhitespace_BASIC(_rs);
 #endif
@@ -170,9 +235,10 @@ inline void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char 
       return;
     case NEU_BOOL:CALL(_handler.Bool(c == 't'));
       return;
-    case NEU_DOUBLE:CALL(_handler.Double(c == 'N' ? NAN : INFINITY));
+    case NEU_DOUBLE:CALL(_handler.Double(
+          c == 'N' ? std::numeric_limits<double>::quiet_NaN() : std::numeric_limits<double>::infinity()));
       return;
-    default:assert(false && "bad type");
+    default:NEUJSON_ASSERT(false && "bad type");
   }
 }
 
@@ -227,7 +293,7 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 #else
 #error "complier no support"
 #endif
-      assert(start + idx == end);
+      NEUJSON_ASSERT(start + idx == end);
       CALL(_handler.Double(d));
     } else {
       int64_t i64;
@@ -261,7 +327,7 @@ inline void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key
         else { CALL(_handler.String(::std::move(buffer))); }
         return;
 #if defined(__clang__) || defined(__GNUC__)
-        case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
+      case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
 #endif
       case '\\':
         switch (_rs.next()) {

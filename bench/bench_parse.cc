@@ -2,7 +2,7 @@
 // Created by HominSu on 2022/3/12.
 //
 
-#include <benchmark/benchmark.h>
+#define NEUJSON_NEON
 
 #include <neujson/document.h>
 #include <neujson/file_read_stream.h>
@@ -16,11 +16,17 @@
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <benchmark/benchmark.h>
+
 template<class ...ExtraArgs>
 void BM_neujson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::FileReadStream is(input);
     fclose(input);
@@ -32,8 +38,12 @@ void BM_neujson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
 template<class ...ExtraArgs>
 void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -46,8 +56,12 @@ void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args
 template<class ...ExtraArgs>
 void BM_neujson_read_parse_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -67,8 +81,12 @@ void BM_neujson_read_parse_write(benchmark::State &_state, ExtraArgs &&... _extr
 template<class ...ExtraArgs>
 void BM_neujson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -88,8 +106,12 @@ void BM_neujson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&..
 template<class ...ExtraArgs>
 void BM_rapidjson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -103,8 +125,12 @@ void BM_rapidjson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
 template<class ...ExtraArgs>
 void BM_rapidjson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -120,8 +146,12 @@ void BM_rapidjson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_ar
 template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -144,8 +174,12 @@ void BM_rapidjson_read_parse_write(benchmark::State &_state, ExtraArgs &&... _ex
 template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto _: _state) {
+#if defined(_MSC_VER)
     FILE *input;
     fopen_s(&input, _extra_args..., "r");
+#else
+    FILE *input = fopen(_extra_args..., "r");
+#endif
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -165,25 +199,25 @@ void BM_rapidjson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&
   }
 }
 
-//BENCHMARK_CAPTURE(BM_neujson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_neujson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//
-//BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+
+BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
 
 BENCHMARK_CAPTURE(BM_neujson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
 BENCHMARK_CAPTURE(BM_neujson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
 BENCHMARK_CAPTURE(BM_neujson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
 BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
 
-BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
 
 
 BENCHMARK_MAIN();

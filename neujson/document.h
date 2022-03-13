@@ -117,8 +117,8 @@ inline bool Document::StartObject() {
 }
 
 inline bool Document::EndObject() {
-  assert(!stack_.empty());
-  assert(stack_.back().type() == NEU_OBJECT);
+  NEUJSON_ASSERT(!stack_.empty());
+  NEUJSON_ASSERT(stack_.back().type() == NEU_OBJECT);
   stack_.pop_back();
   return true;
 }
@@ -130,8 +130,8 @@ inline bool Document::StartArray() {
 }
 
 inline bool Document::EndArray() {
-  assert(!stack_.empty());
-  assert(stack_.back().type() == NEU_ARRAY);
+  NEUJSON_ASSERT(!stack_.empty());
+  NEUJSON_ASSERT(stack_.back().type() == NEU_ARRAY);
   stack_.pop_back();
   return true;
 }

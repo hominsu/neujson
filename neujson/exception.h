@@ -5,7 +5,7 @@
 #ifndef NEUJSON_NEUJSON_EXCEPTION_H_
 #define NEUJSON_NEUJSON_EXCEPTION_H_
 
-#include <cassert>
+#include "neujson.h"
 
 #include <exception>
 
@@ -44,7 +44,7 @@ inline const char *parseErrorStr(error::ParseError _err) {
 #undef ERR_STR
   };
 
-  assert(_err >= 0 && _err < sizeof(err_str_table) / sizeof(err_str_table[0]));
+  NEUJSON_ASSERT(_err >= 0 && _err < sizeof(err_str_table) / sizeof(err_str_table[0]));
   return err_str_table[_err];
 }
 

@@ -19,7 +19,7 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
       break;
     case NEU_OBJECT:data_ = ::std::make_shared<Object>();
       break;
-    default: assert(false && "bad value getType");
+    default: NEUJSON_ASSERT(false && "bad value getType");
   }
 }
 
@@ -32,7 +32,7 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
 }
 
 neujson::Value::MemberIterator neujson::Value::findMember(::std::string_view _key) {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return ::std::find_if(::std::get<NEU_OBJECT_TYPE>(data_)->begin(),
                         ::std::get<NEU_OBJECT_TYPE>(data_)->end(),
                         [_key](const Member &_m) -> bool {

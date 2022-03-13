@@ -5,7 +5,8 @@
 #ifndef NEUJSON_NEUJSON_VALUE_H_
 #define NEUJSON_NEUJSON_VALUE_H_
 
-#include <cassert>
+#include "neujson.h"
+
 #include <cstring>
 
 #include <atomic>
@@ -99,25 +100,25 @@ class Value {
 
   // getter
   //@formatter:off
-  [[nodiscard]] bool getBool() const { assert(type_ == NEU_BOOL); return ::std::get<NEU_BOOL_TYPE>(data_); }
-  [[nodiscard]] int32_t getInt32() const { assert(type_ == NEU_INT32); return ::std::get<NEU_INT32_TYPE>(data_); }
+  [[nodiscard]] bool getBool() const { NEUJSON_ASSERT(type_ == NEU_BOOL); return ::std::get<NEU_BOOL_TYPE>(data_); }
+  [[nodiscard]] int32_t getInt32() const { NEUJSON_ASSERT(type_ == NEU_INT32); return ::std::get<NEU_INT32_TYPE>(data_); }
 
   [[nodiscard]] int64_t getInt64() const {
-    assert(type_ == NEU_INT64 || type_ == NEU_INT32);
+    NEUJSON_ASSERT(type_ == NEU_INT64 || type_ == NEU_INT32);
     return type_ == NEU_INT64 ? ::std::get<NEU_INT64_TYPE>(data_) : ::std::get<NEU_INT32_TYPE>(data_);
   }
 
-  [[nodiscard]] double getDouble() const { assert(type_ == NEU_DOUBLE); return ::std::get<NEU_DOUBLE_TYPE>(data_); }
+  [[nodiscard]] double getDouble() const { NEUJSON_ASSERT(type_ == NEU_DOUBLE); return ::std::get<NEU_DOUBLE_TYPE>(data_); }
 
   [[nodiscard]] ::std::string_view getStringView() const {
-    assert(type_ == NEU_STRING);
+    NEUJSON_ASSERT(type_ == NEU_STRING);
     auto s_ptr = ::std::get<NEU_STRING_TYPE>(data_);
     return {s_ptr->data(), s_ptr->size()};
   }
 
   [[nodiscard]] ::std::string getString() const { return ::std::string(getStringView()); }
-  [[nodiscard]] const auto &getArray() const { assert(type_ == NEU_ARRAY); return ::std::get<NEU_ARRAY_TYPE>(data_); }
-  [[nodiscard]] const auto &getObject() const { assert(type_ == NEU_OBJECT); return ::std::get<NEU_OBJECT_TYPE>(data_); }
+  [[nodiscard]] const auto &getArray() const { NEUJSON_ASSERT(type_ == NEU_ARRAY); return ::std::get<NEU_ARRAY_TYPE>(data_); }
+  [[nodiscard]] const auto &getObject() const { NEUJSON_ASSERT(type_ == NEU_OBJECT); return ::std::get<NEU_OBJECT_TYPE>(data_); }
   //@formatter:on
 
   // setter
@@ -170,14 +171,14 @@ struct Member {
 };
 
 inline neujson::Value &neujson::Value::operator=(const neujson::Value &_val) {
-  assert(this != &_val);
+  NEUJSON_ASSERT(this != &_val);
   type_ = _val.type_;
   data_ = _val.data_;
   return *this;
 }
 
 inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept {
-  assert(this != &_val);
+  NEUJSON_ASSERT(this != &_val);
   type_ = _val.type_;
   data_ = ::std::move(_val.data_);
   _val.type_ = NEU_NULL;
@@ -185,62 +186,62 @@ inline neujson::Value &neujson::Value::operator=(neujson::Value &&_val) noexcept
 }
 
 inline neujson::Value &neujson::Value::operator[](size_t _index) {
-  assert(type_ == NEU_ARRAY);
+  NEUJSON_ASSERT(type_ == NEU_ARRAY);
   return ::std::get<NEU_ARRAY_TYPE>(data_)->at(_index);
 }
 
 inline const neujson::Value &neujson::Value::operator[](size_t _index) const {
-  assert(type_ == NEU_ARRAY);
+  NEUJSON_ASSERT(type_ == NEU_ARRAY);
   return ::std::get<NEU_ARRAY_TYPE>(data_)->at(_index);
 }
 
 inline neujson::Value &neujson::Value::operator[](::std::string_view _key) {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   auto it = findMember(_key);
   if (it != ::std::get<NEU_OBJECT_TYPE>(data_)->end()) {
     return it->value_;
   }
 
-  assert(false && "value no found");
+  NEUJSON_ASSERT(false && "value no found");
   static Value fake(NEU_NULL);
   return fake;
 }
 
 inline const neujson::Value &neujson::Value::operator[](::std::string_view _key) const {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this)[_key];
 }
 
 template<typename T>
 inline Value &Value::addValue(T &&_value) {
-  assert(type_ == NEU_ARRAY);
+  NEUJSON_ASSERT(type_ == NEU_ARRAY);
   auto a_ptr = ::std::get<NEU_ARRAY_TYPE>(data_);
   a_ptr->emplace_back(::std::forward<T>(_value));
   return a_ptr->back();
 }
 
 inline neujson::Value::MemberIterator neujson::Value::memberBegin() {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return ::std::get<NEU_OBJECT_TYPE>(data_)->begin();
 }
 
 inline neujson::Value::MemberIterator neujson::Value::memberEnd() {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return ::std::get<NEU_OBJECT_TYPE>(data_)->end();
 }
 
 inline neujson::Value::ConstMemberIterator neujson::Value::MemberBegin() const {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this).memberBegin();
 }
 
 inline neujson::Value::ConstMemberIterator neujson::Value::MemberEnd() const {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this).memberEnd();
 }
 
 inline neujson::Value::ConstMemberIterator neujson::Value::findMember(::std::string_view _key) const {
-  assert(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return const_cast<Value &>(*this).findMember(_key);
 }
 
@@ -250,9 +251,9 @@ inline neujson::Value &neujson::Value::addMember(const char *_key, T &&_value) {
 }
 
 inline neujson::Value &neujson::Value::addMember(neujson::Value &&_key, neujson::Value &&_value) {
-  assert(type_ == NEU_OBJECT);
-  assert(_key.type_ == NEU_STRING);
-  assert(findMember(_key.getStringView()) == memberEnd());
+  NEUJSON_ASSERT(type_ == NEU_OBJECT);
+  NEUJSON_ASSERT(_key.type_ == NEU_STRING);
+  NEUJSON_ASSERT(findMember(_key.getStringView()) == memberEnd());
   auto o_ptr = ::std::get<NEU_OBJECT_TYPE>(data_);
   o_ptr->emplace_back(::std::move(_key), ::std::move(_value));
   return o_ptr->back().value_;
@@ -288,7 +289,7 @@ bool Value::writeTo(Handler &_handler) const {
       }
       CALL_HANDLER(_handler.EndObject());
       break;
-    default:assert(false && "bad type");
+    default:NEUJSON_ASSERT(false && "bad type");
   }
   return true;
 }

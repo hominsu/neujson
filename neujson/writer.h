@@ -5,11 +5,10 @@
 #ifndef NEUJSON_NEUJSON_WRITER_H_
 #define NEUJSON_NEUJSON_WRITER_H_
 
+#include "neujson.h"
 #include "noncopyable.h"
 #include "value.h"
 #include "internal/itoa.h"
-
-#include <cassert>
 
 #include <vector>
 #include <algorithm>
@@ -52,8 +51,8 @@ class Writer : noncopyable {
   }
 
   virtual bool EndObject() {
-    assert(!stack_.empty());
-    assert(!stack_.back().in_array_flag_);
+    NEUJSON_ASSERT(!stack_.empty());
+    NEUJSON_ASSERT(!stack_.back().in_array_flag_);
     stack_.pop_back();
     return EndValue(WriteEndObject());
   }
@@ -65,8 +64,8 @@ class Writer : noncopyable {
   }
 
   virtual bool EndArray() {
-    assert(!stack_.empty());
-    assert(stack_.back().in_array_flag_);
+    NEUJSON_ASSERT(!stack_.empty());
+    NEUJSON_ASSERT(stack_.back().in_array_flag_);
     stack_.pop_back();
     return EndValue(WriteEndArray());
   }
@@ -100,11 +99,11 @@ void Writer<WriteStream>::Prefix(Type type_) {
     }
 
     if (!level.in_array_flag_ && level.value_count_ % 2 == 0) {
-      assert(type_ == NEU_STRING && "miss quotation mark");
+      NEUJSON_ASSERT(type_ == NEU_STRING && "miss quotation mark");
     }
     level.value_count_++;
   } else {
-    assert(!has_root_ && "root not singular");
+    NEUJSON_ASSERT(!has_root_ && "root not singular");
     has_root_ = true;
   }
 }
@@ -141,16 +140,28 @@ template<typename WriteStream>
 bool Writer<WriteStream>::WriteDouble(double _d) {
   char buf[32];
   if (std::isinf(_d)) {
+#if defined(_MSC_VER)
     strcpy_s(buf, "Infinity");
+#else
+    strcpy(buf, "Infinity");
+#endif
   } else if (std::isnan(_d)) {
+#if defined(_MSC_VER)
     strcpy_s(buf, "NaN");
+#else
+    strcpy(buf, "NaN");
+#endif
   } else {
     int n = sprintf(buf, "%.17g", _d);
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
-    assert(n > 0 && n < 32);
+    NEUJSON_ASSERT(n > 0 && n < 32);
     if (std::find_if_not(buf, buf + n, isdigit) == buf + n) {
+#if defined(_MSC_VER)
       strcat_s(buf, ".0");
+#else
+      strcat(buf, ".0");
+#endif
     }
   }
 
