@@ -7,9 +7,9 @@
 neujson::Value *neujson::Document::addValue(Value &&_value) {
   Type type = _value.getType();
   (void) type;
-  if (see_value_) { assert(!stack_.empty() && "root not singular"); }
+  if (see_value_) { NEUJSON_ASSERT(!stack_.empty() && "root not singular"); }
   else {
-    assert(type_ == NEU_NULL);
+    NEUJSON_ASSERT(type_ == NEU_NULL);
     see_value_ = true;
     type_ = _value.type_;
 
@@ -43,9 +43,9 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
     top.valueCount++;
     return top.lastValue();
   } else {
-    assert(top.type() == NEU_OBJECT);
+    NEUJSON_ASSERT(top.type() == NEU_OBJECT);
     if (top.valueCount % 2 == 0) {
-      assert(type == NEU_STRING && "miss quotation mark");
+      NEUJSON_ASSERT(type == NEU_STRING && "miss quotation mark");
       key_ = ::std::move(_value);
       top.valueCount++;
       return &key_;

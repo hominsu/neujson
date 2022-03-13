@@ -5,7 +5,7 @@
 #ifndef NEUJSON_NEUJSON_INTERNAL_ITOA_H_
 #define NEUJSON_NEUJSON_INTERNAL_ITOA_H_
 
-#include <cassert>
+#include "neujson/neujson.h"
 
 namespace neujson::internal {
 
@@ -63,7 +63,7 @@ constexpr char cDigitsLut[200] = {
 } // namespace
 
 inline char *u32toa(uint32_t value, char *buffer) {
-  assert(buffer != nullptr);
+  NEUJSON_ASSERT(buffer != nullptr);
 
   if (value < 10000) {
     const uint32_t d1 = (value / 100) << 1;
@@ -134,7 +134,7 @@ inline char *u32toa(uint32_t value, char *buffer) {
 }
 
 inline char *i32toa(int32_t value, char *buffer) {
-  assert(buffer != nullptr);
+  NEUJSON_ASSERT(buffer != nullptr);
   auto u = static_cast<uint32_t>(value);
   if (value < 0) {
     *buffer++ = '-';
@@ -145,7 +145,7 @@ inline char *i32toa(int32_t value, char *buffer) {
 }
 
 inline char *u64toa(uint64_t value, char *buffer) {
-  assert(buffer != nullptr);
+  NEUJSON_ASSERT(buffer != nullptr);
   const uint64_t kTen8 = 100000000;
   const uint64_t kTen9 = kTen8 * 10;
   const uint64_t kTen10 = kTen8 * 100;
@@ -294,7 +294,7 @@ inline char *u64toa(uint64_t value, char *buffer) {
 }
 
 inline char *i64toa(int64_t value, char *buffer) {
-  assert(buffer != nullptr);
+  NEUJSON_ASSERT(buffer != nullptr);
   auto u = static_cast<uint64_t>(value);
   if (value < 0) {
     *buffer++ = '-';

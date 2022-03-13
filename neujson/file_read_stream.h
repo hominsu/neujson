@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_FILE_READ_STREAM_H_
 #define NEUJSON_NEUJSON_FILE_READ_STREAM_H_
 
+#include "neujson.h"
 #include "noncopyable.h"
 
 #include <cstdio>
-#include <cassert>
 
 #include <vector>
 
@@ -32,7 +32,8 @@ class FileReadStream : noncopyable {
 
   char next();
 
-  void next(size_t _n);
+  template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
+  void next(Tint &&_n);
 
   void assertNext(char _ch);
 
@@ -64,15 +65,16 @@ inline char FileReadStream::next() {
   return '\0';
 }
 
-inline void FileReadStream::next(size_t _n) {
-  for (size_t i = 0; i < _n; ++i) {
+template<typename Tint, class>
+inline void FileReadStream::next(Tint &&_n) {
+  for (Tint i = 0; i < _n; ++i) {
     if (hasNext()) { iter_++; }
     else { break; }
   }
 }
 
 inline void FileReadStream::assertNext(char _ch) {
-  assert(peek() == _ch);
+  NEUJSON_ASSERT(peek() == _ch);
   next();
 }
 

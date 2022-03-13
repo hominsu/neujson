@@ -5,9 +5,9 @@
 #ifndef NEUJSON_NEUJSON_PRETTY_WRITER_H_
 #define NEUJSON_NEUJSON_PRETTY_WRITER_H_
 
+#include "neujson.h"
 #include "writer.h"
 
-#include <cassert>
 #include <cstring>
 
 #include <memory>
@@ -38,7 +38,7 @@ class PrettyWriter : public Writer<WriteStream> {
   }
 
   PrettyWriter &SetIndent(char _indent_char, ::std::size_t _indent_char_count) {
-    assert(_indent_char == ' ' || _indent_char == '\t' || _indent_char == '\n' || _indent_char == '\r');
+    NEUJSON_ASSERT(_indent_char == ' ' || _indent_char == '\t' || _indent_char == '\n' || _indent_char == '\r');
     InitIndent(_indent_char, _indent_char_count);
     return *this;
   }
@@ -66,9 +66,9 @@ class PrettyWriter : public Writer<WriteStream> {
   }
 
   bool EndObject() {
-    assert(!Base::stack_.empty());
-    assert(!Base::stack_.back().in_array_flag_);
-    assert(0 == Base::stack_.back().value_count_ % 2);
+    NEUJSON_ASSERT(!Base::stack_.empty());
+    NEUJSON_ASSERT(!Base::stack_.back().in_array_flag_);
+    NEUJSON_ASSERT(0 == Base::stack_.back().value_count_ % 2);
     bool empty = Base::stack_.back().value_count_ == 0;
     Base::stack_.pop_back();
 
@@ -79,7 +79,7 @@ class PrettyWriter : public Writer<WriteStream> {
 
     auto ret = Base::EndValue(Base::WriteEndObject());
     (void) ret;
-    assert(ret == true);
+    NEUJSON_ASSERT(ret == true);
     if (Base::stack_.empty()) {
       Base::Flush();
     }
@@ -93,8 +93,8 @@ class PrettyWriter : public Writer<WriteStream> {
   }
 
   bool EndArray() {
-    assert(!Base::stack_.empty());
-    assert(Base::stack_.back().in_array_flag_);
+    NEUJSON_ASSERT(!Base::stack_.empty());
+    NEUJSON_ASSERT(Base::stack_.back().in_array_flag_);
     bool empty = Base::stack_.back().value_count_ == 0;
     Base::stack_.pop_back();
 
@@ -105,7 +105,7 @@ class PrettyWriter : public Writer<WriteStream> {
 
     auto ret = Base::EndValue(Base::WriteEndArray());
     (void) ret;
-    assert(ret == true);
+    NEUJSON_ASSERT(ret == true);
     if (Base::stack_.empty()) {
       Base::Flush();
     }
@@ -154,11 +154,11 @@ void PrettyWriter<WriteStream>::PrettyPrefix(Type type_) {
       }
     }
     if (!level.in_array_flag_ && level.value_count_ % 2 == 0) {
-      assert(type_ == NEU_STRING && "miss quotation mark");
+      NEUJSON_ASSERT(type_ == NEU_STRING && "miss quotation mark");
     }
     level.value_count_++;
   } else {
-    assert(!Base::has_root_ && "root not singular");
+    NEUJSON_ASSERT(!Base::has_root_ && "root not singular");
     Base::has_root_ = true;
   }
 }
