@@ -16,9 +16,9 @@ class Document : public Value {
  private:
   struct Level {
     Value *value;
-    int valueCount;
+    int value_count;
 
-    explicit Level(Value *value_) : value(value_), valueCount(0) {}
+    explicit Level(Value *value_) : value(value_), value_count(0) {}
 
     [[nodiscard]] Type type() const { return value->getType(); }
     [[nodiscard]] Value *lastValue() const;

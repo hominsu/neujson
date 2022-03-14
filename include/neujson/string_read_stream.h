@@ -36,8 +36,8 @@ class StringReadStream : public noncopyable {
   template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
   void next(Tint &&_n);
 
-  void assertNext(char ch) {
-    NEUJSON_ASSERT(peek() == ch);
+  void assertNext(char _ch) {
+    NEUJSON_ASSERT(peek() == _ch);
     next();
   }
 };

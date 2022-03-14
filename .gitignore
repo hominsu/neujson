@@ -8,7 +8,4 @@ cmake-build-*/
 **/*.vcxproj
 **/*.vcxproj.*
 
-**/cmake_uninstall.cmake
-**/neujsonConfig.cmake
-**/neujsonConfigVersion.cmake
 **/*.json

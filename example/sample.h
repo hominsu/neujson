@@ -7,8 +7,8 @@
 
 #include <string_view>
 
-::std::string_view sample[] = {
-R"(
+constexpr ::std::string_view kSample[] = {
+    R"(
 [
   {
     "precision": "zip",
@@ -31,7 +31,7 @@ R"(
     "Country": "US"
   }
 ]
-)",R"(
+)", R"(
 {
   "web-app": {
     "servlet": [

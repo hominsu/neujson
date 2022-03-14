@@ -47,7 +47,7 @@ class FileReadStream : noncopyable {
   void readStream(FILE *_in);
 };
 
-void FileReadStream::readStream(FILE *_in) {
+inline void FileReadStream::readStream(FILE *_in) {
   char buf[65536];
   while (true) {
     size_t n = fread(buf, 1, sizeof(buf), _in);
