@@ -1,9 +1,3 @@
-# RapidJSON
-find_package(RapidJSON CONFIG REQUIRED)
-if (RapidJSON_FOUND)
-    message("")
-endif ()
-
 # Threads
 find_package(Threads REQUIRED)
 if (Threads_FOUND)

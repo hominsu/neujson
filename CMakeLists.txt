@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.10)
 
 set(LIB_MAJOR_VERSION "1")
 set(LIB_MINOR_VERSION "0")
@@ -53,6 +53,7 @@ if (NOT CMAKE_BUILD_NO_EXAMPLES)
 endif ()
 
 if (CMAKE_BUILD_BENCHMARK)
+    include_directories(third_party/rapidjson/include)
     add_subdirectory(third_party/gtest)
     add_subdirectory(third_party/benchmark)
     add_subdirectory(bench)
