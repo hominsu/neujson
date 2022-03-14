@@ -6,7 +6,7 @@
 #include <cstdio>
 
 int main() {
-  for (auto &sv: sample) {
+  for (auto &sv: kSample) {
     fprintf(stdout, "\n");
 
     neujson::Document document;

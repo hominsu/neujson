@@ -40,18 +40,18 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
   auto &top = stack_.back();
   if (top.type() == NEU_ARRAY) {
     top.value->addValue(::std::move(_value));
-    top.valueCount++;
+    top.value_count++;
     return top.lastValue();
   } else {
     NEUJSON_ASSERT(top.type() == NEU_OBJECT);
-    if (top.valueCount % 2 == 0) {
+    if (top.value_count % 2 == 0) {
       NEUJSON_ASSERT(type == NEU_STRING && "miss quotation mark");
       key_ = ::std::move(_value);
-      top.valueCount++;
+      top.value_count++;
       return &key_;
     } else {
       top.value->addMember(::std::move(key_), ::std::move(_value));
-      top.valueCount++;
+      top.value_count++;
       return top.lastValue();
     }
   }

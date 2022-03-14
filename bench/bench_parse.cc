@@ -2,19 +2,17 @@
 // Created by HominSu on 2022/3/12.
 //
 
-#define NEUJSON_NEON
+#include "neujson/document.h"
+#include "neujson/file_read_stream.h"
+#include "neujson/string_write_stream.h"
+#include "neujson/writer.h"
+#include "neujson/pretty_writer.h"
 
-#include <neujson/document.h>
-#include <neujson/file_read_stream.h>
-#include <neujson/string_write_stream.h>
-#include <neujson/writer.h>
-#include <neujson/pretty_writer.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/stringbuffer.h>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/stringbuffer.h"
 
 #include <benchmark/benchmark.h>
 
@@ -199,25 +197,25 @@ void BM_rapidjson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&
   }
 }
 
-BENCHMARK_CAPTURE(BM_neujson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
 
-BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
 
-BENCHMARK_CAPTURE(BM_neujson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_neujson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
 
-BENCHMARK_CAPTURE(BM_rapidjson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);
+BENCHMARK_CAPTURE(BM_rapidjson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
 
 
 BENCHMARK_MAIN();

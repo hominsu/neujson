@@ -44,15 +44,16 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
     message("")
 endif ()
 
-include_directories(${PROJECT_SOURCE_DIR})
 
-add_subdirectory(neujson)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+add_subdirectory(include/neujson)
 
 if (NOT CMAKE_BUILD_NO_EXAMPLES)
     add_subdirectory(example)
 endif ()
 
-if (CMAKE_BUILD_BENCHMARK)
+if (NOT CMAKE_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)
     add_subdirectory(third_party/gtest)
     add_subdirectory(third_party/benchmark)

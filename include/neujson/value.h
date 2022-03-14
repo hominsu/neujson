@@ -79,8 +79,8 @@ class Value {
   explicit Value(int32_t _i32) : type_(NEU_INT32), data_(_i32) {};
   explicit Value(int64_t _i64) : type_(NEU_INT64), data_(_i64) {};
   explicit Value(double _d) : type_(NEU_DOUBLE), data_(_d) {};
-  explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s.begin(), _s.end())) {};
   explicit Value(const char *_s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s, _s + strlen(_s))) {};
+  explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s.begin(), _s.end())) {};
   Value(const char *_s, ::std::size_t _len) : Value(::std::string_view(_s, _len)) {};
   Value(const Value &_val) = default;
   Value(Value &&_val) noexcept: type_(_val.type_), data_(::std::move(_val.data_)) {};
@@ -262,7 +262,7 @@ inline neujson::Value &neujson::Value::addMember(neujson::Value &&_key, neujson:
 #define CALL_HANDLER(_expr) do { if (!(_expr)) { return false; } } while(false)
 
 template<typename Handler>
-bool Value::writeTo(Handler &_handler) const {
+inline bool Value::writeTo(Handler &_handler) const {
   switch (type_) {
     case NEU_NULL:CALL_HANDLER(_handler.Null());
       break;
