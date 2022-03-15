@@ -20,7 +20,7 @@ class Document : public Value {
 
     explicit Level(Value *value_) : value(value_), value_count(0) {}
 
-    [[nodiscard]] Type type() const { return value->getType(); }
+    [[nodiscard]] Type type() const { return value->GetType(); }
     [[nodiscard]] Value *lastValue() const;
   };
 

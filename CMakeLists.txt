@@ -55,6 +55,7 @@ endif ()
 
 if (CMAKE_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)
+    include_directories(third_party/nlohmann-json/include)
     add_subdirectory(third_party/gtest)
     add_subdirectory(third_party/benchmark)
     add_subdirectory(bench)

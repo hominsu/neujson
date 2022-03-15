@@ -19,11 +19,11 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
       break;
     case NEU_OBJECT:data_ = ::std::make_shared<Object>();
       break;
-    default: NEUJSON_ASSERT(false && "bad value getType");
+    default: NEUJSON_ASSERT(false && "bad value GetType");
   }
 }
 
-::std::size_t neujson::Value::getSize() {
+::std::size_t neujson::Value::GetSize() {
   switch (type_) {
     case NEU_ARRAY:return ::std::get<NEU_STRING_TYPE>(data_)->size();
     case NEU_OBJECT:return ::std::get<NEU_OBJECT_TYPE>(data_)->size();
@@ -31,11 +31,11 @@ neujson::Value::Value(neujson::Type _type) : type_(_type), data_() {
   }
 }
 
-neujson::Value::MemberIterator neujson::Value::findMember(::std::string_view _key) {
+neujson::Value::MemberIterator neujson::Value::FindMember(::std::string_view _key) {
   NEUJSON_ASSERT(type_ == NEU_OBJECT);
   return ::std::find_if(::std::get<NEU_OBJECT_TYPE>(data_)->begin(),
                         ::std::get<NEU_OBJECT_TYPE>(data_)->end(),
                         [_key](const Member &_m) -> bool {
-                          return _m.key_.getStringView() == _key;
+                          return _m.key_.GetStringView() == _key;
                         });
 }

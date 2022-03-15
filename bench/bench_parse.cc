@@ -14,24 +14,13 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/stringbuffer.h"
 
+#include "nlohmann/json.hpp"
+
 #include <benchmark/benchmark.h>
 
-template<class ...ExtraArgs>
-void BM_neujson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
-  for (auto _: _state) {
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
-    FILE *input = fopen(_extra_args..., "r");
-#endif
-    if (input == nullptr) { exit(EXIT_FAILURE); }
-    neujson::FileReadStream is(input);
-    fclose(input);
-
-    benchmark::DoNotOptimize(is);
-  }
-}
+#include <string>
+#include <sstream>
+#include <fstream>
 
 template<class ...ExtraArgs>
 void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
@@ -69,7 +58,7 @@ void BM_neujson_read_parse_write(benchmark::State &_state, ExtraArgs &&... _extr
 
     neujson::StringWriteStream os;
     neujson::Writer writer(os);
-    doc.writeTo(writer);
+    doc.WriteTo(writer);
     std::string_view ret = os.get();
 
     benchmark::DoNotOptimize(ret);
@@ -94,29 +83,10 @@ void BM_neujson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&..
 
     neujson::StringWriteStream os;
     neujson::PrettyWriter writer(os);
-    doc.writeTo(writer);
+    doc.WriteTo(writer);
     std::string_view ret = os.get();
 
     benchmark::DoNotOptimize(ret);
-  }
-}
-
-template<class ...ExtraArgs>
-void BM_rapidjson_read(benchmark::State &_state, ExtraArgs &&... _extra_args) {
-  for (auto _: _state) {
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
-    FILE *input = fopen(_extra_args..., "r");
-#endif
-    if (input == nullptr) { exit(EXIT_FAILURE); }
-
-    char readBuffer[65536];
-    rapidjson::FileReadStream is(input, readBuffer, sizeof(readBuffer));
-
-    fclose(input);
-    benchmark::DoNotOptimize(is);
   }
 }
 
@@ -197,25 +167,87 @@ void BM_rapidjson_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&
   }
 }
 
-BENCHMARK_CAPTURE(BM_neujson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+template<class ...ExtraArgs>
+void BM_nlohmann_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
+  for (auto _: _state) {
+    ::std::ifstream ifs(_extra_args...);
+    if (!ifs.is_open()) { exit(EXIT_FAILURE); }
+
+    ::nlohmann::json j;
+    ifs >> j;
+
+    ifs.close();
+
+    benchmark::DoNotOptimize(j);
+  }
+}
+
+template<class ...ExtraArgs>
+void BM_nlohmann_read_parse_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
+  for (auto _: _state) {
+    ::std::ifstream ifs(_extra_args...);
+    if (!ifs.is_open()) { exit(EXIT_FAILURE); }
+
+    ::nlohmann::json j;
+    ifs >> j;
+
+    ifs.close();
+
+    ::std::stringstream ss;
+
+    ss << j << std::endl;
+    ::std::string str(ss.str());
+    std::string_view ret(str);
+
+    benchmark::DoNotOptimize(ret);
+  }
+}
+
+template<class ...ExtraArgs>
+void BM_nlohmann_read_parse_pretty_write(benchmark::State &_state, ExtraArgs &&... _extra_args) {
+  for (auto _: _state) {
+    ::std::ifstream ifs(_extra_args...);
+    if (!ifs.is_open()) { exit(EXIT_FAILURE); }
+
+    ::nlohmann::json j;
+    ifs >> j;
+
+    ifs.close();
+
+    ::std::stringstream ss;
+
+    ss << ::std::setw(4) << j << std::endl;
+    ::std::string str(ss.str());
+    std::string_view ret(str);
+
+    benchmark::DoNotOptimize(ret);
+  }
+}
+
+// @formatter:off
 BENCHMARK_CAPTURE(BM_neujson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
-BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
-BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_neujson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+//BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
 
-BENCHMARK_CAPTURE(BM_rapidjson_read, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+BENCHMARK_CAPTURE(BM_nlohmann_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+//BENCHMARK_CAPTURE(BM_nlohmann_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+//BENCHMARK_CAPTURE(BM_nlohmann_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
+
 BENCHMARK_CAPTURE(BM_rapidjson_read_parse, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond); // NOLINT
+//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, simple, "../../citm_catalog.json")->Unit(benchmark::kMillisecond);  // NOLINT
 
-BENCHMARK_CAPTURE(BM_neujson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
 BENCHMARK_CAPTURE(BM_neujson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
-BENCHMARK_CAPTURE(BM_neujson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
-BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
+//BENCHMARK_CAPTURE(BM_neujson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_neujson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
 
-BENCHMARK_CAPTURE(BM_rapidjson_read, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+BENCHMARK_CAPTURE(BM_nlohmann_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_nlohmann_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_nlohmann_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
+
 BENCHMARK_CAPTURE(BM_rapidjson_read_parse, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
-BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
-
+//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond);  // NOLINT
+//BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write, many_double, "../../canada.json")->Unit(benchmark::kMillisecond); // NOLINT
+// @formatter:on
 
 BENCHMARK_MAIN();

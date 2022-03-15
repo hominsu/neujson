@@ -5,7 +5,7 @@
 #include "document.h"
 
 neujson::Value *neujson::Document::addValue(Value &&_value) {
-  Type type = _value.getType();
+  Type type = _value.GetType();
   (void) type;
   if (see_value_) { NEUJSON_ASSERT(!stack_.empty() && "root not singular"); }
   else {
@@ -39,7 +39,7 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
 
   auto &top = stack_.back();
   if (top.type() == NEU_ARRAY) {
-    top.value->addValue(::std::move(_value));
+    top.value->AddValue(::std::move(_value));
     top.value_count++;
     return top.lastValue();
   } else {
@@ -50,7 +50,7 @@ neujson::Value *neujson::Document::addValue(Value &&_value) {
       top.value_count++;
       return &key_;
     } else {
-      top.value->addMember(::std::move(key_), ::std::move(_value));
+      top.value->AddMember(::std::move(key_), ::std::move(_value));
       top.value_count++;
       return top.lastValue();
     }
