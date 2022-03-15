@@ -49,11 +49,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(include/neujson)
 
-if (NOT CMAKE_BUILD_NO_EXAMPLES)
+if (CMAKE_BUILD_EXAMPLES)
     add_subdirectory(example)
 endif ()
 
-if (NOT CMAKE_BUILD_BENCHMARK)
+if (CMAKE_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)
     add_subdirectory(third_party/gtest)
     add_subdirectory(third_party/benchmark)
