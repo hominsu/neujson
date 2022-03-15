@@ -30,7 +30,7 @@ int main() {
   neujson::FileWriteStream os(stdout);
   neujson::PrettyWriter writer(os);
   writer.SetIndent(' ', 2);
-  doc.writeTo(writer);
+  doc.WriteTo(writer);
 
   return 0;
 }

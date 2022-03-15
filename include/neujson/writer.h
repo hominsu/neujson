@@ -10,6 +10,8 @@
 #include "value.h"
 #include "internal/itoa.h"
 
+#include <cmath>
+
 #include <vector>
 #include <algorithm>
 

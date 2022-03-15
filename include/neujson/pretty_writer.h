@@ -169,7 +169,6 @@ inline void PrettyWriter<WriteStream>::InitIndent(char _indent_char, ::std::size
   for (::std::size_t i = 0; i < _indent_char_count; ++i) {
     indent_.push_back(_indent_char);
   }
-  indent_.push_back('\0');
   indent_sv_ = ::std::string_view(indent_);
 }
 
