@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>neujson Document</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="description" content="Description">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+<div data-app id="main"></div>
+
+<!-- Docsify v4 -->
+<script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
+<!-- plugins -->
+<script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>       <!-- 在 Github 上编辑 -->
+<script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>  <!-- 支持 mermaid -->
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>    <!-- Zoom image -->
+<script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>    <!-- C++ 代码高亮 -->
+<script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>   <!-- bash 代码高亮 -->
+<script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>   <!-- json 代码高亮 -->
+<script src="//cdn.jsdelivr.net/npm/docsify@4.12.2/lib/plugins/search.min.js"></script> <!-- 全文搜索 -->
+<script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>  <!-- 复制到剪贴板 -->
+
+<script>
+    let num = 0;
+    mermaid.initialize({ startOnLoad: false });
+
+    window.$docsify = {
+        name: 'hominsu/neujson',
+        repo: 'https://github.com/hominsu/neujson',
+        el: '#main',
+        loadSidebar: true,
+        auto2top: true,
+        autoHeader: true,
+
+        search: {
+            maxAge: 86400000, // 过期时间，单位毫秒，默认一天
+            paths: [
+                '/',            // => /README.md
+                '/zh-cn/',      // => /zh-cn/README.md
+            ],
+            placeholder: {
+                '/zh-cn/': '搜索',
+                '/': 'Type to search'
+            },
+            noData: {
+                '/zh-cn/': '找不到结果',
+                '/': 'No Results'
+            },
+        },
+
+        plugins: [
+            EditOnGithubPlugin.create('https://github.com/hominsu/neujson/blob/main/docs/')
+        ],
+        markdown: {
+            renderer: {
+                code: function(code, lang) {
+                    if (lang === "mermaid") {
+                    return (
+                        '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
+                    );
+                    }
+                    return this.origin.code.apply(this, arguments);
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
