@@ -17,38 +17,37 @@
 <!-- plugins -->
 <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>       <!-- 在 Github 上编辑 -->
 <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>  <!-- 支持 mermaid -->
+<script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>         <!-- 支持 emoji -->
 <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>    <!-- Zoom image -->
+<script src="//cdn.jsdelivr.net/npm/docsify@4.12.2/lib/plugins/search.min.js"></script> <!-- 全文搜索 -->
+<script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>  <!-- 复制到剪贴板 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>    <!-- C++ 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>   <!-- bash 代码高亮 -->
 <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>   <!-- json 代码高亮 -->
-<script src="//cdn.jsdelivr.net/npm/docsify@4.12.2/lib/plugins/search.min.js"></script> <!-- 全文搜索 -->
-<script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>  <!-- 复制到剪贴板 -->
 
 <script>
     let num = 0;
-    mermaid.initialize({ startOnLoad: false });
+    mermaid.initialize({startOnLoad: false});
 
     window.$docsify = {
-        name: 'hominsu/neujson',
-        repo: 'https://github.com/hominsu/neujson',
+        name: 'neujson',
         el: '#main',
+        coverpage: ['/', '/zh-cn/'],
+        loadNavbar: true,
         loadSidebar: true,
+        subMaxLevel: 2,
         auto2top: true,
-        autoHeader: true,
 
         search: {
             maxAge: 86400000, // 过期时间，单位毫秒，默认一天
-            paths: [
-                '/',            // => /README.md
-                '/zh-cn/',      // => /zh-cn/README.md
-            ],
+            paths: 'auto',
             placeholder: {
+                '/': 'Type to search',
                 '/zh-cn/': '搜索',
-                '/': 'Type to search'
             },
             noData: {
+                '/': 'No Results',
                 '/zh-cn/': '找不到结果',
-                '/': 'No Results'
             },
         },
 
@@ -57,11 +56,11 @@
         ],
         markdown: {
             renderer: {
-                code: function(code, lang) {
+                code: function (code, lang) {
                     if (lang === "mermaid") {
-                    return (
-                        '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
-                    );
+                        return (
+                            '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
+                        );
                     }
                     return this.origin.code.apply(this, arguments);
                 }

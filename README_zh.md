@@ -36,21 +36,21 @@
 
 ![Alt](https://repobeats.axiom.co/api/embed/8a83cfd0471491a4d17cc58263a6cc63143a3552.svg "Repobeats analytics image")
 
-## Description
+## 简介
 
-neujson is a JSON parser and generator for C++. It supports both SAX and DOM style API.
+neujson 是一个 C++ 的 JSON 解析器及生成器。它同时支持 SAX 和 DOM 风格的 API。
 
-## Install
+## 安装
 
-### clone the neujson repo
+### 克隆 neujson 的源代码
 
 ```bash
 git clone https://github.com/hominsu/neujson.git
 ```
 
-### Build and install
+### 编译和安装
 
-The following commands build and locally install neujson:
+下面的命令将在本地构建和安装 neujson：
 
 ```bash
 cd neujson
@@ -62,23 +62,23 @@ make install
 popd
 ```
 
-If you didn't have root access use `sudo` to install neujson instead:
+如果你没有安装目录的权限，请使用 `sudo`：
 
 ```bash
 sudo make install
 ```
 
-#### Build with example
+#### 同时构建示例程序
 
-The example code is part of the `neujson` repo source, which you cloned as part of the steps of the previous section, just add a cmake option:
+示例的源代码已经包含在 `neujson` 的源代码中，你已经在上一步中克隆了源代码，只需要额外添加一个的 `cmake` 选项：
 
 ```bash
 cmake -DCMAKE_BUILD_EXAMPLES ../..
 ```
 
-#### Build with benchmark
+#### 同时构建基准测试
 
-To build with benchmark，use `git submodule` to fetch all the data from that third party project and check out the appropriate commit first, then add the benchmark CMake option:
+构建基准测试，需要使用 `git submodule` 拉取第三方依赖，并检出到相应的分支，然后添加基准测试的 `cmake` 选项：
 
 ```bash
 git submodule update --init --recursive
@@ -87,9 +87,9 @@ cmake -DCMAKE_BUILD_BENCHMARK ../..
 ...
 ```
 
-## Uninstall
+## 卸载
 
-The following commands uninstall neujson:
+使用一下命令可以卸载 neujson：
 
 ```bash
 pushd cmake/build
@@ -97,15 +97,15 @@ make uninstall
 popd
 ```
 
-If you didn't have root access use `sudo` to install neujson instead:
+如果你没有安装目录的权限，请使用 `sudo`：
 
 ```bash
 sudo make install
 ```
 
-## Usage at a glance
+## 用法一目了然
 
-This simple example parses a JSON string into a document (DOM), make a simple modification of the DOM, and finally stringify the DOM to a JSON string.
+此简单例子解析一个 JSON 字符串至一个 document (DOM)，对 DOM 作出简单修改，最终把 DOM 转换（stringify）至 JSON 字符串。
 
 ```cpp
 #include "neujson/document.h"
@@ -139,26 +139,26 @@ int main() {
 }
 ```
 
-Output:
+输出:
 
 ```json
 [{"precision":"zip","Latitude":37.766800000000003,"Longitude":-22.395899999999997,"Address":"","City":"SAN FRANCISCO","State":"CA","Zip":"94107","Country":"US"},{"precision":"zip","Latitude":37.371991000000001,"Longitude":-122.02602,"Address":"","City":"SUNNYVALE","State":"CA","Zip":"94085","Country":"US"}]
 ```
 
-## Benchmark
+## 基准性能测试
 
-The benchmark is base on the google benchmark
+基准性能测试基于 google benchmark 进行
 
 ### JSON data
 
 |                          JSON file                           |  Size  |                         Description                          |
 | :----------------------------------------------------------: | :----: | :----------------------------------------------------------: |
-| `canada.json`[source](https://github.com/mloskot/json_benchmark/blob/master/data/canada.json) | 2199KB | Contour of Canada border in [GeoJSON](http://geojson.org/) format. Contains a lot of real numbers. |
-| `citm_catalog.json`[source](https://github.com/RichardHightower/json-parsers-benchmark/blob/master/data/citm_catalog.json) | 1737KB | A big benchmark file with indentation used in several Java JSON parser benchmarks. |
+| `canada.json`[source](https://github.com/mloskot/json_benchmark/blob/master/data/canada.json) | 2199KB | 加拿大边境轮廓，格式为: [GeoJSON](http://geojson.org/)；包含大量的实数。 |
+| `citm_catalog.json`[source](https://github.com/RichardHightower/json-parsers-benchmark/blob/master/data/citm_catalog.json) | 1737KB | 一个带有缩进的大型基准测试文件，用于多个Java JSON解析器基准测试。 |
 
 ### Sample Results
 
-The followings are some snapshots from the results of MacBook Air (M1, 2020) with Apple clang 13.1.6
+下面是使用 MacBook Air (M1, 2020) 和 Apple clang 13.1.6 得到的结果
 
 ```bash
 Run on (8 X 24.1207 MHz CPU s)
@@ -178,6 +178,6 @@ BM_nlohmann_read_parse/canada.json              38.1 ms         38.1 ms         
 BM_rapidjson_read_parse/canada.json             4.04 ms         4.04 ms          172
 ```
 
-## Reference
+## 参考
 
 [RapidJSON](https://github.com/Tencent/rapidjson): A fast JSON parser/generator for C++ with both SAX/DOM style API
