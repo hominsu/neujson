@@ -36,7 +36,7 @@
 
 ## Description
 
-neujson is a JSON parser and generator for C++. It support both SAX and DOM style API
+neujson is a JSON parser and generator for C++. It supports both SAX and DOM style API.
 
 ## Install
 
@@ -68,7 +68,7 @@ sudo make install
 
 #### Build with example
 
-The example code is part of the `neujson` repo source, which you cloned as part of the steps of the previous section, just add a addtional cmake option:
+The example code is part of the `neujson` repo source, which you cloned as part of the steps of the previous section, just add a cmake option:
 
 ```bash
 cmake -DCMAKE_BUILD_EXAMPLES ../..
@@ -141,6 +141,39 @@ Output:
 
 ```json
 [{"precision":"zip","Latitude":37.766800000000003,"Longitude":-22.395899999999997,"Address":"","City":"SAN FRANCISCO","State":"CA","Zip":"94107","Country":"US"},{"precision":"zip","Latitude":37.371991000000001,"Longitude":-122.02602,"Address":"","City":"SUNNYVALE","State":"CA","Zip":"94085","Country":"US"}]
+```
+
+## Benchmark
+
+The benchmark is base on the google benchmark
+
+### JSON data
+
+|                          JSON file                           |  Size  |                         Description                          |
+| :----------------------------------------------------------: | :----: | :----------------------------------------------------------: |
+| `canada.json`[source](https://github.com/mloskot/json_benchmark/blob/master/data/canada.json) | 2199KB | Contour of Canada border in [GeoJSON](http://geojson.org/) format. Contains a lot of real numbers. |
+| `citm_catalog.json`[source](https://github.com/RichardHightower/json-parsers-benchmark/blob/master/data/citm_catalog.json) | 1737KB | A big benchmark file with indentation used in several Java JSON parser benchmarks. |
+
+### Sample Results
+
+The followings are some snapshots from the results of MacBook Air (M1, 2020) with Apple clang 13.1.6
+
+```bash
+Run on (8 X 24.1207 MHz CPU s)
+CPU Caches:
+  L1 Data 64 KiB (x8)
+  L1 Instruction 128 KiB (x8)
+  L2 Unified 4096 KiB (x2)
+Load Average: 4.43, 2.55, 2.08
+------------------------------------------------------------------------------------
+Benchmark                                          Time             CPU   Iterations
+------------------------------------------------------------------------------------
+BM_neujson_read_parse/citm_catalog.json         6.31 ms         6.30 ms           80
+BM_nlohmann_read_parse/citm_catalog.json        8.81 ms         8.81 ms           78
+BM_rapidjson_read_parse/citm_catalog.json       2.37 ms         2.37 ms          295
+BM_neujson_read_parse/canada.json               29.7 ms         29.7 ms           23
+BM_nlohmann_read_parse/canada.json              38.1 ms         38.1 ms           18
+BM_rapidjson_read_parse/canada.json             4.04 ms         4.04 ms          172
 ```
 
 ## Reference
