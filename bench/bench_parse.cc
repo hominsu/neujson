@@ -2,6 +2,17 @@
 // Created by HominSu on 2022/3/12.
 //
 
+#if defined(__SSE4_2__)
+#define RAPIDJSON_SSE42
+#define NEUJSON_SSE42
+#elif defined(__SSE2__)
+#define RAPIDJSON_SSE2
+#define NEUJSON_SSE2
+#elif defined(__ARM_NEON)
+#define RAPIDJSON_NEON
+#define NEUJSON_NEON
+#endif
+
 #include "neujson/document.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/string_write_stream.h"

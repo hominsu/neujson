@@ -92,7 +92,8 @@ class Writer : noncopyable {
 };
 
 template<typename WriteStream>
-void Writer<WriteStream>::Prefix(Type type_) {
+inline void Writer<WriteStream>::Prefix(Type type_) {
+  (void) type_;
   if (!stack_.empty()) {
     auto &level = stack_.back();
     if (level.value_count_ > 0) {

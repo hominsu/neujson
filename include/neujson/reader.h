@@ -14,6 +14,8 @@
 
 #if defined(NEUJSON_SSE42)
 #include <nmmintrin.h>
+#elif defined(NEUJSON_SSE2)
+#include <emmintrin.h>
 #elif defined(NEUJSON_NEON)
 #include <arm_neon.h>
 #endif
@@ -34,6 +36,9 @@ class Reader : noncopyable {
 #if defined(NEUJSON_SSE42)
   template<typename ReadStream>
   static void parseWhitespace_SIMD_SSE42(ReadStream &_rs);
+#elif defined(NEUJSON_SSE2)
+  template<typename ReadStream>
+  static void parseWhitespace_SIMD_SSE2(ReadStream &_rs);
 #elif defined(NEUJSON_NEON)
   template<typename ReadStream>
   static void parseWhitespace_SIMD_NEON(ReadStream &_rs);
@@ -124,9 +129,11 @@ inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
   const char *p = _rs.getAddr();
   const char
       *nextAligned = reinterpret_cast<const char *>((reinterpret_cast<size_t>(p) + 15) & static_cast<size_t>(~15));
-  while (p != nextAligned)
-    if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') { ++p; _rs.next(); }
-    else { return; }
+  while (p != nextAligned) {
+    if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') {
+      ++p;
+      _rs.next();
+    } else { return; }
   }
 
   // The rest of string using SIMD
@@ -140,6 +147,60 @@ inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
     if (r != 16) {
       _rs.next(r);
       return;
+    }
+  }
+}
+#elif defined(NEUJSON_SSE2)
+/**
+ * @brief Skip whitespace with SSE2 instructions, testing 16 8-byte characters at once.
+ * @tparam ReadStream
+ * @param _rs
+ */
+template<typename ReadStream>
+inline void Reader::parseWhitespace_SIMD_SSE2(ReadStream &_rs) {
+  // Fast return for single non-whitespace
+  char ch = _rs.peek();
+  if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
+  else { return; }
+
+  // 16-byte align to the next boundary
+  const char *p = _rs.getAddr();
+  const char
+      *nextAligned = reinterpret_cast<const char *>((reinterpret_cast<size_t>(p) + 15) & static_cast<size_t>(~15));
+  while (p != nextAligned) {
+    if (*p == ' ' || *p == '\n' || *p == '\r' || *p == '\t') {
+      ++p;
+      _rs.next();
+    } else { return; }
+  }
+
+  // The rest of string
+#define C16(c) { c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c }
+  static const char whitespaces[4][16] = {C16(' '), C16('\n'), C16('\r'), C16('\t')};
+#undef C16
+
+  const __m128i w0 = _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespaces[0][0]));
+  const __m128i w1 = _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespaces[1][0]));
+  const __m128i w2 = _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespaces[2][0]));
+  const __m128i w3 = _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespaces[3][0]));
+
+  for (;; p += 16, _rs.next(16)) {
+    const __m128i s = _mm_load_si128(reinterpret_cast<const __m128i *>(p));
+    __m128i x = _mm_cmpeq_epi8(s, w0);
+    x = _mm_or_si128(x, _mm_cmpeq_epi8(s, w1));
+    x = _mm_or_si128(x, _mm_cmpeq_epi8(s, w2));
+    x = _mm_or_si128(x, _mm_cmpeq_epi8(s, w3));
+    auto r = static_cast<unsigned short>(~_mm_movemask_epi8(x));
+    if (r != 0) { // some characters may be non-whitespace
+#ifdef _MSC_VER   // Find the index of first non-whitespace
+      unsigned long offset;
+      _BitScanForward(&offset, r);
+      _rs.next(offset);
+      return;
+#else
+      _rs.next(__builtin_ffs(r) - 1);
+      return;
+#endif
     }
   }
 }
@@ -212,6 +273,8 @@ template<typename ReadStream>
 inline void Reader::parseWhitespace(ReadStream &_rs) {
 #if defined(NEUJSON_SSE42)
   return parseWhitespace_SIMD_SSE42(_rs);
+#elif defined(NEUJSON_SSE2)
+  return parseWhitespace_SIMD_SSE2(_rs);
 #elif defined(NEUJSON_NEON)
   return parseWhitespace_SIMD_NEON(_rs);
 #else

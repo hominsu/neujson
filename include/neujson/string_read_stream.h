@@ -31,33 +31,29 @@ class StringReadStream : public noncopyable {
 
   [[nodiscard]] const char *getAddr() const { return json_.data() + (iter_ - json_.begin()); }
 
-  char next();
+  char next() {
+    if (hasNext()) {
+      char ch = *iter_;
+      iter_++;
+      return ch;
+    }
+    return '\0';
+  }
 
   template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
-  void next(Tint &&_n);
+  void next(Tint _n) {
+    NEUJSON_ASSERT(_n >= 0);
+    for (Tint i = 0; i < _n; ++i) {
+      if (hasNext()) { iter_++; }
+    }
+  }
 
   void assertNext(char _ch) {
+    (void) _ch;
     NEUJSON_ASSERT(peek() == _ch);
     next();
   }
 };
-
-inline char StringReadStream::next() {
-  if (hasNext()) {
-    char ch = *iter_;
-    iter_++;
-    return ch;
-  }
-  return '\0';
-}
-
-template<typename Tint, class>
-inline void StringReadStream::next(Tint &&_n) {
-  NEUJSON_ASSERT(_n >= 0);
-  for (Tint i = 0; i < _n; ++i) {
-    if (hasNext()) { iter_++; }
-  }
-}
 
 } // namespace neujson
 
