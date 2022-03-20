@@ -30,7 +30,6 @@ struct SerialInfo {
         clocal_ = _val["clocal"].GetBool();
         break;
       default:assert(false && "bad type");
-        break;
     }
   }
 

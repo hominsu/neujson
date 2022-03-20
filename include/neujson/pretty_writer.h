@@ -122,6 +122,7 @@ class PrettyWriter : public Writer<WriteStream> {
 
 template<typename WriteStream>
 void PrettyWriter<WriteStream>::PrettyPrefix(Type type_) {
+  (void) type_;
   if (!Base::stack_.empty()) {
     auto &level = Base::stack_.back();
 
@@ -164,9 +165,9 @@ void PrettyWriter<WriteStream>::PrettyPrefix(Type type_) {
 }
 
 template<typename WriteStream>
-inline void PrettyWriter<WriteStream>::InitIndent(char _indent_char, ::std::size_t _indent_char_count) {
+inline void PrettyWriter<WriteStream>::InitIndent(char _indent_char, size_t _indent_char_count) {
   indent_.clear();
-  for (::std::size_t i = 0; i < _indent_char_count; ++i) {
+  for (size_t i = 0; i < _indent_char_count; ++i) {
     indent_.push_back(_indent_char);
   }
   indent_sv_ = ::std::string_view(indent_);
