@@ -1,7 +1,6 @@
 file(GLOB ProjectSource "*.cc")
-file(GLOB ProjectHeader
-        "internal/*.h"
-        "*.h")
+file(GLOB ProjectHeader "*.h")
+file(GLOB ProjectInternalHeader "internal/*.h")
 
 #add extra search paths for libraries and includes
 SET(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
@@ -11,13 +10,9 @@ add_library(neujson STATIC ${ProjectSource} ${ProjectHeader})
 install(TARGETS neujson
         EXPORT ${PROJECT_NAME}Targets
         DESTINATION ${LIB_INSTALL_DIR})
-install(EXPORT ${PROJECT_NAME}Targets
-        FILE ${PROJECT_NAME}Targets.cmake
-        NAMESPACE ${PROJECT_NAME}::
-        DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME})
 
-set(HEADERS ${ProjectHeader})
-install(FILES ${HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME})
+install(FILES ${ProjectHeader} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME})
+install(FILES ${ProjectInternalHeader} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME})
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
@@ -31,6 +26,10 @@ configure_file(
 install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME})
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
         DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME})
 
 # uninstall target
