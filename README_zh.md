@@ -100,7 +100,7 @@ popd
 如果你没有安装目录的权限，请使用 `sudo`：
 
 ```bash
-sudo make install
+sudo make uninstall
 ```
 
 ## 用法一目了然
