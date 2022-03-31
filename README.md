@@ -97,10 +97,10 @@ make uninstall
 popd
 ```
 
-If you didn't have root access use `sudo` to install neujson instead:
+If you didn't have root access use `sudo` to uninstall neujson instead:
 
 ```bash
-sudo make install
+sudo make uninstall
 ```
 
 ## Usage at a glance
