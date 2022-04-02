@@ -5,8 +5,8 @@
 #ifndef NEUJSON_NEUJSON_STRING_READ_STREAM_H_
 #define NEUJSON_NEUJSON_STRING_READ_STREAM_H_
 
-#include "neujson.h"
-#include "noncopyable.h"
+#include "neujson/neujson.h"
+#include "neujson/noncopyable.h"
 
 #include <string_view>
 

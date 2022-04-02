@@ -12,7 +12,7 @@ install(TARGETS neujson
         DESTINATION ${LIB_INSTALL_DIR})
 
 install(FILES ${ProjectHeader} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME})
-install(FILES ${ProjectInternalHeader} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME})
+install(FILES ${ProjectInternalHeader} DESTINATION ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/internal)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
