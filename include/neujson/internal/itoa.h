@@ -7,6 +7,8 @@
 
 #include "neujson/neujson.h"
 
+#include <cstdint>
+
 namespace neujson::internal {
 
 inline int CountDecimalDigit32(uint32_t _n) {

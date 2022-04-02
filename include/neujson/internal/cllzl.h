@@ -7,6 +7,8 @@
 
 #include "neujson/neujson.h"
 
+#include <cstdint>
+
 #if defined(_MSC_VER) && !defined(UNDER_CE)
 #include <intrin.h>
 #if defined(_WIN64)
