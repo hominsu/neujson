@@ -5,7 +5,7 @@
 #ifndef NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_
 #define NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_
 
-#include "noncopyable.h"
+#include "neujson/noncopyable.h"
 
 #include <cstdio>
 

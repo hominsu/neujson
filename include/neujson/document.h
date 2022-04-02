@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_DOCUMENT_H_
 #define NEUJSON_NEUJSON_DOCUMENT_H_
 
-#include "exception.h"
-#include "value.h"
-#include "reader.h"
-#include "string_read_stream.h"
+#include "neujson/exception.h"
+#include "neujson/reader.h"
+#include "neujson/string_read_stream.h"
+#include "neujson/value.h"
 
 namespace neujson {
 

@@ -6,7 +6,7 @@
 #include <crtdbg.h>
 #endif
 
-#include "reader.h"
+#include "neujson/reader.h"
 
 void neujson::Reader::encodeUtf8(::std::string &_buffer, unsigned int _u) {
 #if defined(_MSC_VER)

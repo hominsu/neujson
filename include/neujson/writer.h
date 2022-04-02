@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_WRITER_H_
 #define NEUJSON_NEUJSON_WRITER_H_
 
-#include "neujson.h"
-#include "noncopyable.h"
-#include "value.h"
-#include "internal/itoa.h"
+#include "neujson/neujson.h"
+#include "neujson/noncopyable.h"
+#include "neujson/internal/itoa.h"
+#include "neujson/value.h"
 
 #include <cmath>
 

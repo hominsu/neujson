@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_READER_H_
 #define NEUJSON_NEUJSON_READER_H_
 
-#include "noncopyable.h"
-#include "exception.h"
-#include "value.h"
-#include "internal/cllzl.h"
+#include "neujson/exception.h"
+#include "neujson/internal/cllzl.h"
+#include "neujson/noncopyable.h"
+#include "neujson/value.h"
 
 #include <cmath>
 

@@ -5,7 +5,7 @@
 #ifndef NEUJSON_NEUJSON_EXCEPTION_H_
 #define NEUJSON_NEUJSON_EXCEPTION_H_
 
-#include "neujson.h"
+#include "neujson/neujson.h"
 
 #include <exception>
 

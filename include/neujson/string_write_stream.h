@@ -5,7 +5,7 @@
 #ifndef NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_
 #define NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_
 
-#include <neujson/noncopyable.h>
+#include "neujson/noncopyable.h"
 
 #include <vector>
 #include <string_view>
