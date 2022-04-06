@@ -1,0 +1,30 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "hominsu",
+      "name": "HominSu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14991225?v=4",
+      "profile": "http://www.hauhau.cn",
+      "contributions": [
+        "code",
+        "doc",
+        "design",
+        "example",
+        "infra",
+        "platform",
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "neujson",
+  "projectOwner": "hominsu",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
