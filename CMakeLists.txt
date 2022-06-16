@@ -59,11 +59,10 @@ endif (CCACHE_FOUND)
 
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if (RAPIDJSON_ENABLE_INSTRUMENTATION_OPT AND NOT CMAKE_CROSSCOMPILING)
+    if (NUEJSON_ENABLE_INSTRUMENTATION_OPT AND NOT CMAKE_CROSSCOMPILING)
         if (CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
         elseif (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
-            #FIXME: x86 is -march=native, but doesn't mean every arch is this option. To keep original project's compatibility, I leave this except POWER.
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
         endif ()
     endif ()
@@ -74,7 +73,6 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         if (CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
         elseif (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
-            #FIXME: x86 is -march=native, but doesn't mean every arch is this option. To keep original project's compatibility, I leave this except POWER.
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
         endif ()
     endif ()
