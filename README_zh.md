@@ -36,6 +36,8 @@
 
 ![Alt](https://repobeats.axiom.co/api/embed/8a83cfd0471491a4d17cc58263a6cc63143a3552.svg "Repobeats analytics image")
 
+Translations: [English](README.md) | [简体中文](README_zh.md)
+
 ## 简介
 
 neujson 是一个 C++ 的 JSON 解析器及生成器。它同时支持 SAX 和 DOM 风格的 API。
