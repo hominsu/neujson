@@ -75,7 +75,7 @@ sudo make install
 示例的源代码已经包含在 `neujson` 的源代码中，你已经在上一步中克隆了源代码，只需要额外添加一个的 `cmake` 选项：
 
 ```bash
-cmake -DCMAKE_BUILD_EXAMPLES ../..
+cmake -DNEUJSON_BUILD_EXAMPLES=ON ../..
 ```
 
 #### 同时构建基准测试
@@ -85,7 +85,7 @@ cmake -DCMAKE_BUILD_EXAMPLES ../..
 ```bash
 git submodule update --init --recursive
 pushd cmake/build
-cmake -DCMAKE_BUILD_BENCHMARK ../..
+cmake -DNEUJSON_BUILD_BENCHMARK=ON ../..
 ...
 ```
 
@@ -163,21 +163,90 @@ int main() {
 下面是使用 MacBook Air (M1, 2020) 和 Apple clang 13.1.6 得到的结果
 
 ```bash
-Run on (8 X 24.1207 MHz CPU s)
+Run on (8 X 24.1208 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB (x8)
   L1 Instruction 128 KiB (x8)
   L2 Unified 4096 KiB (x2)
-Load Average: 4.43, 2.55, 2.08
-------------------------------------------------------------------------------------
-Benchmark                                          Time             CPU   Iterations
-------------------------------------------------------------------------------------
-BM_neujson_read_parse/citm_catalog.json         6.31 ms         6.30 ms           80
-BM_nlohmann_read_parse/citm_catalog.json        8.81 ms         8.81 ms           78
-BM_rapidjson_read_parse/citm_catalog.json       2.37 ms         2.37 ms          295
-BM_neujson_read_parse/canada.json               29.7 ms         29.7 ms           23
-BM_nlohmann_read_parse/canada.json              38.1 ms         38.1 ms           18
-BM_rapidjson_read_parse/canada.json             4.04 ms         4.04 ms          172
+Load Average: 3.28, 2.24, 2.33
+--------------------------------------------------------------------------------------------------------
+Benchmark                                                              Time             CPU   Iterations
+--------------------------------------------------------------------------------------------------------
+BM_neujson_read_parse/citm_catalog.json                             7.10 ms         7.10 ms           74
+BM_nlohmann_read_parse/citm_catalog.json                            10.6 ms         10.6 ms           66
+BM_rapidjson_read_parse/citm_catalog.json                           2.96 ms         2.96 ms          238
+BM_neujson_read_parse_write_file/citm_catalog.json                  14.8 ms         14.8 ms           47
+BM_nlohmann_read_parse_write_file/citm_catalog.json                 12.6 ms         12.6 ms           55
+BM_rapidjson_read_parse_write_file/citm_catalog.json                4.13 ms         4.13 ms          171
+BM_neujson_read_parse_write_string/citm_catalog.json                8.09 ms         8.08 ms           85
+BM_nlohmann_read_parse_write_string/citm_catalog.json               12.8 ms         12.8 ms           55
+BM_rapidjson_read_parse_write_string/citm_catalog.json              3.85 ms         3.85 ms          180
+BM_neujson_read_parse_pretty_write_file/citm_catalog.json           30.6 ms         30.6 ms           23
+BM_nlohmann_read_parse_pretty_write_file/citm_catalog.json          13.3 ms         13.3 ms           53
+BM_rapidjson_read_parse_pretty_write_file/citm_catalog.json         4.38 ms         4.38 ms          161
+BM_neujson_read_parse_pretty_write_string/citm_catalog.json         10.2 ms         10.2 ms           68
+BM_nlohmann_read_parse_pretty_write_string/citm_catalog.json        14.2 ms         14.2 ms           50
+BM_rapidjson_read_parse_pretty_write_string/citm_catalog.json       4.21 ms         4.21 ms          166
+BM_neujson_read_parse/canada.json                                   31.8 ms         31.8 ms           22
+BM_nlohmann_read_parse/canada.json                                  38.6 ms         38.6 ms           18
+BM_rapidjson_read_parse/canada.json                                 3.33 ms         3.33 ms          209
+BM_neujson_read_parse_write_file/canada.json                        74.2 ms         74.2 ms            9
+BM_nlohmann_read_parse_write_file/canada.json                       47.6 ms         47.6 ms           15
+BM_rapidjson_read_parse_write_file/canada.json                      12.4 ms         12.4 ms           55
+BM_neujson_read_parse_write_string/canada.json                      69.5 ms         69.5 ms           10
+BM_nlohmann_read_parse_write_string/canada.json                     48.6 ms         48.6 ms           14
+BM_rapidjson_read_parse_write_string/canada.json                    10.7 ms         10.7 ms           64
+BM_neujson_read_parse_pretty_write_file/canada.json                  151 ms          151 ms            5
+BM_nlohmann_read_parse_pretty_write_file/canada.json                50.8 ms         50.8 ms           14
+BM_rapidjson_read_parse_pretty_write_file/canada.json               13.7 ms         13.7 ms           51
+BM_neujson_read_parse_pretty_write_string/canada.json               79.1 ms         79.1 ms            9
+BM_nlohmann_read_parse_pretty_write_string/canada.json              54.9 ms         54.9 ms           13
+BM_rapidjson_read_parse_pretty_write_string/canada.json             12.4 ms         12.4 ms           55
+```
+
+The followings are some snapshots from the results of i5-9500 with gcc 8.5.0 (Red Hat 8.5.0-10) in CentOS-8-Stream
+
+```bash
+Run on (6 X 4157.69 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 256 KiB (x6)
+  L3 Unified 9216 KiB (x1)
+Load Average: 0.24, 0.30, 0.33
+--------------------------------------------------------------------------------------------------------
+Benchmark                                                              Time             CPU   Iterations
+--------------------------------------------------------------------------------------------------------
+BM_neujson_read_parse/citm_catalog.json                             8.50 ms         8.48 ms           75
+BM_nlohmann_read_parse/citm_catalog.json                            14.5 ms         14.5 ms           48
+BM_rapidjson_read_parse/citm_catalog.json                           2.40 ms         2.40 ms          290
+BM_neujson_read_parse_write_file/citm_catalog.json                  11.3 ms         11.3 ms           62
+BM_nlohmann_read_parse_write_file/citm_catalog.json                 17.4 ms         17.4 ms           40
+BM_rapidjson_read_parse_write_file/citm_catalog.json                3.42 ms         3.41 ms          205
+BM_neujson_read_parse_write_string/citm_catalog.json                10.4 ms         10.4 ms           67
+BM_nlohmann_read_parse_write_string/citm_catalog.json               17.4 ms         17.4 ms           41
+BM_rapidjson_read_parse_write_string/citm_catalog.json              3.38 ms         3.38 ms          208
+BM_neujson_read_parse_pretty_write_file/citm_catalog.json           24.5 ms         24.5 ms           29
+BM_nlohmann_read_parse_pretty_write_file/citm_catalog.json          19.0 ms         18.9 ms           37
+BM_rapidjson_read_parse_pretty_write_file/citm_catalog.json         3.79 ms         3.78 ms          186
+BM_neujson_read_parse_pretty_write_string/citm_catalog.json         14.7 ms         14.6 ms           48
+BM_nlohmann_read_parse_pretty_write_string/citm_catalog.json        18.4 ms         18.4 ms           39
+BM_rapidjson_read_parse_pretty_write_string/citm_catalog.json       3.72 ms         3.71 ms          191
+BM_neujson_read_parse/canada.json                                   27.4 ms         27.4 ms           26
+BM_nlohmann_read_parse/canada.json                                  41.6 ms         41.6 ms           17
+BM_rapidjson_read_parse/canada.json                                 4.58 ms         4.57 ms          153
+BM_neujson_read_parse_write_file/canada.json                         101 ms          101 ms            7
+BM_nlohmann_read_parse_write_file/canada.json                       53.5 ms         53.4 ms           13
+BM_rapidjson_read_parse_write_file/canada.json                      13.6 ms         13.6 ms           52
+BM_neujson_read_parse_write_string/canada.json                       102 ms          102 ms            7
+BM_nlohmann_read_parse_write_string/canada.json                     53.1 ms         53.1 ms           13
+BM_rapidjson_read_parse_write_string/canada.json                    12.3 ms         12.2 ms           57
+BM_neujson_read_parse_pretty_write_file/canada.json                  167 ms          167 ms            4
+BM_nlohmann_read_parse_pretty_write_file/canada.json                58.7 ms         58.6 ms           12
+BM_rapidjson_read_parse_pretty_write_file/canada.json               14.4 ms         14.4 ms           49
+BM_neujson_read_parse_pretty_write_string/canada.json                117 ms          117 ms            6
+BM_nlohmann_read_parse_pretty_write_string/canada.json              57.4 ms         57.4 ms           11
+BM_rapidjson_read_parse_pretty_write_string/canada.json             13.1 ms         13.1 ms           54
 ```
 
 ## 参考
