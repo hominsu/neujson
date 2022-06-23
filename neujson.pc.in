@@ -1,0 +1,7 @@
+includedir=@INCLUDE_INSTALL_DIR@
+
+Name: @PROJECT_NAME@
+Description: JSON parser/generator in C++17
+Version: @LIB_VERSION_STRING@
+URL: https://github.com/hominsu/neujson
+Cflags: -I${includedir}

@@ -1,13 +1,40 @@
-cmake_minimum_required(VERSION 3.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+if (POLICY CMP0025)
+    # detect Apple's Clang
+    cmake_policy(SET CMP0025 NEW)
+endif ()
+if (POLICY CMP0054)
+    cmake_policy(SET CMP0054 NEW)
+endif ()
+
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 
 set(LIB_MAJOR_VERSION "1")
 set(LIB_MINOR_VERSION "0")
 set(LIB_PATCH_VERSION "2")
 set(LIB_VERSION_STRING "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
-project(neujson VERSION "${LIB_VERSION_STRING}" LANGUAGES C CXX)
+if (CMAKE_VERSION VERSION_LESS 3.0)
+    PROJECT(neujson CXX)
+else ()
+    cmake_policy(SET CMP0048 NEW)
+    PROJECT(neujson VERSION "${LIB_VERSION_STRING}" LANGUAGES C CXX)
+endif ()
+
+# compile in release with debug info mode by default
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif ()
+
+# Build all binaries in a separate directory
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." OFF)
+option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." OFF)
+option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 message("")
 message("Operation system is ${CMAKE_SYSTEM}")
@@ -29,14 +56,9 @@ else ()
     message(FATAL_ERROR "Platform ${CMAKE_SYSTEM} is not support for this project")
 endif ()
 
-
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-endif ()
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
     ADD_DEFINITIONS(-DDebug)
@@ -57,12 +79,11 @@ if (CCACHE_FOUND)
     endif ()
 endif (CCACHE_FOUND)
 
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if (NUEJSON_ENABLE_INSTRUMENTATION_OPT AND NOT CMAKE_CROSSCOMPILING)
+    if (NEUJSON_ENABLE_INSTRUMENTATION_OPT AND NOT CMAKE_CROSSCOMPILING)
         if (CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
-        elseif (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+        else()
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
         endif ()
     endif ()
@@ -72,7 +93,9 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if (NOT CMAKE_CROSSCOMPILING)
         if (CMAKE_SYSTEM_PROCESSOR STREQUAL "powerpc" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
-        elseif (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
+        elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
+        else()
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
         endif ()
     endif ()
@@ -96,11 +119,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(include/neujson)
 
-if (CMAKE_BUILD_EXAMPLES)
+if (NEUJSON_BUILD_EXAMPLES)
     add_subdirectory(example)
 endif ()
 
-if (CMAKE_BUILD_BENCHMARK)
+if (NEUJSON_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)
     include_directories(third_party/nlohmann-json/include)
     add_subdirectory(third_party/gtest)
@@ -110,3 +133,4 @@ endif ()
 
 message("The directory the headers are installed in: ${CMAKE_INSTALL_PREFIX}")
 message("Directory where lib will install: ${LIB_INSTALL_DIR}")
+message("")
