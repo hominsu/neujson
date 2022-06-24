@@ -30,7 +30,7 @@ endif ()
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
-option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." ON)
+option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." OFF)
 option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
 set(CMAKE_CXX_STANDARD 17)
