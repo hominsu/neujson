@@ -6,8 +6,9 @@
 #include "neujson/file_write_stream.h"
 
 int main() {
-  neujson::FileWriteStream os(stdout);
-  neujson::Writer writer(os);
+  char writeBuffer[65536];
+  neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::Writer<neujson::FileWriteStream> writer(os);
 
   writer.StartArray();
   writer.Double(::std::numeric_limits<double>::infinity());

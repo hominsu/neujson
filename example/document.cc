@@ -20,7 +20,7 @@ int main() {
 
   // 3. Stringify the DOM
   neujson::StringWriteStream os;
-  neujson::Writer writer(os);
+  neujson::Writer<neujson::StringWriteStream> writer(os);
   doc.WriteTo(writer);
 
   // Output

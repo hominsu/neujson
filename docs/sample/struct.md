@@ -61,8 +61,9 @@ int main() {
   SerialInfo serial_info(value);
 
   value = serial_info.toJsonObject();
-  neujson::FileWriteStream out(stdout);
-  neujson::Writer writer(out);
+  char writeBuffer[65536];
+  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::Writer<neujson::FileWriteStream> writer(out);
   value.WriteTo(writer);
 
   return 0;

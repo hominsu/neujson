@@ -12,8 +12,9 @@ Reader 是 neujson 的解析器，可以将各种输入流中的 JSON 字符串�
 
 int main() {
   neujson::StringReadStream in(R"({"key":"value"})");
-  neujson::FileWriteStream out(stdout);
-  neujson::Writer writer(out);
+  char writeBuffer[65536];
+  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::Writer<neujson::FileWriteStream> writer(out);
 
   auto err = neujson::Reader::parse(in, writer);
   if (err != neujson::error::PARSE_OK) {
