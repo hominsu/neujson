@@ -18,8 +18,9 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  neujson::FileWriteStream out(stdout);
-  neujson::PrettyWriter pretty_writer(out);
+  char writeBuffer[65536];
+  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::PrettyWriter<neujson::FileWriteStream> pretty_writer(out);
   pretty_writer.SetIndent(' ', 2);
   doc.WriteTo(pretty_writer);
 

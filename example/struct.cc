@@ -2,10 +2,10 @@
 // Created by Homin Su on 2022/3/15.
 //
 
-#include "neujson/value.h"
 #include "neujson/document.h"
-#include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/pretty_writer.h"
+#include "neujson/value.h"
 
 #include <cassert>
 #include <cstdio>
@@ -59,8 +59,9 @@ int main() {
   SerialInfo serial_info(value);
 
   value = serial_info.toJsonObject();
-  neujson::FileWriteStream out(stdout);
-  neujson::Writer writer(out);
+  char writeBuffer[65536];
+  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::Writer<neujson::FileWriteStream> writer(out);
   value.WriteTo(writer);
 
   return 0;

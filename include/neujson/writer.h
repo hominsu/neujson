@@ -113,13 +113,13 @@ inline void Writer<WriteStream>::Prefix(Type type_) {
 
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteNull() {
-  os_.put("null");
+  os_.puts("null", 4);
   return true;
 }
 
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteBool(bool _b) {
-  os_.put(_b ? "true" : "false");
+  os_.puts(_b ? "true" : "false", _b ? 4 : 5);
   return true;
 }
 
@@ -127,7 +127,7 @@ template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
   char buf[16]{};
   internal::i32toa(_i32, buf);
-  os_.put(::std::string_view(buf, internal::CountDecimalDigit32(_i32)));
+  os_.puts(buf, internal::CountDecimalDigit32(_i32));
   return true;
 }
 
@@ -135,40 +135,45 @@ template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
   char buf[32]{};
   internal::i64toa(_i64, buf);
-  os_.put(::std::string_view(buf, internal::CountDecimalDigit64(_i64)));
+  os_.puts(buf, internal::CountDecimalDigit64(_i64));
   return true;
 }
 
 template<typename WriteStream>
 bool Writer<WriteStream>::WriteDouble(double _d) {
   char buf[32];
+  ::std::size_t size = 0;
   if (std::isinf(_d)) {
 #if defined(_MSC_VER)
     strcpy_s(buf, "Infinity");
 #else
     strcpy(buf, "Infinity");
 #endif
+    size += 8;
   } else if (std::isnan(_d)) {
 #if defined(_MSC_VER)
     strcpy_s(buf, "NaN");
 #else
     strcpy(buf, "NaN");
 #endif
+    size += 3;
   } else {
     int n = sprintf(buf, "%.17g", _d);
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     NEUJSON_ASSERT(n > 0 && n < 32);
+    size += n;
     if (std::find_if_not(buf, buf + n, isdigit) == buf + n) {
 #if defined(_MSC_VER)
       strcat_s(buf, ".0");
 #else
       strcat(buf, ".0");
 #endif
+      size += 2;
     }
   }
 
-  os_.put(buf);
+  os_.puts(buf, size);
   return true;
 }
 
@@ -178,25 +183,25 @@ bool Writer<WriteStream>::WriteString(::std::string_view _str) {
   for (auto c: _str) {
     auto u = static_cast<unsigned char>(c);
     switch (u) {
-      case '\"': os_.put("\\\"");
+      case '\"': os_.puts("\\\"", 2);
         break;
-      case '\b': os_.put("\\b");
+      case '\b': os_.puts("\\b", 2);
         break;
-      case '\f': os_.put("\\f");
+      case '\f': os_.puts("\\f", 2);
         break;
-      case '\n': os_.put("\\n");
+      case '\n': os_.puts("\\n", 2);
         break;
-      case '\r': os_.put("\\r");
+      case '\r': os_.puts("\\r", 2);
         break;
-      case '\t': os_.put("\\t");
+      case '\t': os_.puts("\\t", 2);
         break;
-      case '\\': os_.put("\\\\");
+      case '\\': os_.puts("\\\\", 2);
         break;
       default:
         if (u < 0x20) {
           char buf[7];
           snprintf(buf, 7, "\\u%04X", u);
-          os_.put(buf);
+          os_.puts(buf, 6);
         } else {
           os_.put(c);
         }

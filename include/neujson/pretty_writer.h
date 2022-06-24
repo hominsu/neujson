@@ -32,9 +32,8 @@ class PrettyWriter : public Writer<WriteStream> {
   ::std::string_view indent_sv_;
 
  public:
-  explicit PrettyWriter(WriteStream &_os)
-      : Base(_os), format_options_(kFormatDefault) {
-    InitIndent(' ', 4);
+  explicit PrettyWriter(WriteStream &_os) : Base(_os), format_options_(kFormatDefault) {
+    InitIndent(' ', 2);
   }
 
   PrettyWriter &SetIndent(char _indent_char, ::std::size_t _indent_char_count) {
@@ -177,7 +176,7 @@ template<typename WriteStream>
 inline void PrettyWriter<WriteStream>::WriteIndent() {
   size_t count = Base::stack_.size();
   for (size_t i = 0; i < count; ++i) {
-    Base::os_.put(indent_sv_);
+    Base::os_.put_sv(indent_sv_);
   }
 }
 

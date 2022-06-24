@@ -1,10 +1,11 @@
 AUTHOR_NAME=hominsu
-AUTHOR_EMAIL=1774069959@qq.com
+AUTHOR_EMAIL=hominsu@foxmail.com
 VERSION=$(shell git describe --tags --always)
+ALPINE_VERSION=3.16
 
 REPO=hominsu
 APP_NAME=$(shell basename $$PWD)
-DOCKER_IMAGE=$(REPO)/$(APP_NAME)-alpine:$(VERSION)
+DOCKER_IMAGE=$(REPO)/$(APP_NAME)-alpine:alpine-$(ALPINE_VERSION)-$(VERSION)
 
 .PHONY: build
 # build
@@ -18,21 +19,22 @@ docker:
 	docker build \
 	--build-arg AUTHOR_NAME=$(AUTHOR_NAME) \
 	--build-arg AUTHOR_EMAIL=$(AUTHOR_EMAIL) \
+	--build-arg  ALPINE_VERSION=$(ALPINE_VERSION) \
 	--build-arg VERSION=$(VERSION) \
 	--file Dockerfile \
 	--tag $(DOCKER_IMAGE) .
 
-.PHONY: buildx
+.PHONY: bake
 # build multi-platform images
-buildx:
-	docker buildx build \
-	--build-arg AUTHOR_NAME=$(AUTHOR_NAME) \
-	--build-arg AUTHOR_EMAIL=$(AUTHOR_EMAIL) \
-	--build-arg VERSION=$(VERSION) \
-	--file Dockerfile \
-	--platform=linux/arm64,linux/amd64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6 \
-	--push \
-	--tag $(DOCKER_IMAGE) .
+bake:
+	AUTHOR_NAME=$(AUTHOR_NAME) \
+	AUTHOR_EMAIL=$(AUTHOR_EMAIL) \
+	ALPINE_VERSION=$(ALPINE_VERSION) \
+	VERSION=$(VERSION) \
+	docker buildx bake \
+	--file docker-bake.hcl \
+	--load \
+	--set "*.platform=linux/arm64,linux/amd64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6"
 
 # show help
 help:

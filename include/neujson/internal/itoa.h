@@ -7,12 +7,15 @@
 
 #include "neujson/neujson.h"
 
+#include <cstddef>
 #include <cstdint>
 
 namespace neujson::internal {
 
-inline int CountDecimalDigit32(uint32_t _n) {
-  // Simple pure C++ implementation was faster than __builtin_clz version in this situation.
+inline size_t CountDecimalDigit32(uint32_t
+_n) {
+// Simple pure C++ implementation was faster than __builtin_clz version in this situation.
+// @formatter:off
   if (_n < 10) { return 1; }
   if (_n < 100) { return 2; }
   if (_n < 1000) { return 3; }
@@ -23,10 +26,12 @@ inline int CountDecimalDigit32(uint32_t _n) {
   if (_n < 100000000) { return 8; }
   if (_n < 1000000000) { return 9; }
   return 10;
+  // @formatter:on
 }
 
-inline int CountDecimalDigit64(uint64_t _n) {
+inline size_t CountDecimalDigit64(uint64_t _n) {
   // Simple pure C++ implementation was faster than __builtin_clz version in this situation.
+  // @formatter:off
   if (_n < 10) { return 1; }
   if (_n < 100) { return 2; }
   if (_n < 1000) { return 3; }
@@ -47,6 +52,7 @@ inline int CountDecimalDigit64(uint64_t _n) {
   if (_n < 1000000000000000000) { return 18; }
   if (_n < 10000000000000000000U) { return 19; }
   return 20;
+  // @formatter:off
 }
 
 namespace {
