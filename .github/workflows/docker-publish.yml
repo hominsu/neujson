@@ -2,7 +2,7 @@ name: Docker Deploy
 
 on:
   push:
-    tags: [ '*.*.*' ]
+    tags: [ 'v*.*.*' ]
 
 jobs:
   set-matrix:
@@ -65,8 +65,7 @@ jobs:
 
       - name: Build and Push ${{ matrix.name }}
         run: |
-          make buildx REPO=${{ matrix.push_link }} VERSION=${{ needs.set-matrix.outputs.git_tag }}
-          make buildx REPO=${{ matrix.push_link }} VERSION=latest
+          REPO=${{ matrix.push_link }} VERSION=${{ needs.set-matrix.outputs.git_tag }} docker buildx bake --file docker-bake.hcl --push --set "*.platform=linux/arm64,linux/amd64,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6"
 
   deploy:
     name: Deploy
