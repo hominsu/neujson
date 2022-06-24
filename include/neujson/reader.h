@@ -71,7 +71,7 @@ class Reader : noncopyable {
  private:
   static bool isDigit(char _ch) { return _ch >= '0' && _ch <= '9'; }
   static bool isDigit1to9(char _ch) { return _ch >= '1' && _ch <= '9'; }
-  static void encodeUtf8(::std::string &_buffer, unsigned _u);
+  static void encodeUtf8(::std::string &_buffer, unsigned int _u);
 };
 
 template<typename ReadStream, typename Handler>
@@ -142,7 +142,8 @@ inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
 
   for (;; p += 16, _rs.next(16)) {
     const __m128i s = _mm_load_si128(reinterpret_cast<const __m128i *>(p));
-    const int r = _mm_cmpistri(w, s, _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_LEAST_SIGNIFICANT | _SIDD_NEGATIVE_POLARITY);
+    const int r =
+        _mm_cmpistri(w, s, _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_LEAST_SIGNIFICANT | _SIDD_NEGATIVE_POLARITY);
     // some characters are non-whitespace
     if (r != 16) {
       _rs.next(r);
@@ -514,6 +515,45 @@ inline void Reader::parseValue(ReadStream &_rs, Handler &_handler) {
     case '{': return parseObject(_rs, _handler);
     default: return parseNumber(_rs, _handler);
   }
+}
+
+inline void Reader::encodeUtf8(std::string &_buffer, unsigned int _u) {
+#if defined(_MSC_VER)
+  if (_u >= 0x0 && _u <= 0x7F) {
+  _buffer.push_back(_u & 0xFF);
+} else if (_u >= 0x080 && _u <= 0x7FF) {
+  _buffer.push_back(0xC0 | ((_u >> 6) & 0xFF));
+  _buffer.push_back(0x80 | (_u & 0x3F));
+} else if (_u >= 0x0800 && _u <= 0xFFFF) {
+  _buffer.push_back(0xE0 | ((_u >> 12) & 0xFF));
+  _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+  _buffer.push_back(0x80 | (_u & 0x3F));
+} else if (_u >= 0x010000 && _u <= 0x10FFFF) {
+  _buffer.push_back(0xF0 | ((_u >> 18) & 0xFF));
+  _buffer.push_back(0x80 | ((_u >> 12) & 0x3F));
+  _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+  _buffer.push_back(0x80 | (_u & 0x3F));
+}
+#elif defined(__clang__) || defined(__GNUC__)
+  switch (_u) {
+    case 0x00 ... 0x7F:_buffer.push_back(_u & 0xFF);
+      break;
+    case 0x080 ... 0x7FF:_buffer.push_back(0xC0 | ((_u >> 6) & 0xFF));
+      _buffer.push_back(0x80 | (_u & 0x3F));
+      break;
+    case 0x0800 ... 0xFFFF:_buffer.push_back(0xE0 | ((_u >> 12) & 0xFF));
+      _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+      _buffer.push_back(0x80 | (_u & 0x3F));
+      break;
+    case 0x010000 ... 0x10FFFF:_buffer.push_back(0xF0 | ((_u >> 18) & 0xFF));
+      _buffer.push_back(0x80 | ((_u >> 12) & 0x3F));
+      _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+      _buffer.push_back(0x80 | (_u & 0x3F));
+      break;
+    default: NEUJSON_ASSERT(false && "out of range");
+  }
+#endif
+
 }
 
 } // namespace neujson

@@ -18,10 +18,14 @@ class StringWriteStream : public noncopyable {
 
  public:
   void put(char _ch) {
-    buffer_.push_back(_ch);
+    buffer_.emplace_back(_ch);
   }
 
-  void put(::std::string_view _str) {
+  void puts(const char *_str, ::std::size_t _length) {
+    buffer_.insert(buffer_.end(), _str, _str + _length);
+  }
+
+  void put_sv(::std::string_view _str) {
     buffer_.insert(buffer_.end(), _str.begin(), _str.end());
   }
 
