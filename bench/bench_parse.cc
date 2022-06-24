@@ -85,8 +85,9 @@ void BM_neujson_read_parse_write_file(benchmark::State &_state, ExtraArgs &&... 
       break;
     }
 
-    neujson::FileWriteStream os(output);
-    neujson::Writer writer(os);
+    char writeBuffer[65536];
+    neujson::FileWriteStream os(output, writeBuffer, sizeof(writeBuffer));
+    neujson::Writer<neujson::FileWriteStream> writer(os);
     doc.WriteTo(writer);
     os.flush();
     fclose(output);
@@ -117,7 +118,7 @@ void BM_neujson_read_parse_write_string(benchmark::State &_state, ExtraArgs &&..
     }
 
     neujson::StringWriteStream os;
-    neujson::Writer writer(os);
+    neujson::Writer<neujson::StringWriteStream> writer(os);
     doc.WriteTo(writer);
     std::string_view ret = os.get();
     (void) ret;
@@ -150,8 +151,9 @@ void BM_neujson_read_parse_pretty_write_file(benchmark::State &_state, ExtraArgs
       break;
     }
 
-    neujson::FileWriteStream os(output);
-    neujson::PrettyWriter writer(os);
+    char writeBuffer[65536];
+    neujson::FileWriteStream os(output, writeBuffer, sizeof(writeBuffer));
+    neujson::PrettyWriter<neujson::FileWriteStream> writer(os);
     doc.WriteTo(writer);
     os.flush();
     fclose(output);
@@ -182,7 +184,7 @@ void BM_neujson_read_parse_pretty_write_string(benchmark::State &_state, ExtraAr
     }
 
     neujson::StringWriteStream os;
-    neujson::PrettyWriter writer(os);
+    neujson::PrettyWriter<neujson::StringWriteStream> writer(os);
     doc.WriteTo(writer);
     std::string_view ret = os.get();
     (void) ret;
