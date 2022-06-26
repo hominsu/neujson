@@ -38,12 +38,9 @@ template<class ...ExtraArgs>
 void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -63,13 +60,14 @@ template<class ...ExtraArgs>
 void BM_neujson_read_parse_write_file(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
+#if defined(_MSC_VER)
+    FILE *output = fopen("nul", "w");
+#else
     FILE *output = fopen("/dev/null", "w");
 #endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
@@ -98,12 +96,9 @@ template<class ...ExtraArgs>
 void BM_neujson_read_parse_write_string(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -129,13 +124,14 @@ template<class ...ExtraArgs>
 void BM_neujson_read_parse_pretty_write_file(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
+#if defined(_MSC_VER)
+    FILE *output = fopen("nul", "w");
+#else
     FILE *output = fopen("/dev/null", "w");
 #endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
@@ -164,12 +160,9 @@ template<class ...ExtraArgs>
 void BM_neujson_read_parse_pretty_write_string(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     neujson::Document doc;
     neujson::FileReadStream is(input);
@@ -195,12 +188,9 @@ template<class ...ExtraArgs>
 void BM_rapidjson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -224,13 +214,14 @@ template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_write_file(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
+#if defined(_MSC_VER)
+    FILE *output = fopen("nul", "w");
+#else
     FILE *output = fopen("/dev/null", "w");
 #endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
@@ -263,12 +254,9 @@ template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_write_string(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -298,13 +286,14 @@ template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_pretty_write_file(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
+#if defined(_MSC_VER)
+    FILE *output = fopen("nul", "w");
+#else
     FILE *output = fopen("/dev/null", "w");
 #endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
@@ -337,12 +326,9 @@ template<class ...ExtraArgs>
 void BM_rapidjson_read_parse_pretty_write_string(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
     (void) s;
-#if defined(_MSC_VER)
-    FILE *input;
-    fopen_s(&input, _extra_args..., "r");
-#else
+
     FILE *input = fopen(_extra_args..., "r");
-#endif
+
     if (input == nullptr) { exit(EXIT_FAILURE); }
 
     char readBuffer[65536];
@@ -388,7 +374,11 @@ void BM_nlohmann_read_parse_write_file(benchmark::State &_state, ExtraArgs &&...
     (void) s;
     ::std::ifstream ifs(_extra_args...);
     if (!ifs.is_open()) { exit(EXIT_FAILURE); }
+#if defined(_MSC_VER)
+    ::std::ofstream ofs("nul");
+#else
     ::std::ofstream ofs("/dev/null");
+#endif
     if (!ofs.is_open()) { exit(EXIT_FAILURE); }
 
     ::nlohmann::json j;
@@ -428,7 +418,11 @@ void BM_nlohmann_read_parse_pretty_write_file(benchmark::State &_state, ExtraArg
     (void) s;
     ::std::ifstream ifs(_extra_args...);
     if (!ifs.is_open()) { exit(EXIT_FAILURE); }
+#if defined(_MSC_VER)
+    ::std::ofstream ofs("nul");
+#else
     ::std::ofstream ofs("/dev/null");
+#endif
     if (!ofs.is_open()) { exit(EXIT_FAILURE); }
 
     ::nlohmann::json j;
