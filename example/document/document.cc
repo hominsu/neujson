@@ -1,7 +1,7 @@
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
-#include "sample.h"
+#include "../sample.h"
 
 #include <cstdio>
 

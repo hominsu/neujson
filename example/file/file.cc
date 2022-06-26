@@ -12,7 +12,7 @@
 int main() {
 #if defined(_MSC_VER)
   FILE *input;
-    fopen_s(&input, _extra_args..., "r");
+  fopen_s(&input, "../../citm_catalog.json", "r");
 #else
   FILE *input = fopen("../../citm_catalog.json", "r");
 #endif
