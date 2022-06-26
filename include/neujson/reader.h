@@ -374,7 +374,7 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
         CALL(_handler.Int64(i64));
       }
     }
-  } catch (::std::exception &_e) {
+  } catch (...) {
     throw Exception(error::PARSE_NUMBER_TOO_BIG);
   }
 
