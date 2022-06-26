@@ -1,17 +1,22 @@
-add_executable(document document.cc)
-target_link_libraries(document)
+cmake_minimum_required(VERSION 2.8)
 
-add_executable(file file.cc)
-target_link_libraries(file)
+if(POLICY CMP0054)
+    cmake_policy(SET CMP0054 NEW)
+endif()
 
-add_executable(create_json create_json.cc)
-target_link_libraries(create_json)
+set(EXAMPLES
+        document
+        file
+        create_json
+        parse
+        pretty
+        struct)
 
-add_executable(parse parse.cc)
-target_link_libraries(parse)
+include_directories(".")
+include_directories("../include/")
 
-add_executable(pretty pretty.cc)
-target_link_libraries(pretty)
+foreach (example ${EXAMPLES})
+    add_executable(${example} ${example}/${example}.cc)
+endforeach()
 
-add_executable(struct struct.cc)
-target_link_libraries(struct)
+add_custom_target(examples ALL DEPENDS ${EXAMPLES})
