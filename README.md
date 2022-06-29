@@ -32,8 +32,6 @@
   </p>
 </div>
 
-![Alt](https://repobeats.axiom.co/api/embed/8a83cfd0471491a4d17cc58263a6cc63143a3552.svg "Repobeats analytics image")
-
 ##### Translate to: [简体中文](README_zh.md)
 
 ## Description
@@ -250,6 +248,12 @@ BM_rapidjson_read_parse_pretty_write_string/canada.json             12.8 ms     
 ## Reference
 
 [RapidJSON](https://github.com/Tencent/rapidjson): A fast JSON parser/generator for C++ with both SAX/DOM style API
+
+## Acknowledgment
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
+
+Special thanks to [JetBrains](https://www.jetbrains.com/) for licensing free `All Products Pack` for this open source projects
 
 ## Contributors ✨
 

@@ -1,8 +1,6 @@
-<div id="top"></div>
-
 <!-- PROJECT SHIELDS -->
 <p align="center">
-<a href="https://github.com/hominsu/neujson/graphs/contributors"><img src="https://img.shields.io/github/contributors/hominsu/neujson.svg?style=for-the-badge" alt="Contributors"></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all_contributors-1-orange.svg?style=for-the-badge" alt="Contributors"></a>
 <a href="https://github.com/hominsu/neujson/network/members"><img src="https://img.shields.io/github/forks/hominsu/neujson.svg?style=for-the-badge" alt="Forks"></a>
 <a href="https://github.com/hominsu/neujson/stargazers"><img src="https://img.shields.io/github/stars/hominsu/neujson.svg?style=for-the-badge" alt="Stargazers"></a>
 <a href="https://github.com/hominsu/neujson/issues"><img src="https://img.shields.io/github/issues/hominsu/neujson.svg?style=for-the-badge" alt="Issues"></a>
@@ -60,10 +58,10 @@ make install
 popd
 ```
 
-If you didn't have root access use `sudo` to uninstall neujson instead:
+If you didn't have root access use `sudo` to install neujson instead:
 
 ```bash
-sudo make uninstall
+sudo make install
 ```
 
 #### Build with example
@@ -95,10 +93,10 @@ make uninstall
 popd
 ```
 
-If you didn't have root access use `sudo` to install neujson instead:
+If you didn't have root access use `sudo` to uninstall neujson instead:
 
 ```bash
-sudo make install
+sudo make uninstall
 ```
 
 ## Usage at a glance
@@ -205,10 +203,10 @@ The followings are some snapshots from the results of i5-9500 with gcc 8.5.0 (Re
 ```bash
 Run on (6 X 4166.48 MHz CPU s)
 CPU Caches:
-L1 Data 32 KiB (x6)
-L1 Instruction 32 KiB (x6)
-L2 Unified 256 KiB (x6)
-L3 Unified 9216 KiB (x1)
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 256 KiB (x6)
+  L3 Unified 9216 KiB (x1)
 Load Average: 0.80, 0.52, 0.45
 --------------------------------------------------------------------------------------------------------
 Benchmark                                                              Time             CPU   Iterations
@@ -248,3 +246,29 @@ BM_rapidjson_read_parse_pretty_write_string/canada.json             12.8 ms     
 ## Reference
 
 [RapidJSON](https://github.com/Tencent/rapidjson): A fast JSON parser/generator for C++ with both SAX/DOM style API
+
+## Acknowledgment
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
+
+Special thanks to [JetBrains](https://www.jetbrains.com/) for licensing free `All Products Pack` for this open source projects
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://www.hauhau.cn"><img src="https://avatars.githubusercontent.com/u/14991225?v=4?s=100" width="100px;" alt=""/><br /><sub><b>HominSu</b></sub></a><br /><a href="https://github.com/hominsu/neujson/commits?author=hominsu" title="Code">💻</a> <a href="https://github.com/hominsu/neujson/commits?author=hominsu" title="Documentation">📖</a> <a href="#design-hominsu" title="Design">🎨</a> <a href="#example-hominsu" title="Examples">💡</a> <a href="#infra-hominsu" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-hominsu" title="Packaging/porting to new platform">📦</a> <a href="https://github.com/hominsu/neujson/commits?author=hominsu" title="Tests">⚠️</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
