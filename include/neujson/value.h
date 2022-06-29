@@ -6,6 +6,7 @@
 #define NEUJSON_NEUJSON_VALUE_H_
 
 #include "neujson/neujson.h"
+#include "neujson/internal/ieee754.h"
 
 #include <cstring>
 
@@ -25,7 +26,7 @@ namespace neujson {
   NEU(BOOL, bool)SUFFIX \
   NEU(INT32, int32_t)SUFFIX \
   NEU(INT64, int64_t)SUFFIX \
-  NEU(DOUBLE, double)SUFFIX \
+  NEU(DOUBLE, internal::Double)SUFFIX \
   NEU(STRING, ::std::shared_ptr<::std::vector<char>>)SUFFIX \
   NEU(ARRAY, ::std::shared_ptr<::std::vector<Value>>)SUFFIX \
   NEU(OBJECT, ::std::shared_ptr<::std::vector<Member>>) \
@@ -79,7 +80,8 @@ class Value {
   explicit Value(bool _b) : type_(NEU_BOOL), data_(_b) {};
   explicit Value(int32_t _i32) : type_(NEU_INT32), data_(_i32) {};
   explicit Value(int64_t _i64) : type_(NEU_INT64), data_(_i64) {};
-  explicit Value(double _d) : type_(NEU_DOUBLE), data_(_d) {};
+  explicit Value(double _d) : type_(NEU_DOUBLE), data_(internal::Double(_d)) {};
+  explicit Value(internal::Double _d) : type_(NEU_DOUBLE), data_(_d) {};
   explicit Value(const char *_s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s, _s + strlen(_s))) {};
   explicit Value(::std::string_view _s) : type_(NEU_STRING), data_(::std::make_shared<String>(_s.begin(), _s.end())) {};
   Value(const char *_s, ::std::size_t _len) : Value(::std::string_view(_s, _len)) {};
@@ -109,7 +111,7 @@ class Value {
     return type_ == NEU_INT64 ? ::std::get<NEU_INT64_TYPE>(data_) : ::std::get<NEU_INT32_TYPE>(data_);
   }
 
-  [[nodiscard]] double GetDouble() const { NEUJSON_ASSERT(type_ == NEU_DOUBLE); return ::std::get<NEU_DOUBLE_TYPE>(data_); }
+  [[nodiscard]] double GetDouble() const { NEUJSON_ASSERT(type_ == NEU_DOUBLE); return ::std::get<NEU_DOUBLE_TYPE>(data_).Value(); }
 
   [[nodiscard]] ::std::string_view GetStringView() const {
     NEUJSON_ASSERT(type_ == NEU_STRING);

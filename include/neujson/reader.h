@@ -299,8 +299,9 @@ inline void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char 
       return;
     case NEU_BOOL:CALL(_handler.Bool(c == 't'));
       return;
-    case NEU_DOUBLE:CALL(_handler.Double(
-          c == 'N' ? std::numeric_limits<double>::quiet_NaN() : std::numeric_limits<double>::infinity()));
+    case NEU_DOUBLE:CALL(_handler.Double(internal::Double(
+          c == 'N' ? std::numeric_limits<double>::quiet_NaN() : std::numeric_limits<double>::infinity()
+      )));
       return;
     default:NEUJSON_ASSERT(false && "bad type");
   }
@@ -358,7 +359,7 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
 #error "complier no support"
 #endif
       NEUJSON_ASSERT(start + idx == end);
-      CALL(_handler.Double(d));
+      CALL(_handler.Double(internal::Double(d)));
     } else {
       int64_t i64;
 #if defined(__clang__) || defined(_MSC_VER)

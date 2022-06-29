@@ -51,7 +51,7 @@ inline size_t CountDecimalDigit64(uint64_t _n) {
   if (_n < 1000000000000000000) { return 18; }
   if (_n < 10000000000000000000U) { return 19; }
   return 20;
-  // @formatter:off
+  // @formatter:on
 }
 
 namespace {

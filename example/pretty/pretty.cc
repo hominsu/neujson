@@ -11,7 +11,7 @@
 
 int main() {
   neujson::Document doc;
-  neujson::error::ParseError err = doc.parse(kSample[0]);
+  neujson::error::ParseError err = doc.parse(kSample[1]);
   if (err != neujson::error::PARSE_OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
