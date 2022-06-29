@@ -16,4 +16,11 @@
 #define NEUJSON_ASSERT(x) assert(x)
 #endif // NEUJSON_ASSERT
 
+/*
+ * @brief Avoid compiler warnings
+ */
+#ifndef NEUJSON_UINT64_C2
+#define NEUJSON_UINT64_C2(high32, low32) ((static_cast<uint64_t>(high32) << 32) | static_cast<uint64_t>(low32))
+#endif
+
 #endif //NEUJSON_NEUJSON_NEUJSON_H_

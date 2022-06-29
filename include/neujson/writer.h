@@ -8,6 +8,7 @@
 #include "neujson/neujson.h"
 #include "neujson/noncopyable.h"
 #include "neujson/internal/itoa.h"
+#include "neujson/internal/ieee754.h"
 #include "neujson/value.h"
 
 #include <cmath>
@@ -41,7 +42,8 @@ class Writer : noncopyable {
   virtual bool Bool(bool _b) { Prefix(NEU_BOOL); return EndValue(WriteBool(_b)); }
   virtual bool Int32(int32_t _i32) { Prefix(NEU_INT32); return EndValue(WriteInt32(_i32)); }
   virtual bool Int64(int64_t _i64) { Prefix(NEU_INT64); return EndValue(WriteInt64(_i64)); }
-  virtual bool Double(double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(_d)); }
+  virtual bool Double(double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(internal::Double(_d))); }
+  virtual bool Double(internal::Double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(_d)); }
   virtual bool String(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteString(_str)); }
   virtual bool Key(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteKey(_str)); }
   //@formatter:on
@@ -79,7 +81,7 @@ class Writer : noncopyable {
   bool WriteBool(bool _b);
   bool WriteInt32(int32_t _i32);
   bool WriteInt64(int64_t _i64);
-  bool WriteDouble(double _d);
+  bool WriteDouble(internal::Double _d);
   bool WriteString(::std::string_view _str);
   bool WriteKey(::std::string_view _str);
   bool WriteStartObject();
@@ -140,17 +142,17 @@ inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
 }
 
 template<typename WriteStream>
-bool Writer<WriteStream>::WriteDouble(double _d) {
+bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
   char buf[32];
   ::std::size_t size = 0;
-  if (std::isinf(_d)) {
+  if (_d.IsInf()) {
 #if defined(_MSC_VER)
     strcpy_s(buf, "Infinity");
 #else
     strcpy(buf, "Infinity");
 #endif
     size += 8;
-  } else if (std::isnan(_d)) {
+  } else if (_d.IsNan()) {
 #if defined(_MSC_VER)
     strcpy_s(buf, "NaN");
 #else
@@ -158,7 +160,7 @@ bool Writer<WriteStream>::WriteDouble(double _d) {
 #endif
     size += 3;
   } else {
-    int n = sprintf(buf, "%.17g", _d);
+    int n = sprintf(buf, "%.17g", _d.Value());
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     NEUJSON_ASSERT(n > 0 && n < 32);

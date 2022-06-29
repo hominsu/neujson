@@ -6,6 +6,7 @@
 #define NEUJSON_NEUJSON_PRETTY_WRITER_H_
 
 #include "neujson/neujson.h"
+#include "neujson/internal/ieee754.h"
 #include "neujson/writer.h"
 
 #include <cstring>
@@ -53,7 +54,8 @@ class PrettyWriter : public Writer<WriteStream> {
   bool Bool(bool _b) { PrettyPrefix(NEU_BOOL); return Base::EndValue(Base::WriteBool(_b)); }
   bool Int32(int32_t _i32) { PrettyPrefix(NEU_INT32); return Base::EndValue(Base::WriteInt32(_i32)); }
   bool Int64(int64_t _i64) { PrettyPrefix(NEU_INT64); return Base::EndValue(Base::WriteInt64(_i64)); }
-  bool Double(double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(_d)); }
+  bool Double(double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(internal::Double(_d))); }
+  bool Double(internal::Double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(_d)); }
   bool String(::std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteString(_str)); }
   bool Key(::std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteKey(_str)); }
   //@formatter:on

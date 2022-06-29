@@ -6,6 +6,7 @@
 #define NEUJSON_NEUJSON_DOCUMENT_H_
 
 #include "neujson/exception.h"
+#include "neujson/internal/ieee754.h"
 #include "neujson/reader.h"
 #include "neujson/string_read_stream.h"
 #include "neujson/value.h"
@@ -41,7 +42,7 @@ class Document : public Value {
   bool Bool(bool _b);
   bool Int32(int32_t _i32);
   bool Int64(int64_t _i64);
-  bool Double(double _d);
+  bool Double(internal::Double _d);
   bool String(::std::string_view _str);
   bool Key(::std::string_view _str);
   bool StartObject();
@@ -95,7 +96,7 @@ inline bool Document::Int64(int64_t _i64) {
   return true;
 }
 
-inline bool Document::Double(double _d) {
+inline bool Document::Double(internal::Double _d) {
   addValue(Value(_d));
   return true;
 }
