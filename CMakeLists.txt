@@ -26,21 +26,12 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    ADD_DEFINITIONS(-DDebug)
-    message(STATUS "CMake Build Type: Debug")
-    message("")
-elseif (CMAKE_BUILD_TYPE STREQUAL Release)
-    ADD_DEFINITIONS(-DRelease)
-    message(STATUS "CMake Build Type: Release")
-    message("")
-endif ()
-
 # Build all binaries in a separate directory
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
 option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." OFF)
+option(NEUJSON_BUILD_TESTS "Build neujson unittests." ON)
 option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -107,6 +98,15 @@ SET(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where 
 if (NEUJSON_BUILD_EXAMPLES)
     add_subdirectory(example)
 endif ()
+
+if(NEUJSON_BUILD_TESTS)
+    if(MSVC11)
+        # required for VS2012 due to missing support for variadic templates
+        add_definitions(-D_VARIADIC_MAX=10)
+    endif(MSVC11)
+    add_subdirectory(third_party/gtest)
+    add_subdirectory(test)
+endif()
 
 if (NEUJSON_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)

@@ -31,6 +31,8 @@ class FileWriteStream : public noncopyable {
     NEUJSON_ASSERT(_out != 0 && "FILE pointer equal zero");
   }
 
+  ~FileWriteStream() { if (current_ != buffer_) { flush(); }}
+
   void put(char _ch) {
     if (current_ >= buffer_end_) { flush(); }
     *current_++ = _ch;

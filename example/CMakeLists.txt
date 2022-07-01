@@ -13,7 +13,7 @@ set(EXAMPLES
         struct)
 
 include_directories(".")
-include_directories("../include/")
+include_directories("${PROJECT_SOURCE_DIR}/include/")
 
 foreach (example ${EXAMPLES})
     add_executable(${example} ${example}/${example}.cc)
