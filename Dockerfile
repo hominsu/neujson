@@ -8,6 +8,7 @@ COPY . /src
 WORKDIR /src
 RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release && \
     cmake --build ./build --parallel $(nproc) && \
+    GTEST_COLOR=TRUE ctest --test-dir ./build/test --output-on-failure && \
     cmake --install ./build
 
 # final stage

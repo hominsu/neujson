@@ -11,7 +11,8 @@ DOCKER_IMAGE=$(REPO)/$(APP_NAME)-alpine:alpine-$(ALPINE_VERSION)-$(VERSION)
 # build
 build:
 	cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build ./build --parallel $(shell nproc)
+    cmake --build ./build --parallel $(shell nproc) && \
+    GTEST_COLOR=TRUE ctest --test-dir ./build/test --output-on-failure
 
 .PHONY: docker
 # build image
