@@ -106,15 +106,17 @@ if(NEUJSON_BUILD_TESTS)
     endif(MSVC11)
     add_subdirectory(third_party/gtest)
     add_subdirectory(test)
-endif()
+endif(NEUJSON_BUILD_TESTS)
 
 if (NEUJSON_BUILD_BENCHMARK)
     include_directories(third_party/rapidjson/include)
     include_directories(third_party/nlohmann-json/include)
-    add_subdirectory(third_party/gtest)
+    if(NOT NEUJSON_BUILD_TESTS)
+        add_subdirectory(third_party/gtest)
+    endif()
     add_subdirectory(third_party/benchmark)
     add_subdirectory(bench)
-endif ()
+endif (NEUJSON_BUILD_BENCHMARK)
 
 # header
 install(DIRECTORY include/neujson
