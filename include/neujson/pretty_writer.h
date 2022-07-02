@@ -34,7 +34,7 @@ class PrettyWriter : public Writer<WriteStream> {
 
  public:
   explicit PrettyWriter(WriteStream &_os) : Base(_os), format_options_(kFormatDefault) {
-    InitIndent(' ', 2);
+    InitIndent(' ', 4);
   }
 
   PrettyWriter &SetIndent(char _indent_char, ::std::size_t _indent_char_count) {

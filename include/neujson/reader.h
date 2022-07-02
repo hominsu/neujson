@@ -22,6 +22,17 @@
 
 #include <exception>
 
+#if defined(NEUJSON_SSE42)
+#undef NEUJSON_SSE42
+#define NEUJSON_SSE42_OFF
+#elif defined(NEUJSON_SSE2)
+#undef NEUJSON_SSE2
+#define NEUJSON_SSE2_OFF
+#elif defined(NEUJSON_NEON)
+#undef NEUJSON_NEON
+#define NEUJSON_NEON_OFF
+#endif
+
 namespace neujson {
 
 class Reader : noncopyable {
@@ -318,54 +329,53 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
     return;
   }
 
-  auto start = _rs.getIter();
+  ::std::string buffer;
 
-  if (_rs.peek() == '-') { _rs.next(); }
-  if (_rs.peek() == '0') { _rs.next(); }
+  if (_rs.peek() == '-') { buffer.push_back(_rs.next()); }
+  if (_rs.peek() == '0') { buffer.push_back(_rs.next()); }
   else {
     if (!isDigit1to9(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (_rs.next(); isDigit(_rs.peek()); _rs.next());
+    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
   auto expectType = NEU_NULL;
 
   if (_rs.peek() == '.') {
     expectType = NEU_DOUBLE;
-    _rs.next();
+    buffer.push_back(_rs.next());
     if (!isDigit(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (_rs.next(); isDigit(_rs.peek()); _rs.next());
+    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
   if (_rs.peek() == 'e' || _rs.peek() == 'E') {
     expectType = NEU_DOUBLE;
-    _rs.next();
-    if (_rs.peek() == '+' || _rs.peek() == '-') { _rs.next(); }
+    buffer.push_back(_rs.next());
+    if (_rs.peek() == '+' || _rs.peek() == '-') { buffer.push_back(_rs.next()); }
     if (!isDigit(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (_rs.next(); isDigit(_rs.peek()); _rs.next());
+    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
-  auto end = _rs.getIter();
-  if (start == end) { throw Exception(error::PARSE_BAD_VALUE); }
+  if (buffer.empty()) { throw Exception(error::PARSE_BAD_VALUE); }
 
   try {
     ::std::size_t idx;
     if (expectType == NEU_DOUBLE) {
       double d;
 #if defined(__clang__) || defined(_MSC_VER)
-      d = ::std::stod(::std::string(start, end), &idx);
+      d = ::std::stod(buffer, &idx);
 #elif defined(__GNUC__)
-      d = __gnu_cxx::__stoa(&::std::strtod, "stod", &*start, &idx);
+      d = __gnu_cxx::__stoa(&::std::strtod, "stod", buffer.data(), &idx);
 #else
 #error "complier no support"
 #endif
-      NEUJSON_ASSERT(start + idx == end);
+      NEUJSON_ASSERT(buffer.size() == idx);
       CALL(_handler.Double(internal::Double(d)));
     } else {
       int64_t i64;
 #if defined(__clang__) || defined(_MSC_VER)
-      i64 = ::std::stoll(::std::string(start, end), &idx, 10);
+      i64 = ::std::stoll(buffer, &idx, 10);
 #elif defined(__GNUC__)
-      i64 = __gnu_cxx::__stoa(&::std::strtoll, "stoll", &*start, &idx, 10);
+      i64 = __gnu_cxx::__stoa(&::std::strtoll, "stoll", buffer.data(), &idx, 10);
 #else
 #error "complier no support"
 #endif
@@ -392,7 +402,7 @@ inline void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key
         else { CALL(_handler.String(::std::move(buffer))); }
         return;
 #if defined(__clang__) || defined(__GNUC__)
-      case '\x01'...'\x1f':throw Exception(error::PARSE_BAD_STRING_CHAR);
+      case '\x01'...'\x1f': throw Exception(error::PARSE_BAD_STRING_CHAR);
 #endif
       case '\\':
         switch (_rs.next()) {
@@ -521,20 +531,20 @@ inline void Reader::parseValue(ReadStream &_rs, Handler &_handler) {
 inline void Reader::encodeUtf8(std::string &_buffer, unsigned int _u) {
 #if defined(_MSC_VER)
   if (_u >= 0x0 && _u <= 0x7F) {
-  _buffer.push_back(_u & 0xFF);
-} else if (_u >= 0x080 && _u <= 0x7FF) {
-  _buffer.push_back(0xC0 | ((_u >> 6) & 0xFF));
-  _buffer.push_back(0x80 | (_u & 0x3F));
-} else if (_u >= 0x0800 && _u <= 0xFFFF) {
-  _buffer.push_back(0xE0 | ((_u >> 12) & 0xFF));
-  _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
-  _buffer.push_back(0x80 | (_u & 0x3F));
-} else if (_u >= 0x010000 && _u <= 0x10FFFF) {
-  _buffer.push_back(0xF0 | ((_u >> 18) & 0xFF));
-  _buffer.push_back(0x80 | ((_u >> 12) & 0x3F));
-  _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
-  _buffer.push_back(0x80 | (_u & 0x3F));
-}
+    _buffer.push_back(_u & 0xFF);
+  } else if (_u >= 0x080 && _u <= 0x7FF) {
+    _buffer.push_back(0xC0 | ((_u >> 6) & 0xFF));
+    _buffer.push_back(0x80 | (_u & 0x3F));
+  } else if (_u >= 0x0800 && _u <= 0xFFFF) {
+    _buffer.push_back(0xE0 | ((_u >> 12) & 0xFF));
+    _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+    _buffer.push_back(0x80 | (_u & 0x3F));
+  } else if (_u >= 0x010000 && _u <= 0x10FFFF) {
+    _buffer.push_back(0xF0 | ((_u >> 18) & 0xFF));
+    _buffer.push_back(0x80 | ((_u >> 12) & 0x3F));
+    _buffer.push_back(0x80 | ((_u >> 6) & 0x3F));
+    _buffer.push_back(0x80 | (_u & 0x3F));
+  }
 #elif defined(__clang__) || defined(__GNUC__)
   switch (_u) {
     case 0x00 ... 0x7F:_buffer.push_back(_u & 0xFF);
@@ -558,5 +568,13 @@ inline void Reader::encodeUtf8(std::string &_buffer, unsigned int _u) {
 }
 
 } // namespace neujson
+
+#if defined(NEUJSON_SSE42_OFF)
+#define NEUJSON_SSE42
+#elif defined(NEUJSON_SSE2_OFF)
+#define NEUJSON_SSE2
+#elif defined(NEUJSON_NEON_OFF)
+#define NEUJSON_NEON
+#endif
 
 #endif //NEUJSON_NEUJSON_READER_H_

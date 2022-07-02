@@ -14,6 +14,7 @@ namespace neujson {
 
 class StringReadStream : public noncopyable {
  public:
+  using Ch = ::std::string_view::value_type;
   using Iterator = ::std::string_view::iterator;
 
  private:
@@ -25,15 +26,11 @@ class StringReadStream : public noncopyable {
 
   [[nodiscard]] bool hasNext() const { return iter_ != json_.end(); }
 
-  char peek() { return hasNext() ? *iter_ : '\0'; }
+  Ch peek() { return hasNext() ? *iter_ : '\0'; }
 
-  [[nodiscard]] Iterator getIter() const { return iter_; }
-
-  [[nodiscard]] const char *getAddr() const { return json_.data() + (iter_ - json_.begin()); }
-
-  char next() {
+  Ch next() {
     if (hasNext()) {
-      char ch = *iter_;
+      Ch ch = *iter_;
       iter_++;
       return ch;
     }
@@ -48,7 +45,7 @@ class StringReadStream : public noncopyable {
     }
   }
 
-  void assertNext(char _ch) {
+  void assertNext(Ch _ch) {
     (void) _ch;
     NEUJSON_ASSERT(peek() == _ch);
     next();
