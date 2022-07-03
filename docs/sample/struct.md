@@ -3,10 +3,10 @@
 Create a constructor that can receive `neujson Value` and get the value with the overloaded `operator[]` function. Enable serialization of structures to strings by providing a `toJson` function:
 
 ```cpp
-#include "neujson/value.h"
 #include "neujson/document.h"
-#include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/pretty_writer.h"
+#include "neujson/value.h"
 
 #include <cassert>
 #include <cstdio>
@@ -31,7 +31,6 @@ struct SerialInfo {
         clocal_ = _val["clocal"].GetBool();
         break;
       default:assert(false && "bad type");
-        break;
     }
   }
 
@@ -63,8 +62,9 @@ int main() {
   value = serial_info.toJsonObject();
   char writeBuffer[65536];
   neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
-  neujson::Writer<neujson::FileWriteStream> writer(out);
-  value.WriteTo(writer);
+  neujson::PrettyWriter<neujson::FileWriteStream> pretty_writer(out);
+  pretty_writer.SetIndent(' ', 2);
+  value.WriteTo(pretty_writer);
 
   return 0;
 }
@@ -73,6 +73,14 @@ int main() {
 Output:
 
 ```json
-{"serial_port":"/dev/cu.usbserial-AB0JHQVJ","baud_rate":115200,"data_bits":8,"stop_bits":1,"parity":0,"flow_control":false,"clocal":true}
+{
+  "serial_port": "/dev/cu.usbserial-AB0JHQVJ",
+  "baud_rate": 115200,
+  "data_bits": 8,
+  "stop_bits": 1,
+  "parity": 0,
+  "flow_control": false,
+  "clocal": true
+}
 ```
 
