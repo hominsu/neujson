@@ -14,7 +14,6 @@ endif(CCACHE_FOUND)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow")
     # If the user is running a newer version of Clang that includes the
     # -Wdouble-promotion, we will ignore that warning.
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 3.7)
@@ -51,4 +50,4 @@ add_dependencies(tests unit_test)
 
 add_test(NAME unit_test
         COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unit_test
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

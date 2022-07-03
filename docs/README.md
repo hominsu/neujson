@@ -107,14 +107,14 @@ This simple example parses a JSON string into a document (DOM), make a simple mo
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
-#include "sample.h"
+#include "../sample.h"
 
 #include <cstdio>
 
 int main() {
   // 1. Parse a JSON string into DOM.
   neujson::Document doc;
-  neujson::error::ParseError err = doc.parse(kSample[0]);
+  auto err = doc.parse(kSample[0]);
   if (err != neujson::error::PARSE_OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;

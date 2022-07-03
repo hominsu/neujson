@@ -5,6 +5,8 @@
 #include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
 
+#include <cstdio>
+
 int main() {
   char writeBuffer[65536];
   neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));

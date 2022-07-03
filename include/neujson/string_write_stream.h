@@ -13,15 +13,21 @@
 namespace neujson {
 
 class StringWriteStream : public noncopyable {
+ public:
+  using Ch = char;
+
  private:
-  ::std::vector<char> buffer_;
+  static const ::std::size_t kInnerBufferSize = 256;
+  ::std::vector<Ch> buffer_;
 
  public:
-  void put(char _ch) {
-    buffer_.emplace_back(_ch);
+  StringWriteStream() { buffer_.reserve(kInnerBufferSize); }
+
+  void put(Ch _ch) {
+    buffer_.push_back(_ch);
   }
 
-  void puts(const char *_str, ::std::size_t _length) {
+  void puts(const Ch *_str, ::std::size_t _length) {
     buffer_.insert(buffer_.end(), _str, _str + _length);
   }
 

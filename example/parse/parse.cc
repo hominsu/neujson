@@ -11,7 +11,9 @@
 
 int main() {
   neujson::StringReadStream in(R"({"key":"value"})");
+
   char writeBuffer[65536];
+
   neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
   neujson::Writer<neujson::FileWriteStream> writer(out);
 

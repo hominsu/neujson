@@ -42,11 +42,13 @@ void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args
     FILE *input = fopen(_extra_args..., "r");
 
     if (input == nullptr) { exit(EXIT_FAILURE); }
-    neujson::Document doc;
+
     neujson::FileReadStream is(input);
+
+    neujson::Document doc;
+    auto err = doc.parseStream(is);
     fclose(input);
 
-    auto err = doc.parseStream(is);
     benchmark::DoNotOptimize(err);
 
     if (err != neujson::error::PARSE_OK) {
@@ -71,11 +73,12 @@ void BM_neujson_read_parse_write_file(benchmark::State &_state, ExtraArgs &&... 
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
-    neujson::Document doc;
     neujson::FileReadStream is(input);
+
+    neujson::Document doc;
+    auto err = doc.parseStream(is);
     fclose(input);
 
-    auto err = doc.parseStream(is);
     benchmark::DoNotOptimize(err);
 
     if (err != neujson::error::PARSE_OK) {
@@ -100,11 +103,13 @@ void BM_neujson_read_parse_write_string(benchmark::State &_state, ExtraArgs &&..
     FILE *input = fopen(_extra_args..., "r");
 
     if (input == nullptr) { exit(EXIT_FAILURE); }
-    neujson::Document doc;
+
     neujson::FileReadStream is(input);
+
+    neujson::Document doc;
+    auto err = doc.parseStream(is);
     fclose(input);
 
-    auto err = doc.parseStream(is);
     benchmark::DoNotOptimize(err);
 
     if (err != neujson::error::PARSE_OK) {
@@ -135,11 +140,12 @@ void BM_neujson_read_parse_pretty_write_file(benchmark::State &_state, ExtraArgs
     if (input == nullptr) { exit(EXIT_FAILURE); }
     if (output == nullptr) { exit(EXIT_FAILURE); }
 
-    neujson::Document doc;
     neujson::FileReadStream is(input);
+
+    neujson::Document doc;
+    auto err = doc.parseStream(is);
     fclose(input);
 
-    auto err = doc.parseStream(is);
     benchmark::DoNotOptimize(err);
 
     if (err != neujson::error::PARSE_OK) {
@@ -164,11 +170,13 @@ void BM_neujson_read_parse_pretty_write_string(benchmark::State &_state, ExtraAr
     FILE *input = fopen(_extra_args..., "r");
 
     if (input == nullptr) { exit(EXIT_FAILURE); }
-    neujson::Document doc;
+
     neujson::FileReadStream is(input);
+
+    neujson::Document doc;
+    auto err = doc.parseStream(is);
     fclose(input);
 
-    auto err = doc.parseStream(is);
     benchmark::DoNotOptimize(err);
 
     if (err != neujson::error::PARSE_OK) {
