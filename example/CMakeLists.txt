@@ -5,11 +5,12 @@ if(POLICY CMP0054)
 endif()
 
 set(EXAMPLES
+        create_json
         document
         file
-        create_json
         parse
         pretty
+        stream_wrapper
         struct)
 
 include_directories(".")

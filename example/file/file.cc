@@ -3,9 +3,9 @@
 //
 
 #include "neujson/document.h"
-#include "neujson/pretty_writer.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/pretty_writer.h"
 
 #include <cstdio>
 
@@ -18,11 +18,12 @@ int main() {
 #endif
   if (input == nullptr) { exit(EXIT_FAILURE); }
   neujson::FileReadStream is(input);
-  fclose(input);
 
   neujson::Document doc;
-  neujson::error::ParseError err;
-  if ((err = doc.parseStream(is)) != neujson::error::PARSE_OK) {
+  auto err = doc.parseStream(is);
+  fclose(input);
+
+  if (err != neujson::error::PARSE_OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }
