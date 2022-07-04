@@ -200,7 +200,7 @@ BM_nlohmann_read_parse_pretty_write_string/canada.json              55.0 ms     
 BM_rapidjson_read_parse_pretty_write_string/canada.json             12.4 ms         12.4 ms           56
 ```
 
-The followings are some snapshots from the results of i5-9500 with gcc 8.5.0 (Red Hat 8.5.0-10) in CentOS-8-Stream
+下面是使用 i5-9500 以及 CentOS-8-Stream 和 gcc 8.5.0 (Red Hat 8.5.0-10) 得到的结果
 
 ```bash
 Run on (6 X 4166.48 MHz CPU s)
