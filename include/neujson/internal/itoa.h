@@ -12,48 +12,6 @@
 
 namespace neujson::internal {
 
-inline size_t CountDecimalDigit32(uint32_t _n) {
-// Simple pure C++ implementation was faster than __builtin_clz version in this situation.
-// @formatter:off
-  if (_n < 10) { return 1; }
-  if (_n < 100) { return 2; }
-  if (_n < 1000) { return 3; }
-  if (_n < 10000) { return 4; }
-  if (_n < 100000) { return 5; }
-  if (_n < 1000000) { return 6; }
-  if (_n < 10000000) { return 7; }
-  if (_n < 100000000) { return 8; }
-  if (_n < 1000000000) { return 9; }
-  return 10;
-  // @formatter:on
-}
-
-inline size_t CountDecimalDigit64(uint64_t _n) {
-  // Simple pure C++ implementation was faster than __builtin_clz version in this situation.
-  // @formatter:off
-  if (_n < 10) { return 1; }
-  if (_n < 100) { return 2; }
-  if (_n < 1000) { return 3; }
-  if (_n < 10000) { return 4; }
-  if (_n < 100000) { return 5; }
-  if (_n < 1000000) { return 6; }
-  if (_n < 10000000) { return 7; }
-  if (_n < 100000000) { return 8; }
-  if (_n < 1000000000) { return 9; }
-  if (_n < 10000000000) { return 10; }
-  if (_n < 100000000000) { return 11; }
-  if (_n < 1000000000000) { return 12; }
-  if (_n < 10000000000000) { return 13; }
-  if (_n < 100000000000000) { return 14; }
-  if (_n < 1000000000000000) { return 15; }
-  if (_n < 10000000000000000) { return 16; }
-  if (_n < 100000000000000000) { return 17; }
-  if (_n < 1000000000000000000) { return 18; }
-  if (_n < 10000000000000000000U) { return 19; }
-  return 20;
-  // @formatter:on
-}
-
 namespace {
 constexpr char kDigitsLut[200] = {
     '0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '0', '6', '0', '7', '0', '8', '0', '9',
