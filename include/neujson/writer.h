@@ -128,16 +128,16 @@ inline bool Writer<WriteStream>::WriteBool(bool _b) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
   char buf[16]{};
-  internal::i32toa(_i32, buf);
-  os_.puts(buf, internal::CountDecimalDigit32(_i32));
+  ::std::size_t size = internal::i32toa(_i32, buf) - buf;
+  os_.puts(buf, size);
   return true;
 }
 
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
   char buf[32]{};
-  internal::i64toa(_i64, buf);
-  os_.puts(buf, internal::CountDecimalDigit64(_i64));
+  ::std::size_t size = internal::i64toa(_i64, buf) - buf;
+  os_.puts(buf, size);
   return true;
 }
 
