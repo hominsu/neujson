@@ -16,6 +16,7 @@
 
 #include <cstdint>
 
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -217,6 +218,76 @@ TEST(parse, array) {
         EXPECT_EQ(neujson::Type::NEU_INT32, e.GetType());
         EXPECT_EQ(j, e.GetInt32());
       }
+    }
+  }
+}
+
+TEST(parse, object) {
+  {
+    ::std::string_view ss(" { } ");
+    neujson::StringReadStream read_stream(ss);
+    TestHandler test_handler;
+    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, neujson::Reader::parse(read_stream, test_handler));
+    EXPECT_EQ(neujson::NEU_OBJECT, test_handler.type());
+    EXPECT_EQ(0, test_handler.value().GetObject()->size());
+  }
+  {
+    ::std::string_view ss(
+        " { "
+        "\"n\" : null , "
+        "\"f\" : false , "
+        "\"t\" : true , "
+        "\"i\" : 123 , "
+        "\"s\" : \"abc\", "
+        "\"a\" : [ 1, 2, 3 ],"
+        "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
+        " } "
+    );
+    neujson::Document doc;
+    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ss));
+    EXPECT_EQ(neujson::NEU_OBJECT, doc.GetType());
+    EXPECT_EQ(7, doc.GetObject()->size());
+
+    EXPECT_STREQ("n", doc.GetObject()->at(0).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_NULL, doc.GetObject()->at(0).value_.GetType());
+
+    EXPECT_STREQ("f", doc.GetObject()->at(1).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_BOOL, doc.GetObject()->at(1).value_.GetType());
+    EXPECT_EQ(false, doc.GetObject()->at(1).value_.GetBool());
+
+    EXPECT_STREQ("t", doc.GetObject()->at(2).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_BOOL, doc.GetObject()->at(2).value_.GetType());
+    EXPECT_EQ(true, doc.GetObject()->at(2).value_.GetBool());
+
+    EXPECT_STREQ("i", doc.GetObject()->at(3).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_INT32, doc.GetObject()->at(3).value_.GetType());
+    EXPECT_EQ(123, doc.GetObject()->at(3).value_.GetInt32());
+
+    EXPECT_STREQ("s", doc.GetObject()->at(4).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_STRING, doc.GetObject()->at(4).value_.GetType());
+    EXPECT_STREQ("abc", doc.GetObject()->at(4).value_.GetString().c_str());
+
+    EXPECT_STREQ("a", doc.GetObject()->at(5).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_ARRAY, doc.GetObject()->at(5).value_.GetType());
+    EXPECT_EQ(3, doc.GetObject()->at(5).value_.GetArray()->size());
+    for (int i = 0; i < 3; i++) {
+      auto e = doc.GetObject()->at(5).value_.GetArray();
+      EXPECT_EQ(neujson::NEU_INT32, e->at(i).GetType());
+      EXPECT_EQ(i + 1, e->at(i).GetInt32());
+    }
+
+    EXPECT_STREQ("o", doc.GetObject()->at(6).key_.GetString().c_str());
+    EXPECT_EQ(neujson::NEU_OBJECT, doc.GetObject()->at(6).value_.GetType());
+    EXPECT_EQ(3, doc.GetObject()->at(6).value_.GetObject()->size());
+    for (int i = 0; i < 3; i++) {
+      auto object_key = doc.GetObject()->at(6).value_.GetObject()->at(i).key_;
+      auto object_value = doc.GetObject()->at(6).value_.GetObject()->at(i).value_;
+      char s[2]{};
+      s[0] = static_cast<char>('1' + i);
+      EXPECT_STREQ(s, object_key.GetString().c_str());
+      EXPECT_EQ(1, object_key.GetString().size());
+      EXPECT_EQ(neujson::NEU_INT32, object_value.GetType());
+      EXPECT_EQ(i + 1, object_value.GetInt32());
     }
   }
 }
