@@ -23,7 +23,7 @@
   <p align="center">
     JSON parser/generator in C++17
     <br/>
-    <a href="https://hominsu.github.io/neujson/"><strong>Explore the docs »</strong></a>
+    <a href="https://me.hauhau.cn/zh/projects/neujson/"><strong>Explore the docs »</strong></a>
     <br/>
     <br/>
     <a href="https://github.com/hominsu/neujson">View Demo</a>
