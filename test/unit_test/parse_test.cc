@@ -172,16 +172,16 @@ TEST(parse, double) {
   } while (0)
 
 TEST(parse, string) {
-  TEST_STRING("", "\"\"");
-  TEST_STRING("Hello", "\"Hello\"");
-  TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
-  TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
-  TEST_STRING("Hello\0World", "\"Hello\\u0000World\"");
-  TEST_STRING("\x24", "\"\\u0024\"");         /* Dollar sign U+0024 */
-  TEST_STRING("\xC2\xA2", "\"\\u00A2\"");     /* Cents sign U+00A2 */
-  TEST_STRING("\xE2\x82\xAC", "\"\\u20AC\""); /* Euro sign U+20AC */
-  TEST_STRING("\xF0\x9D\x84\x9E", "\"\\uD834\\uDD1E\"");  /* G clef sign U+1D11E */
-  TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
+  TEST_STRING("", R"("")");
+  TEST_STRING("Hello", R"("Hello")");
+  TEST_STRING("Hello\nWorld", R"("Hello\nWorld")");
+  TEST_STRING("\" \\ / \b \f \n \r \t", R"("\" \\ / \b \f \n \r \t")");
+  TEST_STRING("Hello\0World", R"("Hello\u0000World")");
+  TEST_STRING("\x24", R"("\u0024")");         /* Dollar sign U+0024 */
+  TEST_STRING("\xC2\xA2", R"("\u00A2")");     /* Cents sign U+00A2 */
+  TEST_STRING("\xE2\x82\xAC", R"("\u20AC")"); /* Euro sign U+20AC */
+  TEST_STRING("\xF0\x9D\x84\x9E", R"("\uD834\uDD1E")");  /* G clef sign U+1D11E */
+  TEST_STRING("\xF0\x9D\x84\x9E", R"("\ud834\udd1e")");  /* G clef sign U+1D11E */
 }
 
 TEST(parse, array) {
@@ -194,7 +194,7 @@ TEST(parse, array) {
     EXPECT_EQ(0, test_handler.value().GetArray()->size());
   }
   {
-    ::std::string_view ss("[ null , false , true , 123 , \"abc\" ]");
+    ::std::string_view ss(R"([ null , false , true , 123 , "abc" ])");
     neujson::Document doc;
     EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ss));
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());
@@ -210,7 +210,7 @@ TEST(parse, array) {
     EXPECT_STREQ("abc", doc.GetArray()->at(4).GetString().c_str());
   }
   {
-    ::std::string_view ss("[ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]");
+    ::std::string_view ss(R"([ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ])");
     neujson::Document doc;
     EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ss));
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());
@@ -238,17 +238,17 @@ TEST(parse, object) {
     EXPECT_EQ(0, test_handler.value().GetObject()->size());
   }
   {
-    ::std::string_view ss(
-        " { "
-        "\"n\" : null , "
-        "\"f\" : false , "
-        "\"t\" : true , "
-        "\"i\" : 123 , "
-        "\"s\" : \"abc\", "
-        "\"a\" : [ 1, 2, 3 ],"
-        "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
-        " } "
-    );
+    ::std::string_view ss(R"(
+{
+    "n" : null ,
+    "f" : false ,
+    "t" : true ,
+    "i" : 123 ,
+    "s" : "abc",
+    "a" : [ 1, 2, 3 ],
+    "o" : { "1" : 1, "2" : 2, "3" : 3 }
+}
+)");
     neujson::Document doc;
     EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ss));
     EXPECT_EQ(neujson::NEU_OBJECT, doc.GetType());
@@ -327,7 +327,7 @@ TEST(parse, bad_value) {
 
   // invalid value in array
   TEST_PARSE_ERROR(neujson::error::PARSE_BAD_VALUE, "[1,]");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_VALUE, "[\"a\", nul]");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_VALUE, R"(["a", nul])");
 }
 
 TEST(parse, root_not_singular) {
@@ -345,15 +345,15 @@ TEST(parse, number_too_big) {
 }
 
 TEST(parse, miss_quotation_mark) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_QUOTATION_MARK, "\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_QUOTATION_MARK, "\"abc");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_QUOTATION_MARK, R"(")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_QUOTATION_MARK, R"("abc)");
 }
 
 TEST(parse, bad_string_escape) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, "\"\\v\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, "\"\\'\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, "\"\\0\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, "\"\\x12\"");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, R"("\v")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, R"("\'")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, R"("\0")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_STRING_ESCAPE, R"("\x12")");
 }
 
 TEST(parse, bad_string_char) {
@@ -362,27 +362,27 @@ TEST(parse, bad_string_char) {
 }
 
 TEST(parse, bad_unicode_hex) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u0\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u01\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u012\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u/000\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\uG000\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u0/00\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u0G00\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u00/0\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u00G0\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u000/\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u000G\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, "\"\\u 123\"");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u0")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u01")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u012")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u/000")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\uG000")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u0/00")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u0G00")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u00/0")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u00G0")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u000/")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u000G")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_HEX, R"("\u 123")");
 }
 
 TEST(parse, bad_unicode_surrogate) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, "\"\\uD800\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, "\"\\uDBFF\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, "\"\\uD800\\\\\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, "\"\\uD800\\uDBFF\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, "\"\\uD800\\uE000\"");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, R"("\uD800")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, R"("\uDBFF")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, R"("\uD800\\")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, R"("\uD800\uDBFF")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_BAD_UNICODE_SURROGATE, R"("\uD800\uE000")");
 }
 
 TEST(parse, miss_comma_or_square_bracket) {
@@ -393,24 +393,24 @@ TEST(parse, miss_comma_or_square_bracket) {
 }
 
 TEST(parse, miss_key) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{1:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{true:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{false:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{null:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{[]:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{{}:1,");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, "{\"a\":1,");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({1:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({true:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({false:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({null:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({[]:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({{}:1,)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_KEY, R"({"a":1,)");
 }
 
 TEST(parse, miss_colon) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COLON, "{\"a\"}");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COLON, "{\"a\",\"b\"}");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COLON, R"({"a"})");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COLON, R"({"a","b"})");
 }
 
 TEST(parse, miss_comma_or_curly_bracket) {
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, "{\"a\":1");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, "{\"a\":1]");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, "{\"a\":1 \"b\"");
-  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, "{\"a\":{}");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1)");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1])");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1 "b")");
+  TEST_PARSE_ERROR(neujson::error::PARSE_MISS_COMMA_OR_CURLY_BRACKET, R"({"a":{})");
 }
