@@ -23,7 +23,7 @@
     neujson::Writer<neujson::StringWriteStream> writer(oss);\
     doc.WriteTo(writer);\
     EXPECT_STREQ((_json), oss.get().data());\
-  } while (0)
+  } while (0)\
   //
 
 TEST(round_trip, bool) {
@@ -41,7 +41,7 @@ TEST(round_trip, bool) {
     neujson::Writer<neujson::StringWriteStream> writer(oss);\
     doc.WriteTo(writer);\
     EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
-  } while (0)
+  } while (0)\
   //
 
 TEST(round_trip, int32) {
@@ -62,7 +62,7 @@ TEST(round_trip, int32) {
     neujson::Writer<neujson::StringWriteStream> writer(oss);\
     doc.WriteTo(writer);\
     EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
-  } while (0)
+  } while (0)\
   //
 
 TEST(round_trip, int64) {
@@ -83,7 +83,7 @@ TEST(round_trip, int64) {
     neujson::Writer<neujson::StringWriteStream> writer(oss);\
     doc.WriteTo(writer);\
     EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
-  } while (0)
+  } while (0)\
   //
 
 TEST(round_trip, double) {
@@ -94,3 +94,45 @@ TEST(round_trip, double) {
   TEST_ROUNDTRIP_DOUBLE("1.234e+20");
   TEST_ROUNDTRIP_DOUBLE("1.234e-20");
 }
+
+#define TEST_ROUNDTRIP_STRING(_json)\
+  do {\
+    ::std::string_view ssi((_json));\
+    neujson::Document doc;\
+    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi));\
+    EXPECT_EQ(neujson::NEU_STRING, doc.GetType());\
+    neujson::StringWriteStream oss;\
+    neujson::Writer<neujson::StringWriteStream> writer(oss);\
+    doc.WriteTo(writer);\
+    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
+  } while (0)\
+  //
+
+TEST(round_trip, string) {
+  TEST_ROUNDTRIP_STRING("\"\"");
+  TEST_ROUNDTRIP_STRING("\"Hello\"");
+  TEST_ROUNDTRIP_STRING("\"Hello\\nWorld\"");
+  TEST_ROUNDTRIP_STRING("\"\\\" \\\\ / \\b \\f \\n \\r \\t\"");
+  TEST_ROUNDTRIP_STRING("\"Hello\\u0000World\"");
+}
+
+#define TEST_ROUNDTRIP_ARRAY(_json)\
+  do {\
+    ::std::string_view ssi((_json));\
+    neujson::Document doc;\
+    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi));\
+    EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());\
+    neujson::StringWriteStream oss;\
+    neujson::Writer<neujson::StringWriteStream> writer(oss);\
+    doc.WriteTo(writer);\
+    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
+  } while (0)\
+  //
+
+TEST(round_trip, array) {
+  TEST_ROUNDTRIP_ARRAY("[]");
+  TEST_ROUNDTRIP_ARRAY("[null,false,true,123,\"abc\",[1,2,3]]");
+  TEST_ROUNDTRIP_ARRAY("[[],[0],[0,1],[0,1,2]]");
+}
+
+
