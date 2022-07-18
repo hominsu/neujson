@@ -5,3 +5,4 @@
 * [DOM](/sample/dom.md "DOM")
 * [PrettyWriter](/sample/pretty.md "PrettyWriter")
 * [Stream](/sample/stream.md "Stream")
+* [Error Handling](/sample/error_handling.md "Error Handling")

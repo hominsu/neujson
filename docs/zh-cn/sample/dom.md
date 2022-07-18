@@ -1,3 +1,5 @@
+# 文档对象模型（DOM）
+
 文档对象模型（Document Object Model, DOM）是一种罝于内存中的 JSON 表示方式，以供查询及操作。使用方法如下：
 
 ```cpp
