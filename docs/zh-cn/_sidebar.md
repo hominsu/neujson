@@ -5,3 +5,4 @@
 * [DOM](/zh-cn/sample/dom.md "DOM")
 * [PrettyWriter](/zh-cn/sample/pretty.md "PrettyWriter")
 * [输入输出流](/zh-cn/sample/stream.md "输入输出流")
+* [错误处理](/zh-cn/sample/error_handling.md "错误处理")
