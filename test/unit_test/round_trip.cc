@@ -22,7 +22,7 @@
     neujson::StringWriteStream oss;\
     neujson::Writer<neujson::StringWriteStream> writer(oss);\
     doc.WriteTo(writer);\
-    EXPECT_STREQ((_json), oss.get().data());\
+    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());\
   } while (0)\
   //
 
