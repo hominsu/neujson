@@ -5,12 +5,12 @@
 #ifndef NEUJSON_NEUJSON_FILE_READ_STREAM_H_
 #define NEUJSON_NEUJSON_FILE_READ_STREAM_H_
 
-#include "neujson/neujson.h"
-#include "neujson/noncopyable.h"
-
 #include <cstdio>
 
 #include <vector>
+
+#include "neujson.h"
+#include "noncopyable.h"
 
 namespace neujson {
 

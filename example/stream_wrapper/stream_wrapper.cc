@@ -2,15 +2,15 @@
 // Created by HominSu on 2022/7/2.
 //
 
+#include <cstdio>
+
+#include <sstream>
+
 #include "neujson/document.h"
 #include "neujson/istream_wrapper.h"
 #include "neujson/ostream_wrapper.h"
 #include "neujson/pretty_writer.h"
 #include "../sample.h"
-
-#include <cstdio>
-
-#include <sstream>
 
 int main() {
   std::stringstream iss;

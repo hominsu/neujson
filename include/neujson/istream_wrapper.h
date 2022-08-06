@@ -5,9 +5,9 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 #define NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 
-#include "neujson/noncopyable.h"
-
 #include "sstream"
+
+#include "noncopyable.h"
 
 namespace neujson {
 

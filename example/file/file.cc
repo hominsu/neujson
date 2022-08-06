@@ -2,12 +2,12 @@
 // Created by HominSu on 2022/3/12.
 //
 
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
-
-#include <cstdio>
 
 int main() {
 #if defined(_MSC_VER)

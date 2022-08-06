@@ -5,9 +5,9 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_INTERNAL_BIG_INTEGER_H_
 #define NEUJSON_INCLUDE_NEUJSON_INTERNAL_BIG_INTEGER_H_
 
-#include "neujson/neujson.h"
-
 #include <cstring>
+
+#include "neujson/neujson.h"
 
 #if defined(_MSC_VER) && defined(_M_AMD64) && !defined(__INTEL_COMPILER)
 #include <intrin.h>

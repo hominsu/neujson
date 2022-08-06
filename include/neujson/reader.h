@@ -5,12 +5,14 @@
 #ifndef NEUJSON_NEUJSON_READER_H_
 #define NEUJSON_NEUJSON_READER_H_
 
-#include "neujson/exception.h"
-#include "neujson/internal/cllzl.h"
-#include "neujson/noncopyable.h"
-#include "neujson/value.h"
-
 #include <cmath>
+
+#include <exception>
+
+#include "exception.h"
+#include "internal/cllzl.h"
+#include "noncopyable.h"
+#include "value.h"
 
 #if defined(NEUJSON_SSE42)
 #include <nmmintrin.h>
@@ -19,8 +21,6 @@
 #elif defined(NEUJSON_NEON)
 #include <arm_neon.h>
 #endif
-
-#include <exception>
 
 #if defined(NEUJSON_SSE42)
 #undef NEUJSON_SSE42

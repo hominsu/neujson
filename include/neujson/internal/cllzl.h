@@ -5,9 +5,9 @@
 #ifndef NEUJSON_NEUJSON_INTERNAL_CLLZL_H_
 #define NEUJSON_NEUJSON_INTERNAL_CLLZL_H_
 
-#include "neujson/neujson.h"
-
 #include <cstdint>
+
+#include "neujson/neujson.h"
 
 #if defined(_MSC_VER) && !defined(UNDER_CE)
 #include <intrin.h>

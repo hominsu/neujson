@@ -2,12 +2,12 @@
 // Created by Homin Su on 2022/3/15.
 //
 
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
 #include "sample.h"
-
-#include <cstdio>
 
 int main() {
   neujson::Document doc;

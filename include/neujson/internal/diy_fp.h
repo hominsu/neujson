@@ -5,10 +5,10 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_INTERNAL_DIY_FP_H_
 #define NEUJSON_INCLUDE_NEUJSON_INTERNAL_DIY_FP_H_
 
+#include <limits>
+
 #include "cllzl.h"
 #include "neujson/neujson.h"
-
-#include <limits>
 
 #if defined(_MSC_VER) && defined(_M_AMD64) && !defined(__INTEL_COMPILER)
 #include <intrin.h>

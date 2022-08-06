@@ -5,9 +5,9 @@
 #ifndef NEUJSON_NEUJSON_EXCEPTION_H_
 #define NEUJSON_NEUJSON_EXCEPTION_H_
 
-#include "neujson/neujson.h"
-
 #include <exception>
+
+#include "neujson.h"
 
 namespace neujson {
 

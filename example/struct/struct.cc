@@ -2,13 +2,13 @@
 // Created by Homin Su on 2022/3/15.
 //
 
+#include <cassert>
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
 #include "neujson/value.h"
-
-#include <cassert>
-#include <cstdio>
 
 struct SerialInfo {
   ::std::string serial_port_;

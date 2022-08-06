@@ -5,13 +5,13 @@
 #ifndef NEUJSON_NEUJSON_PRETTY_WRITER_H_
 #define NEUJSON_NEUJSON_PRETTY_WRITER_H_
 
-#include "neujson/neujson.h"
-#include "neujson/internal/ieee754.h"
-#include "neujson/writer.h"
-
 #include <cstring>
 
 #include <memory>
+
+#include "neujson.h"
+#include "internal/ieee754.h"
+#include "writer.h"
 
 namespace neujson {
 
