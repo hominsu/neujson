@@ -5,13 +5,13 @@
 #ifndef NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_
 #define NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_
 
-#include "neujson.h"
-#include "neujson/noncopyable.h"
-
 #include <cstdio>
 #include <cstring>
 
 #include <string_view>
+
+#include "neujson.h"
+#include "noncopyable.h"
 
 namespace neujson {
 

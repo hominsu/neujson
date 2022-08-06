@@ -5,10 +5,10 @@
 #ifndef NEUJSON_NEUJSON_INTERNAL_ITOA_H_
 #define NEUJSON_NEUJSON_INTERNAL_ITOA_H_
 
-#include "neujson/neujson.h"
-
 #include <cstddef>
 #include <cstdint>
+
+#include "neujson/neujson.h"
 
 namespace neujson::internal {
 

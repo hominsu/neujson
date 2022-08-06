@@ -13,26 +13,28 @@
 #define NEUJSON_NEON
 #endif
 
+#include <sstream>
+#include <fstream>
+
+#include <benchmark/benchmark.h>
+
 #include "neujson/document.h"
 #include "neujson/exception.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/pretty_writer.h"
 #include "neujson/string_write_stream.h"
 #include "neujson/writer.h"
-#include "neujson/pretty_writer.h"
+
 #include "nlohmann/json.hpp"
+
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 #include "rapidjson/writer.h"
-#include "rapidjson/prettywriter.h"
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/filewritestream.h"
+#include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
-
-#include <benchmark/benchmark.h>
-
-#include <sstream>
-#include <fstream>
 
 template<class ...ExtraArgs>
 void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {

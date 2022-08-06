@@ -5,11 +5,11 @@
 #ifndef NEUJSON_NEUJSON_DOCUMENT_H_
 #define NEUJSON_NEUJSON_DOCUMENT_H_
 
-#include "neujson/exception.h"
-#include "neujson/internal/ieee754.h"
-#include "neujson/reader.h"
-#include "neujson/string_read_stream.h"
-#include "neujson/value.h"
+#include "exception.h"
+#include "internal/ieee754.h"
+#include "reader.h"
+#include "string_read_stream.h"
+#include "value.h"
 
 namespace neujson {
 

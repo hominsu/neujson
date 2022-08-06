@@ -5,9 +5,9 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_INTERNAL_IEEE754_H_
 #define NEUJSON_INCLUDE_NEUJSON_INTERNAL_IEEE754_H_
 
-#include "neujson/neujson.h"
-
 #include <cstdint>
+
+#include "neujson/neujson.h"
 
 namespace neujson::internal {
 

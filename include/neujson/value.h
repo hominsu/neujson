@@ -5,18 +5,18 @@
 #ifndef NEUJSON_NEUJSON_VALUE_H_
 #define NEUJSON_NEUJSON_VALUE_H_
 
-#include "neujson/neujson.h"
-#include "neujson/internal/ieee754.h"
-
 #include <cstring>
 
 #include <algorithm>
 #include <atomic>
-#include <vector>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <variant>
+#include <vector>
+
+#include "neujson.h"
+#include "internal/ieee754.h"
 
 namespace neujson {
 

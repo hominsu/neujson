@@ -2,12 +2,12 @@
 // Created by Homin Su on 2022/3/15.
 //
 
+#include <cstdio>
+
 #include "neujson/file_write_stream.h"
 #include "neujson/string_read_stream.h"
 #include "neujson/reader.h"
 #include "neujson/writer.h"
-
-#include <cstdio>
 
 int main() {
   neujson::StringReadStream in(R"({"key":"value"})");

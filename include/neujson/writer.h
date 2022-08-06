@@ -5,16 +5,16 @@
 #ifndef NEUJSON_NEUJSON_WRITER_H_
 #define NEUJSON_NEUJSON_WRITER_H_
 
-#include "neujson/neujson.h"
-#include "neujson/noncopyable.h"
-#include "neujson/internal/itoa.h"
-#include "neujson/internal/ieee754.h"
-#include "neujson/value.h"
-
 #include <cmath>
 
-#include <vector>
 #include <algorithm>
+#include <vector>
+
+#include "neujson.h"
+#include "noncopyable.h"
+#include "internal/ieee754.h"
+#include "internal/itoa.h"
+#include "value.h"
 
 namespace neujson {
 

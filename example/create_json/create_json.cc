@@ -2,10 +2,10 @@
 // Created by Homin Su on 2022/3/15.
 //
 
+#include <cstdio>
+
 #include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
-
-#include <cstdio>
 
 int main() {
   char writeBuffer[65536];

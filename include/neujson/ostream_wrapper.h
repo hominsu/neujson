@@ -5,10 +5,10 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_
 #define NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_
 
-#include "neujson/noncopyable.h"
-
 #include <iosfwd>
 #include <sstream>
+
+#include "noncopyable.h"
 
 namespace neujson {
 
