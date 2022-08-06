@@ -1,0 +1,12 @@
+cc_test(
+    name = "unit_test",
+    srcs = glob([
+        "*.cc",
+        "*.h",
+    ]),
+    copts = ["-std=c++17"],
+    deps = [
+        "//:neujson",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

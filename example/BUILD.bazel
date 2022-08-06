@@ -1,0 +1,48 @@
+cc_binary(
+    name = "create_json",
+    srcs = ["create_json/create_json.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "document",
+    srcs = ["document/document.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "file",
+    srcs = ["file/file.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "parse",
+    srcs = ["parse/parse.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "pretty",
+    srcs = ["pretty/pretty.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "stream_wrapper",
+    srcs = ["stream_wrapper/stream_wrapper.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
+
+cc_binary(
+    name = "struct",
+    srcs = ["struct/struct.cc"],
+    copts = ["-std=c++17"],
+    deps = ["//:neujson"],
+)
