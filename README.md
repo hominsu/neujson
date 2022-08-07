@@ -106,12 +106,12 @@ sudo make uninstall
 This simple example parses a JSON string into a document (DOM), make a simple modification of the DOM, and finally stringify the DOM to a JSON string.
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
 #include "../sample.h"
-
-#include <cstdio>
 
 int main() {
   // 1. Parse a JSON string into DOM.

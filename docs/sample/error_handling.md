@@ -65,9 +65,9 @@
 `neujson` provides error code and error message conversion functions: `neujson::parseErrorStr(error::ParseError _err)`, this function outputs a `char *` with an error message
 
 ```cpp
-#include "neujson/document.h"
-
 #include <cstdio>
+
+#include "neujson/document.h"
 
 int main() {
   neujson::Document doc;

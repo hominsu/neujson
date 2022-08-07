@@ -8,12 +8,12 @@
 - 支持  `neujson::FileReadStream` 及  `neujson::FileWriteStream`，使用 `FILE` 对象作输入输出。
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
-
-#include <cstdio>
 
 int main() {
 #if defined(_MSC_VER)
@@ -67,15 +67,15 @@ int main() {
 `OStreamWrapper` 把任何继承自 `std::ostream` 的类，例如：`std::ostringstream`, `std::stringstream`, `std::ofstream`, `std::fstream`
 
 ```cpp
+#include <cstdio>
+
+#include <sstream>
+
 #include "neujson/document.h"
 #include "neujson/istream_wrapper.h"
 #include "neujson/ostream_wrapper.h"
 #include "neujson/pretty_writer.h"
 #include "../sample.h"
-
-#include <cstdio>
-
-#include <sstream>
 
 int main() {
   std::stringstream iss;

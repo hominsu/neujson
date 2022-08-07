@@ -3,13 +3,13 @@
 Create a constructor that can receive `neujson Value` and get the value with the overloaded `operator[]` function. Enable serialization of structures to strings by providing a `toJson` function:
 
 ```cpp
+#include <cassert>
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
 #include "neujson/value.h"
-
-#include <cassert>
-#include <cstdio>
 
 struct SerialInfo {
   ::std::string serial_port_;

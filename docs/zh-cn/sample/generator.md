@@ -3,10 +3,10 @@
 生成 JSON 非常简单，只需要调用 `Handler` ( `Writer` ) 即可:
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
-
-#include <cstdio>
 
 int main() {
   char writeBuffer[65536];

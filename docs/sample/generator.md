@@ -3,10 +3,10 @@
 Generating the JSON simply requires a manual call to `Handler` ( `Writer` ):
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
-
-#include <cstdio>
 
 int main() {
   char writeBuffer[65536];

@@ -3,12 +3,12 @@
 文档对象模型（Document Object Model, DOM）是一种罝于内存中的 JSON 表示方式，以供查询及操作。使用方法如下：
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
 #include "../sample.h"
-
-#include <cstdio>
 
 int main() {
   // 1. Parse a JSON string into DOM.

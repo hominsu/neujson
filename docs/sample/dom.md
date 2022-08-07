@@ -3,12 +3,12 @@
 Document Object Model(DOM) is an in-memory representation of JSON for query and manipulation. Use the following methods：
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
 #include "../sample.h"
-
-#include <cstdio>
 
 int main() {
   // 1. Parse a JSON string into DOM.
