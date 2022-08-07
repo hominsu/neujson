@@ -3,12 +3,12 @@
 通过 `neujson::PrettyWriter` 加入换行及缩进:
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
-#include "sample.h"
-
-#include <cstdio>
+#include "../sample.h"
 
 int main() {
   neujson::Document doc;

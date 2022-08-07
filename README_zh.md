@@ -108,12 +108,12 @@ sudo make uninstall
 此简单例子解析一个 JSON 字符串至一个 document (DOM)，对 DOM 作出简单修改，最终把 DOM 转换（stringify）至 JSON 字符串。
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
 #include "../sample.h"
-
-#include <cstdio>
 
 int main() {
   // 1. Parse a JSON string into DOM.

@@ -3,12 +3,12 @@
 `PrettyWriter` can add line breaks and indentation:
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
-#include "sample.h"
-
-#include <cstdio>
+#include "../sample.h"
 
 int main() {
   neujson::Document doc;

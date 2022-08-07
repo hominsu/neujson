@@ -8,12 +8,12 @@
 - Support  `neujson::FileReadStream` and  `neujson::FileWriteStream`，for input/output `FILE` object.
 
 ```cpp
+#include <cstdio>
+
 #include "neujson/document.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
 #include "neujson/pretty_writer.h"
-
-#include <cstdio>
 
 int main() {
 #if defined(_MSC_VER)
@@ -67,15 +67,15 @@ Output:
 `OStreamWrapper` Wraps any class derived from `std::ostream`, ex. `std::ostringstream`, `std::stringstream`, `std::ofstream`, `std::fstream`
 
 ```cpp
+#include <cstdio>
+
+#include <sstream>
+
 #include "neujson/document.h"
 #include "neujson/istream_wrapper.h"
 #include "neujson/ostream_wrapper.h"
 #include "neujson/pretty_writer.h"
 #include "../sample.h"
-
-#include <cstdio>
-
-#include <sstream>
 
 int main() {
   std::stringstream iss;

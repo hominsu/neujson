@@ -3,13 +3,13 @@
 创建一个能够接收 `neujson Value` 的构造函数，并通过重载的 `operator[]` 获取到对应的值。通过提供一个 `toJson` 函数，让结构体能够序列化成字符串：
 
 ```cpp
+#include <cassert>
+#include <cstdio>
+
 #include "neujson/value.h"
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
-
-#include <cassert>
-#include <cstdio>
 
 struct SerialInfo {
   ::std::string serial_port_;

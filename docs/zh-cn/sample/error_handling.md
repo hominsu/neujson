@@ -67,9 +67,9 @@
 输出：
 
 ```cpp
-#include "neujson/document.h"
-
 #include <cstdio>
+
+#include "neujson/document.h"
 
 int main() {
   neujson::Document doc;
