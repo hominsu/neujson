@@ -215,11 +215,11 @@ TEST(parse, array) {
     EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ss));
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());
     EXPECT_EQ(4, doc.GetArray()->size());
-    for (int i = 0; i < 4; i++) {
+    for (::std::size_t i = 0; i < 4; i++) {
       auto a = doc.GetArray()->at(i);
       EXPECT_EQ(neujson::Type::NEU_ARRAY, a.GetType());
       EXPECT_EQ(i, a.GetArray()->size());
-      for (int j = 0; j < i; j++) {
+      for (::std::size_t j = 0; j < i; j++) {
         auto e = a.GetArray()->at(j);
         EXPECT_EQ(neujson::Type::NEU_INT32, e.GetType());
         EXPECT_EQ(j, e.GetInt32());
@@ -276,7 +276,7 @@ TEST(parse, object) {
     EXPECT_STREQ("a", doc.GetObject()->at(5).key_.GetString().c_str());
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetObject()->at(5).value_.GetType());
     EXPECT_EQ(3, doc.GetObject()->at(5).value_.GetArray()->size());
-    for (int i = 0; i < 3; i++) {
+    for (::std::size_t i = 0; i < 3; i++) {
       auto e = doc.GetObject()->at(5).value_.GetArray();
       EXPECT_EQ(neujson::NEU_INT32, e->at(i).GetType());
       EXPECT_EQ(i + 1, e->at(i).GetInt32());
@@ -285,7 +285,7 @@ TEST(parse, object) {
     EXPECT_STREQ("o", doc.GetObject()->at(6).key_.GetString().c_str());
     EXPECT_EQ(neujson::NEU_OBJECT, doc.GetObject()->at(6).value_.GetType());
     EXPECT_EQ(3, doc.GetObject()->at(6).value_.GetObject()->size());
-    for (int i = 0; i < 3; i++) {
+    for (::std::size_t i = 0; i < 3; i++) {
       auto object_key = doc.GetObject()->at(6).value_.GetObject()->at(i).key_;
       auto object_value = doc.GetObject()->at(6).value_.GetObject()->at(i).value_;
       char s[2]{};
