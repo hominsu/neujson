@@ -1,3 +1,1 @@
-*.bzl linguist-language=Python
-BUILD linguist-language=Python
 docs/* linguist-documentation
