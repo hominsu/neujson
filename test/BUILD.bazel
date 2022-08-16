@@ -1,6 +1,6 @@
-package(default_visibility = ["//visibility:public"])
-
 load("@pers_hominsu_neujson//:neujson.bzl", "neujson")
+
+package(default_visibility = ["//visibility:public"])
 
 COPTS = neujson.copts(
     extra_error = True,

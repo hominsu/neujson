@@ -1,10 +1,10 @@
 .vs
 .idea
+.cache
 out
 x64
-cmake-build-*/
 build
-.cache
+cmake-build-*/
 
 **/*.sln
 **/*.vcxproj
