@@ -15,21 +15,21 @@
 #include <variant>
 #include <vector>
 
-#include "neujson.h"
 #include "internal/ieee754.h"
+#include "neujson.h"
 
 namespace neujson {
 
 #undef SUFFIX
 #define VALUE(NEU) \
   NEU(NULL, ::std::monostate)SUFFIX \
-  NEU(BOOL, bool)SUFFIX \
-  NEU(INT32, int32_t)SUFFIX \
-  NEU(INT64, int64_t)SUFFIX \
+  NEU(BOOL, bool)SUFFIX             \
+  NEU(INT32, int32_t)SUFFIX         \
+  NEU(INT64, int64_t)SUFFIX         \
   NEU(DOUBLE, internal::Double)SUFFIX \
   NEU(STRING, ::std::shared_ptr<::std::vector<char>>)SUFFIX \
   NEU(ARRAY, ::std::shared_ptr<::std::vector<Value>>)SUFFIX \
-  NEU(OBJECT, ::std::shared_ptr<::std::vector<Member>>) \
+  NEU(OBJECT, ::std::shared_ptr<::std::vector<Member>>)     \
   //
 
 enum Type {

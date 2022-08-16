@@ -10,10 +10,10 @@
 #include <algorithm>
 #include <vector>
 
-#include "neujson.h"
-#include "noncopyable.h"
 #include "internal/ieee754.h"
 #include "internal/itoa.h"
+#include "neujson.h"
+#include "noncopyable.h"
 #include "value.h"
 
 namespace neujson {
@@ -142,7 +142,7 @@ inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
 }
 
 template<typename WriteStream>
-bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
+inline bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
   char buf[32];
   ::std::size_t size = 0;
   if (_d.IsInf()) {
@@ -180,7 +180,7 @@ bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
 }
 
 template<typename WriteStream>
-bool Writer<WriteStream>::WriteString(::std::string_view _str) {
+inline bool Writer<WriteStream>::WriteString(::std::string_view _str) {
   os_.put('"');
   for (auto c: _str) {
     auto u = static_cast<unsigned char>(c);

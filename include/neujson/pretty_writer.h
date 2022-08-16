@@ -9,8 +9,8 @@
 
 #include <memory>
 
-#include "neujson.h"
 #include "internal/ieee754.h"
+#include "neujson.h"
 #include "writer.h"
 
 namespace neujson {
