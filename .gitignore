@@ -3,6 +3,8 @@
 out
 x64
 cmake-build-*/
+build
+.cache
 
 **/*.sln
 **/*.vcxproj
