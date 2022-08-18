@@ -52,10 +52,16 @@
 #define NEUJSON_ASSERT(x) assert(x)
 #endif // NEUJSON_ASSERT
 
+/**
+ * @brief const array length
+ */
 #ifndef NEUJSON_LENGTH
 #define NEUJSON_LENGTH(CONST_ARRAY) (sizeof(CONST_ARRAY) / sizeof(CONST_ARRAY[0]))
 #endif // NEUJSON_LENGTH
 
+/**
+ * @brief const string length
+ */
 #ifndef NEUJSON_STR_LENGTH
 #if defined(_MSC_VER)
 #define NEUJSON_STR_LENGTH(CONST_STR) _countof(CONST_STR)
@@ -63,6 +69,64 @@
 #define NEUJSON_STR_LENGTH(CONST_STR) (sizeof(CONST_STR) / sizeof(CONST_STR[0]))
 #endif
 #endif // NEUJSON_STR_LENGTH
+
+// stringification
+#define NEUJSON_STRINGIFY(X) NEUJSON_DO_STRINGIFY(X)
+#define NEUJSON_DO_STRINGIFY(X) #X
+
+// concatenation
+#define NEUJSON_JOIN(X, Y) NEUJSON_DO_JOIN(X, Y)
+#define NEUJSON_DO_JOIN(X, Y) X##Y
+
+/**
+ * @brief adopted from Boost
+ */
+#define NEUJSON_VERSION_CODE(x,y,z) (((x)*100000) + ((y)*100) + (z))
+
+/**
+ * @brief gnuc version
+ */
+#if defined(__GNUC__)
+#define NEUJSON_GNUC \
+    NEUJSON_VERSION_CODE(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)
+#endif
+
+#if defined(__clang__) || (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4,2,0))
+
+#define NEUJSON_PRAGMA(x) _Pragma(NEUJSON_STRINGIFY(x))
+#if defined(__clang__)
+#define NEUJSON_DIAG_PRAGMA(x) NEUJSON_PRAGMA(clang diagnostic x)
+#else
+#define NEUJSON_DIAG_PRAGMA(x) NEUJSON_PRAGMA(GCC diagnostic x)
+#endif
+#define NEUJSON_DIAG_OFF(x) NEUJSON_DIAG_PRAGMA(ignored NEUJSON_STRINGIFY(NEUJSON_JOIN(-W,x)))
+
+// push/pop support in Clang and GCC>=4.6
+#if defined(__clang__) || (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4,6,0))
+#define NEUJSON_DIAG_PUSH NEUJSON_DIAG_PRAGMA(push)
+#define NEUJSON_DIAG_POP  NEUJSON_DIAG_PRAGMA(pop)
+#else // GCC >= 4.2, < 4.6
+#define NEUJSON_DIAG_PUSH /* ignored */
+#define NEUJSON_DIAG_POP /* ignored */
+#endif
+
+#elif defined(_MSC_VER)
+
+// pragma (MSVC specific)
+#define NEUJSON_PRAGMA(x) __pragma(x)
+#define NEUJSON_DIAG_PRAGMA(x) NEUJSON_PRAGMA(warning(x))
+
+#define NEUJSON_DIAG_OFF(x) NEUJSON_DIAG_PRAGMA(disable: x)
+#define NEUJSON_DIAG_PUSH NEUJSON_DIAG_PRAGMA(push)
+#define NEUJSON_DIAG_POP  NEUJSON_DIAG_PRAGMA(pop)
+
+#else
+
+#define NEUJSON_DIAG_OFF(x) /* ignored */
+#define NEUJSON_DIAG_PUSH   /* ignored */
+#define NEUJSON_DIAG_POP    /* ignored */
+
+#endif
 
 /*
  * @brief Avoid compiler warnings
