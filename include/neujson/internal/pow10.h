@@ -45,7 +45,7 @@ inline double Pow10(int _n) {
       1e+301, 1e+302, 1e+303, 1e+304, 1e+305, 1e+306, 1e+307, 1e+308
   };
 
-  NEUJSON_ASSERT(n >= 0 && n <= 308);
+  NEUJSON_ASSERT(_n >= 0 && _n <= 308);
   return e[_n];
 }
 

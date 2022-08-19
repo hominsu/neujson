@@ -8,7 +8,13 @@
 #include <string_view>
 #include <vector>
 
+#include "neujson.h"
 #include "noncopyable.h"
+
+#if defined(__GNUC__)
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(effc++)
+#endif
 
 namespace neujson {
 
@@ -44,5 +50,9 @@ class StringWriteStream : public noncopyable {
 };
 
 } // namespace neujson
+
+#if defined(__GNUC__)
+NEUJSON_DIAG_POP
+#endif
 
 #endif //NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_

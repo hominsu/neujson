@@ -28,7 +28,7 @@ class FileWriteStream : public noncopyable {
         buffer_(_buffer),
         buffer_end_(_buffer + _buffer_size),
         current_(buffer_) {
-    NEUJSON_ASSERT(_out != 0 && "FILE pointer equal zero");
+    NEUJSON_ASSERT(_out != nullptr && "FILE pointer equal zero");
   }
 
   ~FileWriteStream() { if (current_ != buffer_) { flush(); }}

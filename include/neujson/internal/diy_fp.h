@@ -19,6 +19,11 @@
 #endif
 #endif
 
+#ifdef __GNUC__
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(effc++)
+#endif // __GNUC__
+
 namespace neujson::internal {
 
 struct DiyFp {
@@ -88,7 +93,7 @@ struct DiyFp {
     uint64_t h;
     uint64_t l = _umul128(f_, _diy_fp.f_, &h);
     if (l & (uint64_t(1) << 63)) { ++h; } // rounding
-    return DiyFp(h, e_ + _diy_fp.e_ + 64);
+    return {h, e_ + _diy_fp.e_ + 64};
 #elif (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && defined(__x86_64__)
     __extension__ typedef unsigned __int128 uint128_t;
     uint128_t p = static_cast<uint128_t>(f_) * static_cast<uint128_t>(_diy_fp.f_);
@@ -114,5 +119,9 @@ struct DiyFp {
 };
 
 } // namespace neujson::internal
+
+#ifdef __GNUC__
+NEUJSON_DIAG_POP
+#endif // __GNUC__
 
 #endif //NEUJSON_INCLUDE_NEUJSON_INTERNAL_DIY_FP_H_
