@@ -2,8 +2,14 @@
 // Created by HominSu on 2022/7/1.
 //
 
-#include "unit_test.h"
 #include "neujson/internal/itoa.h"
+
+#include "unit_test.h"
+
+#ifdef __GNUC__
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(stringop-overflow)
+#endif
 
 using namespace neujson::internal;
 
@@ -139,3 +145,7 @@ TEST(itoa, u64toa) {
 TEST(itoa, i64toa) {
   Verify(i64toa_naive, i64toa);
 }
+
+#ifdef __GNUC__
+NEUJSON_DIAG_POP
+#endif
