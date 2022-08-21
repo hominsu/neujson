@@ -8,7 +8,7 @@ int main(int _argc, char *_argv[]) {
   ::testing::InitGoogleTest(&_argc, _argv);
 
 #ifdef _MSC_VER
-  _CrtMemState memoryState = { 0 };
+  _CrtMemState memoryState = { nullptr };
     (void)memoryState;
     _CrtMemCheckpoint(&memoryState);
     //_CrtSetBreakAlloc(X);

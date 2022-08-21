@@ -7,9 +7,15 @@
 
 #include "exception.h"
 #include "internal/ieee754.h"
+#include "neujson.h"
 #include "reader.h"
 #include "string_read_stream.h"
 #include "value.h"
+
+#ifdef __GNUC__
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(effc++)
+#endif // __GNUC__
 
 namespace neujson {
 
@@ -165,6 +171,7 @@ inline Value *Document::addValue(Value &&_value) {
       case NEU_OBJECT:data_ = ::std::get<NEU_OBJECT_TYPE>(_value.data_);
         ::std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
         break;
+      default:break;
     }
     _value.type_ = NEU_NULL;
     return this;
@@ -191,5 +198,9 @@ inline Value *Document::addValue(Value &&_value) {
 }
 
 } // namespace neujson
+
+#ifdef __GNUC__
+NEUJSON_DIAG_POP
+#endif // __GNUC__
 
 #endif //NEUJSON_NEUJSON_DOCUMENT_H_

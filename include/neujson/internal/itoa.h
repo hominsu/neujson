@@ -10,6 +10,15 @@
 
 #include "neujson/neujson.h"
 
+#if defined(__clang__)
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(unreachable-code)
+#elif defined(_MSC_VER)
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(4127)  // conditional expression is constant
+NEUJSON_DIAG_OFF(4702)  // unreachable code
+#endif
+
 namespace neujson::internal {
 
 namespace {
@@ -270,5 +279,9 @@ inline char *i64toa(int64_t _value, char *_buffer) {
 }
 
 } // namespace neujson::internal
+
+#if defined(_MSC_VER) || defined(__clang__)
+NEUJSON_DIAG_POP
+#endif
 
 #endif //NEUJSON_NEUJSON_INTERNAL_ITOA_H_

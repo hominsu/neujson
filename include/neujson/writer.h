@@ -16,6 +16,11 @@
 #include "noncopyable.h"
 #include "value.h"
 
+#if defined(__GNUC__)
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(effc++)
+#endif
+
 namespace neujson {
 
 template<typename WriteStream>
@@ -35,6 +40,7 @@ class Writer : noncopyable {
 
  public:
   explicit Writer(WriteStream &_os) : os_(_os), has_root_(false) {}
+  virtual ~Writer() = default;
 
  public:
   //@formatter:off
@@ -128,7 +134,7 @@ inline bool Writer<WriteStream>::WriteBool(bool _b) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
   char buf[16]{};
-  ::std::size_t size = internal::i32toa(_i32, buf) - buf;
+  auto size = static_cast<::std::size_t>(internal::i32toa(_i32, buf) - buf);
   os_.puts(buf, size);
   return true;
 }
@@ -136,7 +142,7 @@ inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
   char buf[32]{};
-  ::std::size_t size = internal::i64toa(_i64, buf) - buf;
+  auto size = static_cast<::std::size_t>(internal::i64toa(_i64, buf) - buf);
   os_.puts(buf, size);
   return true;
 }
@@ -164,7 +170,7 @@ inline bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     NEUJSON_ASSERT(n > 0 && n < 32);
-    size += n;
+    size += static_cast<::std::size_t>(n);
     if (std::find_if_not(buf, buf + n, isdigit) == buf + n) {
 #if defined(_MSC_VER)
       strcat_s(buf, ".0");
@@ -256,5 +262,9 @@ inline void Writer<WriteStream>::Flush() {
 }
 
 } // namespace neujson
+
+#if defined(__GNUC__)
+NEUJSON_DIAG_POP
+#endif
 
 #endif //NEUJSON_NEUJSON_WRITER_H_
