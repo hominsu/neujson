@@ -6,7 +6,7 @@
 
 #include "unit_test.h"
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 NEUJSON_DIAG_PUSH
 NEUJSON_DIAG_OFF(stringop-overflow)
 #endif
@@ -146,6 +146,6 @@ TEST(itoa, i64toa) {
   Verify(i64toa_naive, i64toa);
 }
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 NEUJSON_DIAG_POP
 #endif
