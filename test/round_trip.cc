@@ -11,18 +11,18 @@
 #include "neujson/value.h"
 #include "neujson/writer.h"
 
-#include "unit_test.h"
+#include "gtest/gtest.h"
 
 #define TEST_ROUNDTRIP_BOOL(_json) \
   do {                             \
-    ::std::string_view ssi((_json)); \
+    std::string_view ssi((_json)); \
     neujson::Document doc;         \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_BOOL, doc.GetType());                     \
     neujson::StringWriteStream oss;\
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);           \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());         \
   } while (0)                      \
   //
 
@@ -33,14 +33,14 @@ TEST(round_trip, bool) {
 
 #define TEST_ROUNDTRIP_INT32(_json) \
   do {                              \
-    ::std::string_view ssi((_json));\
+    std::string_view ssi((_json));\
     neujson::Document doc;          \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_INT32, doc.GetType());                    \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);            \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());         \
   } while (0)                       \
   //
 
@@ -54,14 +54,14 @@ TEST(round_trip, int32) {
 
 #define TEST_ROUNDTRIP_INT64(_json) \
   do {                              \
-    ::std::string_view ssi((_json));\
+    std::string_view ssi((_json));\
     neujson::Document doc;          \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_TRUE(neujson::NEU_INT64 == doc.GetType() || neujson::NEU_INT32 == doc.GetType()); \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);            \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());         \
   } while (0)                       \
   //
 
@@ -75,14 +75,14 @@ TEST(round_trip, int64) {
 
 #define TEST_ROUNDTRIP_DOUBLE(_json) \
   do {                               \
-    ::std::string_view ssi((_json)); \
+    std::string_view ssi((_json)); \
     neujson::Document doc;           \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_DOUBLE, doc.GetType());                   \
     neujson::StringWriteStream oss;  \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);             \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());         \
   } while (0)                        \
   //
 
@@ -97,14 +97,14 @@ TEST(round_trip, double) {
 
 #define TEST_ROUNDTRIP_STRING(_expect, _json) \
   do {                               \
-    ::std::string_view ssi((_json)); \
+    std::string_view ssi((_json)); \
     neujson::Document doc;           \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_STRING, doc.GetType());                   \
     neujson::StringWriteStream oss;  \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);             \
-    EXPECT_STREQ((_expect), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_expect), std::string(oss.get()).c_str());         \
   } while (0)                        \
   //
 
@@ -118,14 +118,14 @@ TEST(round_trip, string) {
 
 #define TEST_ROUNDTRIP_ARRAY(_json) \
   do {                              \
-    ::std::string_view ssi((_json));\
+    std::string_view ssi((_json));\
     neujson::Document doc;          \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());                    \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
     doc.WriteTo(writer);            \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());         \
   } while (0)                       \
   //
 
@@ -137,14 +137,14 @@ TEST(round_trip, array) {
 
 #define TEST_ROUNDTRIP_OBJECT(_json) \
   do {                               \
-    ::std::string_view ssi((_json)); \
+    std::string_view ssi((_json));   \
     neujson::Document doc;           \
     EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
-    EXPECT_EQ(neujson::NEU_OBJECT, doc.GetType());                   \
+    EXPECT_EQ(neujson::NEU_OBJECT, doc.GetType());             \
     neujson::StringWriteStream oss;  \
-    neujson::Writer<neujson::StringWriteStream> writer(oss);         \
+    neujson::Writer<neujson::StringWriteStream> writer(oss);   \
     doc.WriteTo(writer);             \
-    EXPECT_STREQ((_json), ::std::string(oss.get()).c_str());         \
+    EXPECT_STREQ((_json), std::string(oss.get()).c_str());     \
   } while (0)                        \
   //
 

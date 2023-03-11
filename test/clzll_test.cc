@@ -2,8 +2,9 @@
 // Created by HominSu on 2022/7/1.
 //
 
-#include "unit_test.h"
 #include "neujson/internal/cllzl.h"
+
+#include "gtest/gtest.h"
 
 using namespace neujson::internal;
 

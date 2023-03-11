@@ -4,7 +4,7 @@
 
 #include "neujson/internal/strtod.h"
 
-#include "unit_test.h"
+#include "gtest/gtest.h"
 
 #if defined(__clang__)
 NEUJSON_DIAG_PUSH

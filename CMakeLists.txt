@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 if (POLICY CMP0025)
     # detect Apple's Clang
     cmake_policy(SET CMP0025 NEW)
@@ -12,19 +12,23 @@ set(LIB_MINOR_VERSION "1")
 set(LIB_PATCH_VERSION "0")
 set(LIB_VERSION_STRING "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
-cmake_policy(SET CMP0048 NEW)
-PROJECT(neujson VERSION "${LIB_VERSION_STRING}" LANGUAGES C CXX)
+if (CMAKE_VERSION VERSION_LESS 3.0)
+    PROJECT(neujson CXX)
+else ()
+    cmake_policy(SET CMP0048 NEW)
+    PROJECT(neujson VERSION "${LIB_VERSION_STRING}" LANGUAGES C CXX)
+endif ()
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+get_filename_component(DEPS_ROOT "${PROJECT_BINARY_DIR}/deps" ABSOLUTE)
+include(ExtProjectUtils)
 
 # compile in release with debug info mode by default
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-# Build all binaries in a separate directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
-option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." OFF)
+option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." OFF)
 option(NEUJSON_BUILD_TESTS "Build neujson unittests." ON)
 option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
@@ -88,7 +92,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
 set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where lib will install")
 
-
 if (NEUJSON_BUILD_EXAMPLES)
     add_subdirectory(example)
 endif ()
@@ -97,22 +100,23 @@ if (NEUJSON_BUILD_TESTS)
     if (MSVC11)
         # required for VS2012 due to missing support for variadic templates
         add_definitions(-D_VARIADIC_MAX=10)
-    endif (MSVC11)
-    find_package(GTest)
-    add_subdirectory(test)
-endif (NEUJSON_BUILD_TESTS)
-
-if (NEUJSON_BUILD_BENCHMARK)
-    find_package(RapidJSON)
-    include_directories(${RapidJSON_INCLUDE_DIRS})
-    find_package(nlohmann_json)
-    include_directories(${nlohmann_json_INCLUDE_DIRS})
-    if (NOT NEUJSON_BUILD_TESTS)
-        find_package(GTest)
     endif ()
-    find_package(benchmark)
-    add_subdirectory(bench)
-endif (NEUJSON_BUILD_BENCHMARK)
+    ExtProjectGit("https://github.com/google/googletest.git" "v1.13.0" ${DEPS_ROOT} CMAKE_ARGS "${_OPT_CMAKE_ARGS}")
+    include_directories("${DEPS_ROOT}/include")
+    link_directories("${DEPS_ROOT}/lib")
+    link_directories("${DEPS_ROOT}/lib64")
+
+    enable_testing()
+    file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cc)
+    foreach (_test_file ${TEST_SRC_FILES})
+        get_filename_component(_test_name ${_test_file} NAME_WE)
+        add_executable(${_test_name} ${_test_file})
+        add_dependencies(${_test_name} "googletest.git")
+        target_link_libraries(${_test_name} gtest gtest_main ${CMAKE_THREAD_LIBS_INIT})
+        add_test(${_test_name} ${_test_name})
+        set_tests_properties(${_test_name} PROPERTIES TIMEOUT 5)
+    endforeach ()
+endif ()
 
 # header
 install(DIRECTORY include/${PROJECT_NAME}
