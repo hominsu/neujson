@@ -10,7 +10,7 @@
 #include "neujson/istream_wrapper.h"
 #include "neujson/ostream_wrapper.h"
 #include "neujson/pretty_writer.h"
-#include "../sample.h"
+#include "sample.h"
 
 int main() {
   std::stringstream iss;

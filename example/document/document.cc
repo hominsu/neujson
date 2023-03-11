@@ -7,7 +7,7 @@
 #include "neujson/document.h"
 #include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
-#include "../sample.h"
+#include "sample.h"
 
 int main() {
   // 1. Parse a JSON string into DOM.
