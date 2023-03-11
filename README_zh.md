@@ -118,8 +118,8 @@ sudo make uninstall
 int main() {
   // 1. Parse a JSON string into DOM.
   neujson::Document doc;
-  auto err = doc.parse(kSample[0]);
-  if (err != neujson::error::PARSE_OK) {
+  auto err = doc.Parse(kSample[0]);
+  if (err != neujson::error::OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }

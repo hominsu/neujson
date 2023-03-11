@@ -116,8 +116,8 @@ This simple example parses a JSON string into a document (DOM), make a simple mo
 int main() {
   // 1. Parse a JSON string into DOM.
   neujson::Document doc;
-  auto err = doc.parse(kSample[0]);
-  if (err != neujson::error::PARSE_OK) {
+  auto err = doc.Parse(kSample[0]);
+  if (err != neujson::error::OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }
@@ -128,7 +128,7 @@ int main() {
 
   // 3. Stringify the DOM
   neujson::StringWriteStream os;
-  neujson::Writer<neujson::StringWriteStream> writer(os);
+  neujson::Writer writer(os);
   doc.WriteTo(writer);
 
   // Output
