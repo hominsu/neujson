@@ -15,19 +15,16 @@
 namespace neujson {
 
 class FileReadStream : noncopyable {
- public:
-  using Ch = char;
-
  private:
-  static const ::std::size_t kInnerBufferSize = 256;
-  ::std::FILE *fp_;
-  Ch inner_buffer_[kInnerBufferSize]{};
-  Ch *buffer_;
-  Ch *current_;
-  Ch *buffer_last_;
-  ::std::size_t buffer_size_;
-  ::std::size_t read_count_;
-  ::std::size_t read_total_;
+  static const std::size_t kInnerBufferSize = 256;
+  std::FILE *fp_;
+  char inner_buffer_[kInnerBufferSize]{};
+  char *buffer_;
+  char *current_;
+  char *buffer_last_;
+  std::size_t buffer_size_;
+  std::size_t read_count_;
+  std::size_t read_total_;
   bool eof_;
 
  public:
@@ -44,10 +41,10 @@ class FileReadStream : noncopyable {
     read();
   }
 
-  explicit FileReadStream(FILE *_fp, char *_buffer, ::std::size_t _buffer_size)
+  explicit FileReadStream(FILE *_fp, char *_buffer, std::size_t _buffer_size)
       : fp_(_fp),
         buffer_(_buffer),
-        current_(buffer_),
+        current_(_buffer),
         buffer_last_(nullptr),
         buffer_size_(_buffer_size),
         read_count_(0),
@@ -60,10 +57,10 @@ class FileReadStream : noncopyable {
 
   [[nodiscard]] bool hasNext() const { return !eof_ || (current_ + 1 - !eof_ <= buffer_last_); }
 
-  Ch peek() { return *current_; }
+  char peek() { return *current_; }
 
-  Ch next() {
-    Ch ch = *current_;
+  char next() {
+    char ch = *current_;
     read();
     return ch;
   }
@@ -77,7 +74,7 @@ class FileReadStream : noncopyable {
     }
   }
 
-  void assertNext(Ch _ch) {
+  void assertNext(char _ch) {
     (void) _ch;
     NEUJSON_ASSERT(peek() == _ch);
     read();
@@ -88,7 +85,7 @@ class FileReadStream : noncopyable {
     if (current_ < buffer_last_) { ++current_; }
     else if (!eof_) {
       read_total_ += read_count_;
-      read_count_ = ::std::fread(buffer_, 1, buffer_size_, fp_);
+      read_count_ = std::fread(buffer_, 1, buffer_size_, fp_);
       buffer_last_ = buffer_ + read_count_ - 1;
       current_ = buffer_;
 

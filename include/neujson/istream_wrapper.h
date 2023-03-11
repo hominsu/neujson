@@ -17,15 +17,15 @@ class IStreamWrapper : noncopyable {
   using Ch = typename Stream::char_type;
 
  private:
-  static const ::std::size_t kInnerBufferSize = 256;
+  static const std::size_t kInnerBufferSize = 256;
   Stream &stream_;
   Ch inner_buffer_[kInnerBufferSize]{};
   Ch *buffer_;
   Ch *current_;
   Ch *buffer_last_;
-  ::std::size_t buffer_size_;
-  ::std::size_t read_count_;
-  ::std::size_t read_total_;
+  std::size_t buffer_size_;
+  std::size_t read_count_;
+  std::size_t read_total_;
   bool eof_;
 
  public:
@@ -41,7 +41,7 @@ class IStreamWrapper : noncopyable {
     read();
   }
 
-  IStreamWrapper(Stream &_stream, char *_buffer, ::std::size_t _buffer_size)
+  IStreamWrapper(Stream &_stream, char *_buffer, std::size_t _buffer_size)
       : stream_(_stream),
         buffer_(_buffer),
         current_(buffer_),
@@ -89,8 +89,8 @@ class IStreamWrapper : noncopyable {
       current_ = buffer_;
 
       // eof
-      if (!stream_.read(buffer_, static_cast<::std::streamsize>(buffer_size_))) {
-        read_count_ = static_cast<::std::size_t>(stream_.gcount());
+      if (!stream_.read(buffer_, static_cast<std::streamsize>(buffer_size_))) {
+        read_count_ = static_cast<std::size_t>(stream_.gcount());
         *(buffer_last_ = buffer_ + read_count_) = '\0';
         eof_ = true;
       }

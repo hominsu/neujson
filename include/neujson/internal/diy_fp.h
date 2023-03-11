@@ -76,7 +76,7 @@ struct DiyFp {
       return 0.0;
     }
     if (e_ >= kDpMaxExponent) {
-      return ::std::numeric_limits<double>::infinity();
+      return std::numeric_limits<double>::infinity();
     }
     const uint64_t exponent =
         (e_ == kDpStartExponent && (f_ & kDpHiddenBit) == 0) ? 0 : static_cast<uint64_t>(e_ + kDpExponentBias);

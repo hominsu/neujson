@@ -17,7 +17,7 @@
   do {                             \
     ::std::string_view ssi((_json)); \
     neujson::Document doc;         \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_BOOL, doc.GetType());                     \
     neujson::StringWriteStream oss;\
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -35,7 +35,7 @@ TEST(round_trip, bool) {
   do {                              \
     ::std::string_view ssi((_json));\
     neujson::Document doc;          \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_INT32, doc.GetType());                    \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -56,7 +56,7 @@ TEST(round_trip, int32) {
   do {                              \
     ::std::string_view ssi((_json));\
     neujson::Document doc;          \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_TRUE(neujson::NEU_INT64 == doc.GetType() || neujson::NEU_INT32 == doc.GetType()); \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -77,7 +77,7 @@ TEST(round_trip, int64) {
   do {                               \
     ::std::string_view ssi((_json)); \
     neujson::Document doc;           \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_DOUBLE, doc.GetType());                   \
     neujson::StringWriteStream oss;  \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -99,7 +99,7 @@ TEST(round_trip, double) {
   do {                               \
     ::std::string_view ssi((_json)); \
     neujson::Document doc;           \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_STRING, doc.GetType());                   \
     neujson::StringWriteStream oss;  \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -120,7 +120,7 @@ TEST(round_trip, string) {
   do {                              \
     ::std::string_view ssi((_json));\
     neujson::Document doc;          \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_ARRAY, doc.GetType());                    \
     neujson::StringWriteStream oss; \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \
@@ -139,7 +139,7 @@ TEST(round_trip, array) {
   do {                               \
     ::std::string_view ssi((_json)); \
     neujson::Document doc;           \
-    EXPECT_EQ(neujson::error::ParseError::PARSE_OK, doc.parse(ssi)); \
+    EXPECT_EQ(neujson::error::ParseError::OK, doc.Parse(ssi)); \
     EXPECT_EQ(neujson::NEU_OBJECT, doc.GetType());                   \
     neujson::StringWriteStream oss;  \
     neujson::Writer<neujson::StringWriteStream> writer(oss);         \

@@ -15,10 +15,10 @@ int main() {
   char writeBuffer[65536];
 
   neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
-  neujson::Writer<neujson::FileWriteStream> writer(out);
+  neujson::Writer writer(out);
 
-  auto err = neujson::Reader::parse(in, writer);
-  if (err != neujson::error::PARSE_OK) {
+  auto err = neujson::Reader::Parse(in, writer);
+  if (err != neujson::error::OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }

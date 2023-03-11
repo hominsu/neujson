@@ -29,15 +29,15 @@ class PrettyWriter : public Writer<WriteStream> {
   PrettyFormatOptions format_options_;
 
  private:
-  ::std::string indent_;
-  ::std::string_view indent_sv_;
+  std::string indent_;
+  std::string_view indent_sv_;
 
  public:
   explicit PrettyWriter(WriteStream &_os) : Base(_os), format_options_(kFormatDefault) {
     InitIndent(' ', 4);
   }
 
-  PrettyWriter &SetIndent(char _indent_char, ::std::size_t _indent_char_count) {
+  PrettyWriter &SetIndent(char _indent_char, std::size_t _indent_char_count) {
     NEUJSON_ASSERT(_indent_char == ' ' || _indent_char == '\t' || _indent_char == '\n' || _indent_char == '\r');
     InitIndent(_indent_char, _indent_char_count);
     return *this;
@@ -56,8 +56,8 @@ class PrettyWriter : public Writer<WriteStream> {
   bool Int64(int64_t _i64) { PrettyPrefix(NEU_INT64); return Base::EndValue(Base::WriteInt64(_i64)); }
   bool Double(double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(internal::Double(_d))); }
   bool Double(internal::Double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(_d)); }
-  bool String(::std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteString(_str)); }
-  bool Key(::std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteKey(_str)); }
+  bool String(std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteString(_str)); }
+  bool Key(std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteKey(_str)); }
   //@formatter:on
 
   bool StartObject() {
@@ -117,7 +117,7 @@ class PrettyWriter : public Writer<WriteStream> {
   void PrettyPrefix(Type type_);
 
  private:
-  void InitIndent(char _indent_char, ::std::size_t _indent_char_count);
+  void InitIndent(char _indent_char, std::size_t _indent_char_count);
   void WriteIndent();
 };
 
@@ -171,7 +171,7 @@ inline void PrettyWriter<WriteStream>::InitIndent(char _indent_char, size_t _ind
   for (size_t i = 0; i < _indent_char_count; ++i) {
     indent_.push_back(_indent_char);
   }
-  indent_sv_ = ::std::string_view(indent_);
+  indent_sv_ = std::string_view(indent_);
 }
 
 template<typename WriteStream>

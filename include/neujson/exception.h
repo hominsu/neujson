@@ -11,27 +11,27 @@
 
 namespace neujson {
 
-#define ERR_TABLE(XX) \
-  XX(OK, "ok")        \
-  XX(ROOT_NOT_SINGULAR, "root not singular") \
-  XX(BAD_VALUE, "bad value")                 \
-  XX(EXPECT_VALUE, "expect value")           \
-  XX(NUMBER_TOO_BIG, "number too big")       \
-  XX(BAD_STRING_CHAR, "bad character")       \
-  XX(BAD_STRING_ESCAPE, "bad escape")        \
-  XX(BAD_UNICODE_HEX, "bad unicode hex")     \
-  XX(BAD_UNICODE_SURROGATE, "bad unicode surrogate") \
-  XX(MISS_QUOTATION_MARK, "miss quotation mark")     \
-  XX(MISS_COMMA_OR_SQUARE_BRACKET, "miss comma or square bracket") \
-  XX(MISS_KEY, "miss key")                   \
-  XX(MISS_COLON, "miss colon")               \
-  XX(MISS_COMMA_OR_CURLY_BRACKET, "miss comma or curly bracket")   \
-  XX(USER_STOPPED, "user stopped parse")     \
+#define ERR_TABLE(ERR) \
+  ERR(OK, "ok")        \
+  ERR(ROOT_NOT_SINGULAR, "root not singular") \
+  ERR(BAD_VALUE, "bad value")                 \
+  ERR(EXPECT_VALUE, "expect value")           \
+  ERR(NUMBER_TOO_BIG, "number too big")       \
+  ERR(BAD_STRING_CHAR, "bad character")       \
+  ERR(BAD_STRING_ESCAPE, "bad escape")        \
+  ERR(BAD_UNICODE_HEX, "bad unicode hex")     \
+  ERR(BAD_UNICODE_SURROGATE, "bad unicode surrogate") \
+  ERR(MISS_QUOTATION_MARK, "miss quotation mark")     \
+  ERR(MISS_COMMA_OR_SQUARE_BRACKET, "miss comma or square bracket") \
+  ERR(MISS_KEY, "miss key")                   \
+  ERR(MISS_COLON, "miss colon")               \
+  ERR(MISS_COMMA_OR_CURLY_BRACKET, "miss comma or curly bracket")   \
+  ERR(USER_STOPPED, "user stopped parse")     \
   //
 
 namespace error {
 enum ParseError {
-#define ERR_NO(_err, _str) PARSE_##_err,
+#define ERR_NO(_err, _str) _err,
   ERR_TABLE(ERR_NO)
 #undef ERR_NO
 };
@@ -48,7 +48,9 @@ inline const char *parseErrorStr(error::ParseError _err) {
   return err_str_table[_err];
 }
 
-class Exception : public ::std::exception {
+#undef ERR_TABLE
+
+class Exception : public std::exception {
  private:
   error::ParseError err_;
 
@@ -58,8 +60,6 @@ class Exception : public ::std::exception {
   [[nodiscard]] const char *what() const noexcept override { return parseErrorStr(err_); }
   [[nodiscard]] error::ParseError err() const { return err_; }
 };
-
-#undef ERR_TABLE
 
 } // namespace neujson
 

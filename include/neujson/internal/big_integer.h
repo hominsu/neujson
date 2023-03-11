@@ -25,12 +25,12 @@ class BigInteger {
   using Type = uint64_t;
 
  private:
-  static const ::std::size_t kBitCount = 3328; // 64bit * 54 > 10^1000
-  static const ::std::size_t kCapacity = kBitCount / sizeof(Type);
-  static const ::std::size_t kTypeBit = sizeof(Type) * 8;
+  static const std::size_t kBitCount = 3328; // 64bit * 54 > 10^1000
+  static const std::size_t kCapacity = kBitCount / sizeof(Type);
+  static const std::size_t kTypeBit = sizeof(Type) * 8;
 
   Type digits_[kCapacity]{};
-  ::std::size_t count_;
+  std::size_t count_;
 
  public:
   explicit BigInteger(uint64_t _u) : count_(1) {
@@ -38,15 +38,15 @@ class BigInteger {
   }
 
   BigInteger(const BigInteger &_big_integer) : count_(_big_integer.count_) {
-    ::std::memcpy(digits_, _big_integer.digits_, count_ * sizeof(Type));
+    std::memcpy(digits_, _big_integer.digits_, count_ * sizeof(Type));
   }
 
   template<typename Ch>
-  BigInteger(const Ch *_decimals, ::std::size_t _length) : count_(1) {
+  BigInteger(const Ch *_decimals, std::size_t _length) : count_(1) {
     NEUJSON_ASSERT(_length > 0);
     digits_[0] = 0;
-    ::std::size_t i = 0;
-    const ::std::size_t kMaxDigitPerIter = 19; // 2^64 > 10^19
+    std::size_t i = 0;
+    const std::size_t kMaxDigitPerIter = 19; // 2^64 > 10^19
     while (_length > 19) {
       AppendDecimal64(_decimals + i, _decimals + i + kMaxDigitPerIter);
       _length -= kMaxDigitPerIter;
@@ -60,7 +60,7 @@ class BigInteger {
   BigInteger &operator=(const BigInteger &_big_integer) {
     if (this != &_big_integer) {
       count_ = _big_integer.count_;
-      ::std::memcpy(digits_, _big_integer.digits_, count_ * sizeof(Type));
+      std::memcpy(digits_, _big_integer.digits_, count_ * sizeof(Type));
     }
     return *this;
   }
@@ -72,26 +72,26 @@ class BigInteger {
   }
 
   bool operator==(const BigInteger *_big_integer) const {
-    return count_ == _big_integer->count_ && ::std::memcmp(digits_, _big_integer->digits_, count_ * sizeof(Type)) == 0;
+    return count_ == _big_integer->count_ && std::memcmp(digits_, _big_integer->digits_, count_ * sizeof(Type)) == 0;
   }
 
   bool operator==(const Type &_type) const {
     return count_ == 1 & digits_[0] == _type;
   }
 
-  BigInteger &operator<<=(::std::size_t _shift) {
+  BigInteger &operator<<=(std::size_t _shift) {
     if (IsZero() || _shift == 0) { return *this; }
 
-    ::std::size_t offset = _shift / kTypeBit;
-    ::std::size_t inner_shift = _shift & kTypeBit;
+    std::size_t offset = _shift / kTypeBit;
+    std::size_t inner_shift = _shift & kTypeBit;
     NEUJSON_ASSERT(count_ + offset <= kCapacity);
 
     if (inner_shift == 0) {
-      ::std::memmove(digits_ + offset, digits_, count_ * sizeof(Type));
+      std::memmove(digits_ + offset, digits_, count_ * sizeof(Type));
       count_ += offset;
     } else {
       digits_[count_] = 0;
-      for (::std::size_t i = count_; i > 0; --i) {
+      for (std::size_t i = count_; i > 0; --i) {
         digits_[i + offset] = (digits_[i] << inner_shift) | (digits_[i - 1] >> (kTypeBit - inner_shift));
       }
       digits_[offset] = digits_[0] << inner_shift;
@@ -99,7 +99,7 @@ class BigInteger {
       if (digits_[count_]) { ++count_; }
     }
 
-    ::std::memset(digits_, 0, offset * sizeof(Type));
+    std::memset(digits_, 0, offset * sizeof(Type));
 
     return *this;
   }
@@ -107,7 +107,7 @@ class BigInteger {
   BigInteger &operator+=(uint64_t _u64) {
     Type backup = digits_[0];
     digits_[0] += _u64;
-    for (::std::size_t i = 0; i < count_ - 1; ++i) {
+    for (std::size_t i = 0; i < count_ - 1; ++i) {
       if (digits_[i] >= backup) { return *this; } // no carry
       backup = digits_[i + 1];
       digits_[i + 1] += 1;
@@ -124,7 +124,7 @@ class BigInteger {
     if (*this == 1) { return *this = _u64; }
 
     uint64_t carry = 0;
-    for (::std::size_t i = 0; i < count_; ++i) {
+    for (std::size_t i = 0; i < count_; ++i) {
       uint64_t h;
       digits_[i] = MulAdd64(digits_[i], _u64, carry, &h);
       carry = h;
@@ -141,7 +141,7 @@ class BigInteger {
     if (*this == 1) { return *this = _u32; }
 
     uint64_t carry = 0;
-    for (::std::size_t i = 0; i < count_; ++i) {
+    for (std::size_t i = 0; i < count_; ++i) {
       const uint64_t h = digits_[i] >> 32;
       const uint64_t l = digits_[i] & 0xFFFFFFFF;
       const uint64_t uh = _u32 * h;

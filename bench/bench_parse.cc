@@ -22,6 +22,7 @@
 #include "neujson/exception.h"
 #include "neujson/file_read_stream.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/neujson.h"
 #include "neujson/pretty_writer.h"
 #include "neujson/string_write_stream.h"
 #include "neujson/writer.h"
@@ -36,6 +37,11 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
+#if defined(__GNUC__)
+NEUJSON_DIAG_PUSH
+NEUJSON_DIAG_OFF(effc++)
+#endif
+
 template<class ...ExtraArgs>
 void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args) {
   for (auto s: _state) {
@@ -48,12 +54,12 @@ void BM_neujson_read_parse(benchmark::State &_state, ExtraArgs &&... _extra_args
     neujson::FileReadStream is(input);
 
     neujson::Document doc;
-    auto err = doc.parseStream(is);
+    auto err = doc.ParseStream(is);
     fclose(input);
 
     benchmark::DoNotOptimize(err);
 
-    if (err != neujson::error::PARSE_OK) {
+    if (err != neujson::error::OK) {
       _state.SkipWithError(neujson::parseErrorStr(err));
       break;
     }
@@ -78,12 +84,12 @@ void BM_neujson_read_parse_write_file(benchmark::State &_state, ExtraArgs &&... 
     neujson::FileReadStream is(input);
 
     neujson::Document doc;
-    auto err = doc.parseStream(is);
+    auto err = doc.ParseStream(is);
     fclose(input);
 
     benchmark::DoNotOptimize(err);
 
-    if (err != neujson::error::PARSE_OK) {
+    if (err != neujson::error::OK) {
       _state.SkipWithError(neujson::parseErrorStr(err));
       break;
     }
@@ -109,12 +115,12 @@ void BM_neujson_read_parse_write_string(benchmark::State &_state, ExtraArgs &&..
     neujson::FileReadStream is(input);
 
     neujson::Document doc;
-    auto err = doc.parseStream(is);
+    auto err = doc.ParseStream(is);
     fclose(input);
 
     benchmark::DoNotOptimize(err);
 
-    if (err != neujson::error::PARSE_OK) {
+    if (err != neujson::error::OK) {
       _state.SkipWithError(neujson::parseErrorStr(err));
       break;
     }
@@ -145,12 +151,12 @@ void BM_neujson_read_parse_pretty_write_file(benchmark::State &_state, ExtraArgs
     neujson::FileReadStream is(input);
 
     neujson::Document doc;
-    auto err = doc.parseStream(is);
+    auto err = doc.ParseStream(is);
     fclose(input);
 
     benchmark::DoNotOptimize(err);
 
-    if (err != neujson::error::PARSE_OK) {
+    if (err != neujson::error::OK) {
       _state.SkipWithError(neujson::parseErrorStr(err));
       break;
     }
@@ -176,12 +182,12 @@ void BM_neujson_read_parse_pretty_write_string(benchmark::State &_state, ExtraAr
     neujson::FileReadStream is(input);
 
     neujson::Document doc;
-    auto err = doc.parseStream(is);
+    auto err = doc.ParseStream(is);
     fclose(input);
 
     benchmark::DoNotOptimize(err);
 
-    if (err != neujson::error::PARSE_OK) {
+    if (err != neujson::error::OK) {
       _state.SkipWithError(neujson::parseErrorStr(err));
       break;
     }
@@ -509,3 +515,7 @@ BENCHMARK_CAPTURE(BM_rapidjson_read_parse_pretty_write_string, canada.json, "../
 // @formatter:on
 
 BENCHMARK_MAIN();
+
+#if defined(__GNUC__)
+NEUJSON_DIAG_POP
+#endif

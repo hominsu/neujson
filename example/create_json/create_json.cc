@@ -10,7 +10,7 @@
 int main() {
   char writeBuffer[65536];
   neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
-  neujson::Writer<neujson::FileWriteStream> writer(os);
+  neujson::Writer writer(os);
 
   writer.StartArray();
   writer.Double(::std::numeric_limits<double>::infinity());

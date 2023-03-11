@@ -20,17 +20,17 @@ int main() {
   neujson::FileReadStream is(input);
 
   neujson::Document doc;
-  auto err = doc.parseStream(is);
+  auto err = doc.ParseStream(is);
   fclose(input);
 
-  if (err != neujson::error::PARSE_OK) {
+  if (err != neujson::error::OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }
 
   char writeBuffer[65536];
   neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
-  neujson::PrettyWriter<neujson::FileWriteStream> writer(os);
+  neujson::PrettyWriter writer(os);
   writer.SetIndent(' ', 2);
   doc.WriteTo(writer);
 

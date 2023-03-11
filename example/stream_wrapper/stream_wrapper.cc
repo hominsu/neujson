@@ -19,19 +19,19 @@ int main() {
   iss << kSample[0];
 
   // any class derived from std::istream, ex. std::istringstream, std::stringstream, std::ifstream, std::fstream
-  neujson::IStreamWrapper<std::stringstream> is(iss);
+  neujson::IStreamWrapper is(iss);
 
   neujson::Document doc;
-  auto err = doc.parseStream(is);
+  auto err = doc.ParseStream(is);
 
-  if (err != neujson::error::PARSE_OK) {
+  if (err != neujson::error::OK) {
     puts(neujson::parseErrorStr(err));
     return EXIT_FAILURE;
   }
 
   // any class derived from std::ostream, ex. std::ostringstream, std::stringstream, std::ofstream, std::fstream
-  neujson::OStreamWrapper<std::stringstream> os(oss);
-  neujson::PrettyWriter<neujson::OStreamWrapper<std::stringstream>> pretty_writer(os);
+  neujson::OStreamWrapper os(oss);
+  neujson::PrettyWriter pretty_writer(os);
   pretty_writer.SetIndent(' ', 2);
   doc.WriteTo(pretty_writer);
 

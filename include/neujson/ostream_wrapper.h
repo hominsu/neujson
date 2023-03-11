@@ -27,11 +27,11 @@ class OStreamWrapper : noncopyable {
     stream_.put(_ch);
   }
 
-  void puts(const char *_str, ::std::streamsize _length) {
+  void puts(const char *_str, std::streamsize _length) {
     stream_.write(_str, _length);
   }
 
-  void put_sv(::std::string_view _sv) {
+  void put_sv(std::string_view _sv) {
     stream_ << _sv;
   }
 

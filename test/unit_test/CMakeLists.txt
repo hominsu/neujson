@@ -41,10 +41,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     endif()
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/third_party/gtest/googletest/include)
-
 add_executable(unit_test ${UNIT_TEST_SOURCES})
-target_link_libraries(unit_test ${TEST_LIBRARIES})
+target_include_directories(unit_test PUBLIC ${GTest_INCLUDE_DIRS})
+target_link_libraries(unit_test GTest::gtest_main)
 
 add_dependencies(tests unit_test)
 

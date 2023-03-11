@@ -38,68 +38,68 @@ namespace neujson {
 class Reader : noncopyable {
  public:
   template<typename ReadStream, typename Handler>
-  static error::ParseError parse(ReadStream &_rs, Handler &_handler);
+  static error::ParseError Parse(ReadStream &_rs, Handler &_handler);
 
  private:
   template<typename ReadStream>
-  static unsigned parseHex4(ReadStream &_rs);
+  static unsigned ParseHex4(ReadStream &_rs);
 
 #if defined(NEUJSON_SSE42)
   template<typename ReadStream>
-  static void parseWhitespace_SIMD_SSE42(ReadStream &_rs);
+  static void ParseWhitespaceSSE42(ReadStream &_rs);
 #elif defined(NEUJSON_SSE2)
   template<typename ReadStream>
-  static void parseWhitespace_SIMD_SSE2(ReadStream &_rs);
+  static void ParseWhitespaceSSE2(ReadStream &_rs);
 #elif defined(NEUJSON_NEON)
   template<typename ReadStream>
-  static void parseWhitespace_SIMD_NEON(ReadStream &_rs);
+  static void ParseWhitespaceNEON(ReadStream &_rs);
 #else
   template<typename ReadStream>
-  static void parseWhitespace_BASIC(ReadStream &_rs);
+  static void ParseWhitespaceBasic(ReadStream &_rs);
 #endif
 
   template<typename ReadStream>
-  static void parseWhitespace(ReadStream &_rs);
+  static void ParseWhitespace(ReadStream &_rs);
 
   template<typename ReadStream, typename Handler>
-  static void parseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type);
+  static void ParseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type);
 
   template<typename ReadStream, typename Handler>
-  static void parseNumber(ReadStream &_rs, Handler &_handler);
+  static void ParseNumber(ReadStream &_rs, Handler &_handler);
 
   template<typename ReadStream, typename Handler>
-  static void parseString(ReadStream &_rs, Handler &_handler, bool _is_key);
+  static void ParseString(ReadStream &_rs, Handler &_handler, bool _is_key);
 
   template<typename ReadStream, typename Handler>
-  static void parseArray(ReadStream &_rs, Handler &_handler);
+  static void ParseArray(ReadStream &_rs, Handler &_handler);
 
   template<typename ReadStream, typename Handler>
-  static void parseObject(ReadStream &_rs, Handler &_handler);
+  static void ParseObject(ReadStream &_rs, Handler &_handler);
 
   template<typename ReadStream, typename Handler>
-  static void parseValue(ReadStream &_rs, Handler &_handler);
+  static void ParseValue(ReadStream &_rs, Handler &_handler);
 
  private:
-  static bool isDigit(char _ch) { return _ch >= '0' && _ch <= '9'; }
-  static bool isDigit1to9(char _ch) { return _ch >= '1' && _ch <= '9'; }
-  static void encodeUtf8(::std::string &_buffer, unsigned int _u);
+  static bool IsDigit(char _ch) { return _ch >= '0' && _ch <= '9'; }
+  static bool IsDigit1To9(char _ch) { return _ch >= '1' && _ch <= '9'; }
+  static void EncodeUtf8(std::string &_buffer, unsigned int _u);
 };
 
 template<typename ReadStream, typename Handler>
-inline error::ParseError Reader::parse(ReadStream &_rs, Handler &_handler) {
+inline error::ParseError Reader::Parse(ReadStream &_rs, Handler &_handler) {
   try {
-    parseWhitespace(_rs);
-    parseValue(_rs, _handler);
-    parseWhitespace(_rs);
-    if (_rs.hasNext()) { throw Exception(error::PARSE_ROOT_NOT_SINGULAR); }
-    return error::PARSE_OK;
+    ParseWhitespace(_rs);
+    ParseValue(_rs, _handler);
+    ParseWhitespace(_rs);
+    if (_rs.hasNext()) { throw Exception(error::ROOT_NOT_SINGULAR); }
+    return error::OK;
   } catch (Exception &e) {
     return e.err();
   }
 }
 
 template<typename ReadStream>
-inline unsigned Reader::parseHex4(ReadStream &_rs) {
+inline unsigned Reader::ParseHex4(ReadStream &_rs) {
   unsigned int u = 0;
   for (int i = 0; i < 4; i++) {
     u <<= 4;
@@ -107,7 +107,7 @@ inline unsigned Reader::parseHex4(ReadStream &_rs) {
     if (ch >= '0' && ch <= '9') { u |= static_cast<unsigned int>(ch - '0'); }
     else if (ch >= 'a' && ch <= 'f') { u |= static_cast<unsigned int>(ch - 'a' + 10); }
     else if (ch >= 'A' && ch <= 'F') { u |= static_cast<unsigned int>(ch - 'A' + 10); }
-    else { throw Exception(error::PARSE_BAD_UNICODE_HEX); }
+    else { throw Exception(error::BAD_UNICODE_HEX); }
   }
   return u;
 }
@@ -119,7 +119,7 @@ inline unsigned Reader::parseHex4(ReadStream &_rs) {
  * @param _rs
  */
 template<typename ReadStream>
-inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
+inline void Reader::ParseWhitespaceSSE42(ReadStream &_rs) {
   char ch = _rs.peek();
   if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
   else { return; }
@@ -157,7 +157,7 @@ inline void Reader::parseWhitespace_SIMD_SSE42(ReadStream &_rs) {
  * @param _rs
  */
 template<typename ReadStream>
-inline void Reader::parseWhitespace_SIMD_SSE2(ReadStream &_rs) {
+inline void Reader::ParseWhitespaceSSE2(ReadStream &_rs) {
   // Fast return for single non-whitespace
   char ch = _rs.peek();
   if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
@@ -211,7 +211,7 @@ inline void Reader::parseWhitespace_SIMD_SSE2(ReadStream &_rs) {
  * @param _rs
  */
 template<typename ReadStream>
-inline void Reader::parseWhitespace_SIMD_NEON(ReadStream &_rs) {
+inline void Reader::ParseWhitespaceNEON(ReadStream &_rs) {
   char ch = _rs.peek();
   if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
   else { return; }
@@ -260,7 +260,7 @@ inline void Reader::parseWhitespace_SIMD_NEON(ReadStream &_rs) {
 }
 #else
 template<typename ReadStream>
-inline void Reader::parseWhitespace_BASIC(ReadStream &_rs) {
+inline void Reader::ParseWhitespaceBasic(ReadStream &_rs) {
   while (_rs.hasNext()) {
     char ch = _rs.peek();
     if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') { _rs.next(); }
@@ -270,27 +270,27 @@ inline void Reader::parseWhitespace_BASIC(ReadStream &_rs) {
 #endif
 
 template<typename ReadStream>
-inline void Reader::parseWhitespace(ReadStream &_rs) {
+inline void Reader::ParseWhitespace(ReadStream &_rs) {
 #if defined(NEUJSON_SSE42)
-  return parseWhitespace_SIMD_SSE42(_rs);
+  return ParseWhitespaceSSE42(_rs);
 #elif defined(NEUJSON_SSE2)
-  return parseWhitespace_SIMD_SSE2(_rs);
+  return ParseWhitespaceSSE2(_rs);
 #elif defined(NEUJSON_NEON)
-  return parseWhitespace_SIMD_NEON(_rs);
+  return ParseWhitespaceNEON(_rs);
 #else
-  return parseWhitespace_BASIC(_rs);
+  return ParseWhitespaceBasic(_rs);
 #endif
 }
 
-#define CALL(_expr) if (!(_expr)) throw Exception(error::PARSE_USER_STOPPED)
+#define CALL(_expr) if (!(_expr)) throw Exception(error::USER_STOPPED)
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type) {
+inline void Reader::ParseLiteral(ReadStream &_rs, Handler &_handler, const char *_literal, Type _type) {
   char c = *_literal;
 
   _rs.assertNext(*_literal++);
   for (; *_literal != '\0'; _literal++, _rs.next()) {
-    if (*_literal != _rs.peek()) { throw Exception(error::PARSE_BAD_VALUE); }
+    if (*_literal != _rs.peek()) { throw Exception(error::BAD_VALUE); }
   }
 
   switch (_type) {
@@ -307,23 +307,23 @@ inline void Reader::parseLiteral(ReadStream &_rs, Handler &_handler, const char 
 }
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
+inline void Reader::ParseNumber(ReadStream &_rs, Handler &_handler) {
   // parse 'NaN' (Not a Number) && 'Infinity'
   if (_rs.peek() == 'N') {
-    parseLiteral(_rs, _handler, "NaN", NEU_DOUBLE);
+    ParseLiteral(_rs, _handler, "NaN", NEU_DOUBLE);
     return;
   } else if (_rs.peek() == 'I') {
-    parseLiteral(_rs, _handler, "Infinity", NEU_DOUBLE);
+    ParseLiteral(_rs, _handler, "Infinity", NEU_DOUBLE);
     return;
   }
 
-  ::std::string buffer;
+  std::string buffer;
 
   if (_rs.peek() == '-') { buffer.push_back(_rs.next()); }
   if (_rs.peek() == '0') { buffer.push_back(_rs.next()); }
   else {
-    if (!isDigit1to9(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
+    if (!IsDigit1To9(_rs.peek())) { throw Exception(error::BAD_VALUE); }
+    for (buffer.push_back(_rs.next()); IsDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
   auto expectType = NEU_NULL;
@@ -331,28 +331,28 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
   if (_rs.peek() == '.') {
     expectType = NEU_DOUBLE;
     buffer.push_back(_rs.next());
-    if (!isDigit(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
+    if (!IsDigit(_rs.peek())) { throw Exception(error::BAD_VALUE); }
+    for (buffer.push_back(_rs.next()); IsDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
   if (_rs.peek() == 'e' || _rs.peek() == 'E') {
     expectType = NEU_DOUBLE;
     buffer.push_back(_rs.next());
     if (_rs.peek() == '+' || _rs.peek() == '-') { buffer.push_back(_rs.next()); }
-    if (!isDigit(_rs.peek())) { throw Exception(error::PARSE_BAD_VALUE); }
-    for (buffer.push_back(_rs.next()); isDigit(_rs.peek()); buffer.push_back(_rs.next()));
+    if (!IsDigit(_rs.peek())) { throw Exception(error::BAD_VALUE); }
+    for (buffer.push_back(_rs.next()); IsDigit(_rs.peek()); buffer.push_back(_rs.next()));
   }
 
-  if (buffer.empty()) { throw Exception(error::PARSE_BAD_VALUE); }
+  if (buffer.empty()) { throw Exception(error::BAD_VALUE); }
 
   try {
-    ::std::size_t idx;
+    std::size_t idx;
     if (expectType == NEU_DOUBLE) {
       double d;
 #if defined(__clang__) || defined(_MSC_VER)
-      d = ::std::stod(buffer, &idx);
+      d = std::stod(buffer, &idx);
 #elif defined(__GNUC__)
-      d = __gnu_cxx::__stoa(&::std::strtod, "stod", buffer.data(), &idx);
+      d = __gnu_cxx::__stoa(&std::strtod, "stod", buffer.data(), &idx);
 #else
 #error "complier no support"
 #endif
@@ -361,36 +361,36 @@ inline void Reader::parseNumber(ReadStream &_rs, Handler &_handler) {
     } else {
       int64_t i64;
 #if defined(__clang__) || defined(_MSC_VER)
-      i64 = ::std::stoll(buffer, &idx, 10);
+      i64 = std::stoll(buffer, &idx, 10);
 #elif defined(__GNUC__)
-      i64 = __gnu_cxx::__stoa(&::std::strtoll, "stoll", buffer.data(), &idx, 10);
+      i64 = __gnu_cxx::__stoa(&std::strtoll, "stoll", buffer.data(), &idx, 10);
 #else
 #error "complier no support"
 #endif
-      if (i64 <= ::std::numeric_limits<int32_t>::max() && i64 >= ::std::numeric_limits<int32_t>::min()) {
+      if (i64 <= std::numeric_limits<int32_t>::max() && i64 >= std::numeric_limits<int32_t>::min()) {
         CALL(_handler.Int32(static_cast<int32_t>(i64)));
       } else {
         CALL(_handler.Int64(i64));
       }
     }
   } catch (...) {
-    throw Exception(error::PARSE_NUMBER_TOO_BIG);
+    throw Exception(error::NUMBER_TOO_BIG);
   }
 
 }
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
+inline void Reader::ParseString(ReadStream &_rs, Handler &_handler, bool _is_key) {
   _rs.assertNext('"');
-  ::std::string buffer;
+  std::string buffer;
   while (_rs.hasNext()) {
     switch (char ch = _rs.next()) {
       case '"':
-        if (_is_key) { CALL(_handler.Key(::std::move(buffer))); }
-        else { CALL(_handler.String(::std::move(buffer))); }
+        if (_is_key) { CALL(_handler.Key(std::move(buffer))); }
+        else { CALL(_handler.String(std::move(buffer))); }
         return;
 #if defined(__clang__) || defined(__GNUC__)
-      case '\x01'...'\x1f': throw Exception(error::PARSE_BAD_STRING_CHAR);
+      case '\x01'...'\x1f': throw Exception(error::BAD_STRING_CHAR);
 #endif
       case '\\':
         switch (_rs.next()) {
@@ -412,39 +412,39 @@ inline void Reader::parseString(ReadStream &_rs, Handler &_handler, bool _is_key
             break;
           case 'u': {
             // unicode stuff from Milo's tutorial
-            unsigned u = parseHex4(_rs);
+            unsigned u = ParseHex4(_rs);
             if (u >= 0xD800 && u <= 0xDBFF) {
-              if (_rs.next() != '\\') { throw Exception(error::PARSE_BAD_UNICODE_SURROGATE); }
-              if (_rs.next() != 'u') { throw Exception(error::PARSE_BAD_UNICODE_SURROGATE); }
-              unsigned u2 = parseHex4(_rs);
+              if (_rs.next() != '\\') { throw Exception(error::BAD_UNICODE_SURROGATE); }
+              if (_rs.next() != 'u') { throw Exception(error::BAD_UNICODE_SURROGATE); }
+              unsigned u2 = ParseHex4(_rs);
               if (u2 >= 0xDC00 && u2 <= 0xDFFF) {
                 u = 0x10000 + (u - 0xD800) * 0x400 + (u2 - 0xDC00);
               } else {
-                throw Exception(error::PARSE_BAD_UNICODE_SURROGATE);
+                throw Exception(error::BAD_UNICODE_SURROGATE);
               }
             }
-            encodeUtf8(buffer, u);
+            EncodeUtf8(buffer, u);
             break;
           }
-          default: throw Exception(error::PARSE_BAD_STRING_ESCAPE);
+          default: throw Exception(error::BAD_STRING_ESCAPE);
         }
         break;
       default:
 #if defined(_MSC_VER)
-        if (static_cast<unsigned char>(ch) < 0x20) { throw Exception(error::PARSE_BAD_STRING_CHAR); }
+        if (static_cast<unsigned char>(ch) < 0x20) { throw Exception(error::BAD_STRING_CHAR); }
 #endif
         buffer.push_back(ch);
     }
   }
-  throw Exception(error::PARSE_MISS_QUOTATION_MARK);
+  throw Exception(error::MISS_QUOTATION_MARK);
 }
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseArray(ReadStream &_rs, Handler &_handler) {
+inline void Reader::ParseArray(ReadStream &_rs, Handler &_handler) {
   CALL(_handler.StartArray());
 
   _rs.assertNext('[');
-  parseWhitespace(_rs);
+  ParseWhitespace(_rs);
   if (_rs.peek() == ']') {
     _rs.next();
     CALL(_handler.EndArray());
@@ -452,24 +452,24 @@ inline void Reader::parseArray(ReadStream &_rs, Handler &_handler) {
   }
 
   while (true) {
-    parseValue(_rs, _handler);
-    parseWhitespace(_rs);
+    ParseValue(_rs, _handler);
+    ParseWhitespace(_rs);
     switch (_rs.next()) {
-      case ',':parseWhitespace(_rs);
+      case ',':ParseWhitespace(_rs);
         break;
       case ']':CALL(_handler.EndArray());
         return;
-      default:throw Exception(error::PARSE_MISS_COMMA_OR_SQUARE_BRACKET);
+      default:throw Exception(error::MISS_COMMA_OR_SQUARE_BRACKET);
     }
   }
 }
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
+inline void Reader::ParseObject(ReadStream &_rs, Handler &_handler) {
   CALL(_handler.StartObject());
 
   _rs.assertNext('{');
-  parseWhitespace(_rs);
+  ParseWhitespace(_rs);
   if (_rs.peek() == '}') {
     _rs.next();
     CALL(_handler.EndObject());
@@ -477,24 +477,24 @@ inline void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
   }
 
   while (true) {
-    if (_rs.peek() != '"') { throw Exception(error::PARSE_MISS_KEY); }
+    if (_rs.peek() != '"') { throw Exception(error::MISS_KEY); }
 
-    parseString(_rs, _handler, true);
+    ParseString(_rs, _handler, true);
 
     // parse ':'
-    parseWhitespace(_rs);
-    if (_rs.next() != ':') { throw Exception(error::PARSE_MISS_COLON); }
-    parseWhitespace(_rs);
+    ParseWhitespace(_rs);
+    if (_rs.next() != ':') { throw Exception(error::MISS_COLON); }
+    ParseWhitespace(_rs);
 
     // go on
-    parseValue(_rs, _handler);
-    parseWhitespace(_rs);
+    ParseValue(_rs, _handler);
+    ParseWhitespace(_rs);
     switch (_rs.next()) {
-      case ',':parseWhitespace(_rs);
+      case ',':ParseWhitespace(_rs);
         break;
       case '}':CALL(_handler.EndObject());
         return;
-      default:throw Exception(error::PARSE_MISS_COMMA_OR_CURLY_BRACKET);
+      default:throw Exception(error::MISS_COMMA_OR_CURLY_BRACKET);
     }
   }
 }
@@ -502,21 +502,21 @@ inline void Reader::parseObject(ReadStream &_rs, Handler &_handler) {
 #undef CALL
 
 template<typename ReadStream, typename Handler>
-inline void Reader::parseValue(ReadStream &_rs, Handler &_handler) {
-  if (!_rs.hasNext()) { throw Exception(error::PARSE_EXPECT_VALUE); }
+inline void Reader::ParseValue(ReadStream &_rs, Handler &_handler) {
+  if (!_rs.hasNext()) { throw Exception(error::EXPECT_VALUE); }
 
   switch (_rs.peek()) {
-    case 'n': return parseLiteral(_rs, _handler, "null", NEU_NULL);
-    case 't': return parseLiteral(_rs, _handler, "true", NEU_BOOL);
-    case 'f': return parseLiteral(_rs, _handler, "false", NEU_BOOL);
-    case '"': return parseString(_rs, _handler, false);
-    case '[': return parseArray(_rs, _handler);
-    case '{': return parseObject(_rs, _handler);
-    default: return parseNumber(_rs, _handler);
+    case 'n': return ParseLiteral(_rs, _handler, "null", NEU_NULL);
+    case 't': return ParseLiteral(_rs, _handler, "true", NEU_BOOL);
+    case 'f': return ParseLiteral(_rs, _handler, "false", NEU_BOOL);
+    case '"': return ParseString(_rs, _handler, false);
+    case '[': return ParseArray(_rs, _handler);
+    case '{': return ParseObject(_rs, _handler);
+    default: return ParseNumber(_rs, _handler);
   }
 }
 
-inline void Reader::encodeUtf8(std::string &_buffer, unsigned int _u) {
+inline void Reader::EncodeUtf8(std::string &_buffer, unsigned int _u) {
   if (_u <= 0x7F) {
     _buffer.push_back(static_cast<char>(_u & 0xFF));
   } else if (_u <= 0x7FF) {

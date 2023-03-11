@@ -14,15 +14,15 @@ namespace neujson {
 
 class StringReadStream : public noncopyable {
  public:
-  using Ch = ::std::string_view::value_type;
-  using Iterator = ::std::string_view::iterator;
+  using Ch = std::string_view::value_type;
+  using Iterator = std::string_view::iterator;
 
  private:
-  ::std::string_view json_;
+  std::string_view json_;
   Iterator iter_;
 
  public:
-  explicit StringReadStream(::std::string_view _json) : json_(_json), iter_(json_.begin()) {}
+  explicit StringReadStream(std::string_view _json) : json_(_json), iter_(json_.begin()) {}
 
   [[nodiscard]] bool hasNext() const { return iter_ != json_.end(); }
 

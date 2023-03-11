@@ -34,45 +34,62 @@ class Writer : noncopyable {
   };
 
  protected:
-  ::std::vector<Level> stack_;
+  std::vector<Level> stack_;
   WriteStream &os_;
   bool has_root_;
 
  public:
   explicit Writer(WriteStream &_os) : os_(_os), has_root_(false) {}
   virtual ~Writer() = default;
-
- public:
-  //@formatter:off
-  virtual bool Null() { Prefix(NEU_NULL); return EndValue(WriteNull()); }
-  virtual bool Bool(bool _b) { Prefix(NEU_BOOL); return EndValue(WriteBool(_b)); }
-  virtual bool Int32(int32_t _i32) { Prefix(NEU_INT32); return EndValue(WriteInt32(_i32)); }
-  virtual bool Int64(int64_t _i64) { Prefix(NEU_INT64); return EndValue(WriteInt64(_i64)); }
-  virtual bool Double(double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(internal::Double(_d))); }
-  virtual bool Double(internal::Double _d) { Prefix(NEU_DOUBLE); return EndValue(WriteDouble(_d)); }
-  virtual bool String(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteString(_str)); }
-  virtual bool Key(::std::string_view _str) { Prefix(NEU_STRING); return EndValue(WriteKey(_str)); }
-  //@formatter:on
-
+  
+  virtual bool Null() {
+    Prefix(NEU_NULL);
+    return EndValue(WriteNull());
+  }
+  virtual bool Bool(bool _b) {
+    Prefix(NEU_BOOL);
+    return EndValue(WriteBool(_b));
+  }
+  virtual bool Int32(int32_t _i32) {
+    Prefix(NEU_INT32);
+    return EndValue(WriteInt32(_i32));
+  }
+  virtual bool Int64(int64_t _i64) {
+    Prefix(NEU_INT64);
+    return EndValue(WriteInt64(_i64));
+  }
+  virtual bool Double(double _d) {
+    Prefix(NEU_DOUBLE);
+    return EndValue(WriteDouble(internal::Double(_d)));
+  }
+  virtual bool Double(internal::Double _d) {
+    Prefix(NEU_DOUBLE);
+    return EndValue(WriteDouble(_d));
+  }
+  virtual bool String(std::string_view _str) {
+    Prefix(NEU_STRING);
+    return EndValue(WriteString(_str));
+  }
+  virtual bool Key(std::string_view _str) {
+    Prefix(NEU_STRING);
+    return EndValue(WriteKey(_str));
+  }
   virtual bool StartObject() {
     Prefix(NEU_OBJECT);
     stack_.emplace_back(false);
     return EndValue(WriteStartObject());
   }
-
   virtual bool EndObject() {
     NEUJSON_ASSERT(!stack_.empty());
     NEUJSON_ASSERT(!stack_.back().in_array_flag_);
     stack_.pop_back();
     return EndValue(WriteEndObject());
   }
-
   virtual bool StartArray() {
     Prefix(NEU_ARRAY);
     stack_.emplace_back(true);
     return EndValue(WriteStartArray());
   }
-
   virtual bool EndArray() {
     NEUJSON_ASSERT(!stack_.empty());
     NEUJSON_ASSERT(stack_.back().in_array_flag_);
@@ -88,15 +105,14 @@ class Writer : noncopyable {
   bool WriteInt32(int32_t _i32);
   bool WriteInt64(int64_t _i64);
   bool WriteDouble(internal::Double _d);
-  bool WriteString(::std::string_view _str);
-  bool WriteKey(::std::string_view _str);
+  bool WriteString(std::string_view _str);
+  bool WriteKey(std::string_view _str);
   bool WriteStartObject();
   bool WriteEndObject();
   bool WriteStartArray();
   bool WriteEndArray();
   bool EndValue(bool _ret);
-
-  void Flush();
+  void Flush() { os_.flush(); }
 };
 
 template<typename WriteStream>
@@ -134,7 +150,7 @@ inline bool Writer<WriteStream>::WriteBool(bool _b) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
   char buf[16]{};
-  auto size = static_cast<::std::size_t>(internal::i32toa(_i32, buf) - buf);
+  auto size = static_cast<std::size_t>(internal::i32toa(_i32, buf) - buf);
   os_.puts(buf, size);
   return true;
 }
@@ -142,7 +158,7 @@ inline bool Writer<WriteStream>::WriteInt32(int32_t _i32) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
   char buf[32]{};
-  auto size = static_cast<::std::size_t>(internal::i64toa(_i64, buf) - buf);
+  auto size = static_cast<std::size_t>(internal::i64toa(_i64, buf) - buf);
   os_.puts(buf, size);
   return true;
 }
@@ -150,7 +166,7 @@ inline bool Writer<WriteStream>::WriteInt64(int64_t _i64) {
 template<typename WriteStream>
 inline bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
   char buf[32];
-  ::std::size_t size = 0;
+  std::size_t size = 0;
   if (_d.IsInf()) {
 #if defined(_MSC_VER)
     strcpy_s(buf, "Infinity");
@@ -166,11 +182,11 @@ inline bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
 #endif
     size += 3;
   } else {
-    int n = sprintf(buf, "%.17g", _d.Value());
+    int n = snprintf(buf, sizeof(buf), "%.17g", _d.Value());
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     NEUJSON_ASSERT(n > 0 && n < 32);
-    size += static_cast<::std::size_t>(n);
+    size += static_cast<std::size_t>(n);
     if (std::find_if_not(buf, buf + n, isdigit) == buf + n) {
 #if defined(_MSC_VER)
       strcat_s(buf, ".0");
@@ -186,9 +202,9 @@ inline bool Writer<WriteStream>::WriteDouble(internal::Double _d) {
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::WriteString(::std::string_view _str) {
+inline bool Writer<WriteStream>::WriteString(std::string_view _str) {
   os_.put('"');
-  for (auto c: _str) {
+  for (auto c : _str) {
     auto u = static_cast<unsigned char>(c);
     switch (u) {
       case '\"': os_.puts("\\\"", 2);
@@ -220,7 +236,7 @@ inline bool Writer<WriteStream>::WriteString(::std::string_view _str) {
 }
 
 template<typename WriteStream>
-inline bool Writer<WriteStream>::WriteKey(::std::string_view _str) {
+inline bool Writer<WriteStream>::WriteKey(std::string_view _str) {
   WriteString(_str);
   return true;
 }
@@ -254,11 +270,6 @@ inline bool Writer<WriteStream>::EndValue(bool _ret) {
   // end of json text
   if (stack_.empty()) { Flush(); }
   return _ret;
-}
-
-template<typename WriteStream>
-inline void Writer<WriteStream>::Flush() {
-  os_.flush();
 }
 
 } // namespace neujson
