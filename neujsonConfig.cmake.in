@@ -1,4 +1,14 @@
-include(CMakeFindDependencyMacro)
+cmake_minimum_required(VERSION 3.0)
+set( neujson_SOURCE_DIR "@CONFIG_SOURCE_DIR@")
+set( neujson_DIR "@CONFIG_DIR@")
+get_filename_component(neujson_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
-# Add the targets file
-include("${CMAKE_CURRENT_LIST_DIR}/neujsonTargets.cmake")
+set( neujson_INCLUDE_DIR  "@neujson_INCLUDE_DIR@" )
+set( neujson_INCLUDE_DIRS  "@neujson_INCLUDE_DIR@" )
+message(STATUS "neujson found. Headers: ${neujson_INCLUDE_DIRS}")
+
+if(NOT TARGET neujson)
+  add_library(neujson INTERFACE IMPORTED)
+  set_property(TARGET neujson PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES ${neujson_INCLUDE_DIRS})
+endif()

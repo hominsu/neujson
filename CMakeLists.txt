@@ -25,7 +25,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # Build all binaries in a separate directory
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
 option(NEUJSON_BUILD_BENCHMARK "Build neujson benchmark." OFF)
@@ -89,8 +89,8 @@ endif ()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #add extra search paths for libraries and includes
-SET(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
-SET(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where lib will install")
+set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
+set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where lib will install")
 
 
 if (NEUJSON_BUILD_EXAMPLES)
@@ -117,41 +117,65 @@ if (NEUJSON_BUILD_BENCHMARK)
 endif (NEUJSON_BUILD_BENCHMARK)
 
 # header
-install(DIRECTORY include/neujson
+install(DIRECTORY include/${PROJECT_NAME}
         DESTINATION "${INCLUDE_INSTALL_DIR}"
         COMPONENT dev)
 
 # cmake
-IF (UNIX OR CYGWIN)
-    SET(_CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}")
-ELSEIF (WIN32)
-    SET(_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/cmake")
-ENDIF ()
-SET(CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" CACHE PATH "The directory cmake files are installed in")
+if (UNIX OR CYGWIN)
+    set(_CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}")
+elseif (WIN32)
+    set(_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/cmake")
+endif ()
+set(CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" CACHE PATH "The directory cmake files are installed in")
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-        "${PROJECT_NAME}ConfigVersion.cmake"
-        VERSION ${PACKAGE_VERSION}
-        COMPATIBILITY AnyNewerVersion)
+export(PACKAGE ${PROJECT_NAME})
+
+set(CONFIG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(CONFIG_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(${PROJECT_NAME}_INCLUDE_DIR "\${${PROJECT_NAME}_SOURCE_DIR}/include")
+
 configure_file(
-        "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         @ONLY)
-install(FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}ConfigVersion.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION ${CMAKE_INSTALL_DIR})
+        @ONLY)
+
+set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME})
+file(RELATIVE_PATH REL_INCLUDE_DIR
+        "${CMAKECONFIG_INSTALL_DIR}"
+        "${CMAKE_INSTALL_PREFIX}/include")
+set(${PROJECT_NAME}_INCLUDE_DIR "\${${PROJECT_NAME}_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+set(CONFIG_SOURCE_DIR)
+set(CONFIG_DIR)
+configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        @ONLY)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        DESTINATION ${CMAKECONFIG_INSTALL_DIR})
+
+if (CMAKE_INSTALL_DIR)
+    install(FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+            DESTINATION "${CMAKE_INSTALL_DIR}"
+            COMPONENT dev)
+endif ()
 
 # pkg-config
-IF (UNIX OR CYGWIN)
-    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
+if (UNIX OR CYGWIN)
+    configure_file(${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
             ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
             @ONLY)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
             DESTINATION "${LIB_INSTALL_DIR}/pkgconfig"
             COMPONENT pkgconfig)
-ENDIF ()
+endif ()
 
 # uninstall target
 if (NOT TARGET uninstall)
