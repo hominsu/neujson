@@ -26,7 +26,7 @@ group "default" {
 
 target "neujson-alpine" {
   context    = "."
-  dockerfile = "Dockerfile"
+  dockerfile = "docker/Dockerfile"
   args       = {
     AUTHOR_NAME    = "${AUTHOR_NAME}"
     AUTHOR_EMAIL   = "${AUTHOR_EMAIL}"
