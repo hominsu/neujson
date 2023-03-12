@@ -5,6 +5,12 @@
 #ifndef NEUJSON_NEUJSON_DOCUMENT_H_
 #define NEUJSON_NEUJSON_DOCUMENT_H_
 
+#include <cstdint>
+
+#include <string_view>
+#include <variant>
+#include <vector>
+
 #include "exception.h"
 #include "internal/ieee754.h"
 #include "neujson.h"

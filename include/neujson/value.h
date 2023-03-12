@@ -5,6 +5,7 @@
 #ifndef NEUJSON_NEUJSON_VALUE_H_
 #define NEUJSON_NEUJSON_VALUE_H_
 
+#include <cstdint>
 #include <cstring>
 
 #include <algorithm>

@@ -6,6 +6,7 @@
 #define NEUJSON_NEUJSON_WRITER_H_
 
 #include <cmath>
+#include <cstdint>
 
 #include <algorithm>
 #include <vector>

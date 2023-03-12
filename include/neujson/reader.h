@@ -6,6 +6,7 @@
 #define NEUJSON_NEUJSON_READER_H_
 
 #include <cmath>
+#include <cstdint>
 
 #include <exception>
 

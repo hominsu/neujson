@@ -9,7 +9,8 @@ WORKDIR /src
 RUN cmake -H. -Bbuild \
     -DCMAKE_BUILD_TYPE=Release \
     -DNEUJSON_BUILD_EXAMPLES=ON \
-    -DNEUJSON_BUILD_TESTS=ON && \
+    -DNEUJSON_BUILD_TESTS=ON \
+    -DNEUJSON_ENABLE_INSTRUMENTATION_OPT=OFF && \
     cmake --build ./build --parallel $(nproc) && \
     GTEST_COLOR=TRUE ctest -VV --test-dir ./build/ --output-on-failure && \
     cmake --install ./build
