@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "neujson.h"
-#include "noncopyable.h"
+#include "non_copyable.h"
 
 #if defined(__GNUC__)
 NEUJSON_DIAG_PUSH
@@ -18,7 +18,7 @@ NEUJSON_DIAG_OFF(effc++)
 
 namespace neujson {
 
-class StringWriteStream : public noncopyable {
+class StringWriteStream : public NonCopyable {
  public:
   using Ch = char;
 

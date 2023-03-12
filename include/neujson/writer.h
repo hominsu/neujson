@@ -13,7 +13,7 @@
 #include "internal/ieee754.h"
 #include "internal/itoa.h"
 #include "neujson.h"
-#include "noncopyable.h"
+#include "non_copyable.h"
 #include "value.h"
 
 #if defined(__GNUC__)
@@ -24,7 +24,7 @@ NEUJSON_DIAG_OFF(effc++)
 namespace neujson {
 
 template<typename WriteStream>
-class Writer : noncopyable {
+class Writer : NonCopyable {
  private:
   struct Level {
     bool in_array_flag_; // in array or object

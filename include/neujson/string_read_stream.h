@@ -8,11 +8,11 @@
 #include <string_view>
 
 #include "neujson.h"
-#include "noncopyable.h"
+#include "non_copyable.h"
 
 namespace neujson {
 
-class StringReadStream : public noncopyable {
+class StringReadStream : public NonCopyable {
  public:
   using Ch = std::string_view::value_type;
   using Iterator = std::string_view::iterator;

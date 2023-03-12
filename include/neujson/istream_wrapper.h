@@ -7,12 +7,12 @@
 
 #include "sstream"
 
-#include "noncopyable.h"
+#include "non_copyable.h"
 
 namespace neujson {
 
 template<class Stream>
-class IStreamWrapper : noncopyable {
+class IStreamWrapper : NonCopyable {
  public:
   using Ch = typename Stream::char_type;
 

@@ -11,11 +11,11 @@
 #include <string_view>
 
 #include "neujson.h"
-#include "noncopyable.h"
+#include "non_copyable.h"
 
 namespace neujson {
 
-class FileWriteStream : public noncopyable {
+class FileWriteStream : public NonCopyable {
  private:
   static const std::size_t kInnerBufferSize = 256;
   std::FILE *fp_;

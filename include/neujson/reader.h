@@ -11,7 +11,7 @@
 
 #include "exception.h"
 #include "internal/cllzl.h"
-#include "noncopyable.h"
+#include "non_copyable.h"
 #include "value.h"
 
 #if defined(NEUJSON_SSE42)
@@ -35,7 +35,7 @@
 
 namespace neujson {
 
-class Reader : noncopyable {
+class Reader : NonCopyable {
  public:
   template<typename ReadStream, typename Handler>
   static error::ParseError Parse(ReadStream &_rs, Handler &_handler);

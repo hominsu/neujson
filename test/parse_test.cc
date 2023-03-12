@@ -11,7 +11,7 @@
 #include "neujson/document.h"
 #include "neujson/exception.h"
 #include "neujson/internal/ieee754.h"
-#include "neujson/noncopyable.h"
+#include "neujson/non_copyable.h"
 #include "neujson/reader.h"
 #include "neujson/string_read_stream.h"
 #include "neujson/string_write_stream.h"
@@ -27,7 +27,7 @@ NEUJSON_DIAG_PUSH
 NEUJSON_DIAG_OFF(effc++)
 #endif
 
-class TestHandler : neujson::noncopyable {
+class TestHandler : neujson::NonCopyable {
  private:
   neujson::Value value_;
   neujson::Type value_type_ = neujson::NEU_NULL;
