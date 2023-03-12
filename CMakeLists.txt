@@ -93,7 +93,7 @@ set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The direct
 set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where lib will install")
 
 # example
-if (BENCODE_BUILD_EXAMPLES)
+if (NEUJSON_BUILD_EXAMPLES)
     file(GLOB EXAMPLE_SRC_FILES ${PROJECT_SOURCE_DIR}/example/*.cc)
     foreach (_example_file ${EXAMPLE_SRC_FILES})
         get_filename_component(_example_name ${_example_file} NAME_WE)

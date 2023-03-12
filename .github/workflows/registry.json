@@ -1,18 +1,16 @@
-{
-  "include": [
-    {
-      "name": "Docker",
-      "register": "",
-      "push_link": "hominsu",
-      "id": "DOCKER_ID",
-      "token": "DOCKER_TOKEN"
-    },
-    {
-      "name": "Ghcr",
-      "register": "ghcr.io",
-      "push_link": "ghcr.io/hominsu",
-      "id": "GHCR_ID",
-      "token": "GITHUB_TOKEN"
-    }
-  ]
-}
+[
+  {
+    "name": "Docker",
+    "registry": "",
+    "push_link": "hominsu",
+    "id": "DOCKER_ID",
+    "token": "DOCKER_TOKEN"
+  },
+  {
+    "name": "Ghcr",
+    "registry": "ghcr.io",
+    "push_link": "ghcr.io/hominsu",
+    "id": "GHCR_ID",
+    "token": "GITHUB_TOKEN"
+  }
+]
