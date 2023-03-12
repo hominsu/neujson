@@ -24,7 +24,7 @@ int main() {
   fclose(input);
 
   if (err != neujson::error::OK) {
-    puts(neujson::parseErrorStr(err));
+    puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }
 

@@ -120,7 +120,7 @@ int main() {
   neujson::Document doc;
   auto err = doc.Parse(kSample[0]);
   if (err != neujson::error::OK) {
-    puts(neujson::parseErrorStr(err));
+    puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }
 

@@ -25,7 +25,7 @@ int main() {
   auto err = doc.ParseStream(is);
 
   if (err != neujson::error::OK) {
-    puts(neujson::parseErrorStr(err));
+    puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }
 
