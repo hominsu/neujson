@@ -19,7 +19,7 @@
 <h3 align="center">neujson</h3>
 
   <p align="center">
-    JSON parser/generator in C++17
+    A header-only JSON parser/generator in C++17. It supports both SAX and DOM style API.
     <br/>
     <a href="https://me.hauhau.cn/projects/neujson/"><strong>Explore the docs »</strong></a>
     <br/>
@@ -34,74 +34,18 @@
 
 ##### Translate to: [简体中文](README_zh.md)
 
-## Description
+## Features
 
-neujson is a JSON parser and generator for C++. It supports both SAX and DOM style API.
+- **Simple, Fast**. neujson contains only header files, does not rely on Boost, and takes full advantage of the template's features. You can "assemble" neujson's Handler at will.
+- **API simplicity**. neujson supports both DOM and SAX-style API, where SAX allows custom handlers for streaming processing.
+- **Unicode friendly**. neujson fully supports UTF-8 codec and can parse utF-8 characters such as '\u0000'.
+- **Multiple input/output streams**. neujson has built-in string input/output streams and file input/output streams, and make full use of memory buffers to improve read and write speed.
+- **STD Streams Wrapper**. neujson provides official wrappers for std::istream and std::ostream, can be combined with neujson's built-in input/output streams.
+- **Performant**. neujson internally implements standards such as IEEE754 and uses high-performance algorithms built into different compilers. neujson also plans to implement Grisu2 algorithm and use SIMD instructions to speed up conversion between floating point numbers and strings.
 
-## Install
+## Examples
 
-### clone the neujson repo
-
-```bash
-git clone https://github.com/hominsu/neujson.git
-```
-
-### Build and install
-
-The following commands build and locally install neujson:
-
-```bash
-cd neujson
-mkdir -p cmake/build
-pushd cmake/build
-cmake ../..
-make -j
-make install
-popd
-```
-
-If you didn't have root access use `sudo` to install neujson instead:
-
-```bash
-sudo make install
-```
-
-#### Build with example
-
-The example code is part of the `neujson` repo source, which you cloned as part of the steps of the previous section, just add a cmake option:
-
-```bash
-cmake -DNEUJSON_BUILD_EXAMPLES=ON ../..
-```
-
-#### Build with benchmark
-
-To build with benchmark，use `git submodule` to fetch all the data from that third party project and check out the appropriate commit first, then add the benchmark CMake option:
-
-```bash
-git submodule update --init --recursive
-pushd cmake/build
-cmake -DNEUJSON_BUILD_BENCHMARK=ON ../..
-...
-```
-
-## Uninstall
-
-The following commands uninstall neujson:
-
-```bash
-pushd cmake/build
-make uninstall
-popd
-```
-
-If you didn't have root access use `sudo` to uninstall neujson instead:
-
-```bash
-sudo make uninstall
-```
-
-## Usage at a glance
+### Usage at a glance
 
 This simple example parses a JSON string into a document (DOM), make a simple modification of the DOM, and finally stringify the DOM to a JSON string.
 
@@ -143,7 +87,76 @@ Output:
 [{"precision":"zip","Latitude":37.766800000000003,"Longitude":-22.395899999999997,"Address":"","City":"SAN FRANCISCO","State":"CA","Zip":"94107","Country":"US"},{"precision":"zip","Latitude":37.371991000000001,"Longitude":-122.02602,"Address":"","City":"SUNNYVALE","State":"CA","Zip":"94085","Country":"US"}]
 ```
 
+## Building
+
+### clone the neujson repo
+
+```bash
+git clone https://github.com/hominsu/neujson.git
+```
+
+## Building
+
+This project requires C++17. This library uses following projects：
+
+When building tests:
+
+- [google/googletest](https://github.com/google/googletest)
+
+When building examples:
+
+- [neujson](https://github.com/hominsu/neujson)
+
+All dependencies are automatically retrieved from github during building, and you do not need to configure them.
+
+With th CMake build types, you can control whether examples and tests are built.
+
+```bash
+cmake -H. -Bbuild \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/Users/hominsu/utils/install \
+	-DNEUJSON_BUILD_EXAMPLES=ON \
+	-DNEUJSON_BUILD_TESTS=ON
+cmake --build ./build --parallel $(nproc)
+ctest -VV --test-dir ./build/ --output-on-failure
+cmake --install ./build
+```
+
+Or just installed as a CMake package.
+
+```bash
+cmake -H. -Bbuild \
+	-DNEUJSON_BUILD_EXAMPLES=OFF \
+	-DNEUJSON_BUILD_TESTS=OFF
+cmake --install ./build
+```
+
+Uinstall
+
+```bash
+cd build
+make uninstall
+```
+
+## Integration
+
+Located with `find_package` in CMake.
+
+```cmake
+find_package(neujson REQUIRED)
+target_include_directories(foo PUBLIC ${neujson_INCLUDE_DIRS})
+```
+
 ## Benchmark
+
+To build with benchmark，use `git submodule` to fetch all the data from that third party project and check out the appropriate commit first, then add the benchmark CMake option:
+
+```bash
+git submodule update --init --recursive
+pushd cmake/build
+cmake -DNEUJSON_BUILD_BENCHMARK=ON ../..
+...
+```
 
 The benchmark is base on the google benchmark
 
@@ -274,3 +287,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## License
+
+Distributed under the MIT license. See `LICENSE` for more information.
