@@ -1,5 +1,5 @@
 //
-// Created by HominSu on 2022/3/11.
+// Created by Homing So on 2022/3/11.
 //
 
 #ifndef NEUJSON_EXAMPLE_SAMPLE_H_

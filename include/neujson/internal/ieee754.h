@@ -1,5 +1,5 @@
 //
-// Created by HominSu on 2022/6/28.
+// Created by Homing So on 2022/6/28.
 //
 
 #ifndef NEUJSON_INCLUDE_NEUJSON_INTERNAL_IEEE754_H_

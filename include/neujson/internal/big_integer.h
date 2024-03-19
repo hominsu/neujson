@@ -1,5 +1,5 @@
 //
-// Created by Homin Su on 2022/6/30.
+// Created by Homing So on 2022/6/30.
 //
 
 #ifndef NEUJSON_INCLUDE_NEUJSON_INTERNAL_BIG_INTEGER_H_

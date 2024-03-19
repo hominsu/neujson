@@ -1,5 +1,5 @@
 //
-// Created by HominSu on 2022/3/10.
+// Created by Homing So on 2022/3/10.
 //
 
 #ifndef NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_

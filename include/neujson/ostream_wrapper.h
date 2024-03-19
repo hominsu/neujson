@@ -1,5 +1,5 @@
 //
-// Created by HominSu on 2022/7/1.
+// Created by Homing So on 2022/7/1.
 //
 
 #ifndef NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_

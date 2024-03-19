@@ -1,5 +1,5 @@
 //
-// Created by HominSu on 2022/8/17.
+// Created by Homing So on 2022/8/17.
 //
 
 #include "neujson/internal/strtod.h"
