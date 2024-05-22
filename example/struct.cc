@@ -21,15 +21,17 @@ struct SerialInfo {
 
   explicit SerialInfo(const neujson::Value &_val) {
     switch (_val.GetType()) {
-      case neujson::NEU_OBJECT:serial_port_ = _val["serial_port"].GetString();
-        baud_rate_ = _val["baud_rate"].GetInt32();
-        data_bits_ = _val["data_bits"].GetInt32();
-        stop_bits_ = _val["stop_bits"].GetInt32();
-        parity_ = _val["parity"].GetInt32();
-        flow_control_ = _val["flow_control"].GetBool();
-        clocal_ = _val["clocal"].GetBool();
-        break;
-      default:assert(false && "bad type");
+    case neujson::NEU_OBJECT:
+      serial_port_ = _val["serial_port"].GetString();
+      baud_rate_ = _val["baud_rate"].GetInt32();
+      data_bits_ = _val["data_bits"].GetInt32();
+      stop_bits_ = _val["stop_bits"].GetInt32();
+      parity_ = _val["parity"].GetInt32();
+      flow_control_ = _val["flow_control"].GetBool();
+      clocal_ = _val["clocal"].GetBool();
+      break;
+    default:
+      assert(false && "bad type");
     }
   }
 
@@ -60,7 +62,7 @@ int main() {
 
   value = serial_info.toJsonObject();
   char writeBuffer[65536];
-  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::FileWriteStream out(stdout, writeBuffer);
   neujson::PrettyWriter pretty_writer(out);
   pretty_writer.SetIndent(' ', 2);
   value.WriteTo(pretty_writer);

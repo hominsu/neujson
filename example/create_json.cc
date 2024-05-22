@@ -4,12 +4,12 @@
 
 #include <cstdio>
 
-#include "neujson/writer.h"
 #include "neujson/file_write_stream.h"
+#include "neujson/writer.h"
 
 int main() {
   char writeBuffer[65536];
-  neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::FileWriteStream os(stdout, writeBuffer);
   neujson::Writer writer(os);
 
   writer.StartArray();
@@ -22,4 +22,3 @@ int main() {
 
   return 0;
 }
-

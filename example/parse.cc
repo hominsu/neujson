@@ -5,8 +5,8 @@
 #include <cstdio>
 
 #include "neujson/file_write_stream.h"
-#include "neujson/string_read_stream.h"
 #include "neujson/reader.h"
+#include "neujson/string_read_stream.h"
 #include "neujson/writer.h"
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
 
   char writeBuffer[65536];
 
-  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::FileWriteStream out(stdout, writeBuffer);
   neujson::Writer writer(out);
 
   auto err = neujson::Reader::Parse(in, writer);
@@ -25,4 +25,3 @@ int main() {
 
   return 0;
 }
-

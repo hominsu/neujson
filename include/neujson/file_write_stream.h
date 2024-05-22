@@ -16,35 +16,44 @@
 namespace neujson {
 
 class FileWriteStream : public NonCopyable {
- private:
-  static const std::size_t kInnerBufferSize = 256;
+  static constexpr std::size_t kInnerBufferSize = 256;
   std::FILE *fp_;
   char inner_buffer_[kInnerBufferSize]{};
   char *buffer_;
   char *buffer_end_;
   char *current_;
 
- public:
+public:
   explicit FileWriteStream(std::FILE *_fp)
-      : fp_(_fp),
-        buffer_(inner_buffer_),
-        buffer_end_(buffer_ + kInnerBufferSize),
+      : fp_(_fp), buffer_(inner_buffer_),
+        buffer_end_(buffer_ + kInnerBufferSize), current_(buffer_) {
+    NEUJSON_ASSERT(_fp != nullptr && "FILE pointer equal zero");
+  }
+
+  explicit FileWriteStream(std::FILE *_fp, char *_buffer,
+                           std::size_t _buffer_size)
+      : fp_(_fp), buffer_(_buffer), buffer_end_(_buffer + _buffer_size),
         current_(buffer_) {
     NEUJSON_ASSERT(_fp != nullptr && "FILE pointer equal zero");
   }
 
-  explicit FileWriteStream(std::FILE *_fp, char *_buffer, std::size_t _buffer_size)
-      : fp_(_fp),
-        buffer_(_buffer),
-        buffer_end_(_buffer + _buffer_size),
+  template <std::size_t N>
+  explicit FileWriteStream(std::FILE *_fp, char (&_buffer)[N])
+      : fp_(_fp), buffer_(_buffer), buffer_end_(_buffer + N),
         current_(buffer_) {
     NEUJSON_ASSERT(_fp != nullptr && "FILE pointer equal zero");
   }
 
-  ~FileWriteStream() { if (current_ != buffer_) { flush(); }}
+  ~FileWriteStream() {
+    if (current_ != buffer_) {
+      flush();
+    }
+  }
 
   void put(char _ch) {
-    if (current_ >= buffer_end_) { flush(); }
+    if (current_ >= buffer_end_) {
+      flush();
+    }
     *current_++ = _ch;
   }
 
@@ -105,7 +114,8 @@ class FileWriteStream : public NonCopyable {
 
   void flush() {
     if (current_ != buffer_) {
-      std::size_t result = std::fwrite(buffer_, 1, static_cast<std::size_t>(current_ - buffer_), fp_);
+      std::size_t result = std::fwrite(
+          buffer_, 1, static_cast<std::size_t>(current_ - buffer_), fp_);
       if (result < static_cast<std::size_t>(current_ - buffer_)) {
       }
       current_ = buffer_;
@@ -115,4 +125,4 @@ class FileWriteStream : public NonCopyable {
 
 } // namespace neujson
 
-#endif //NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_
+#endif // NEUJSON_NEUJSON_FILE_WRITE_STREAM_H_

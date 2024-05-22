@@ -16,7 +16,9 @@ int main() {
 #else
   FILE *input = fopen("../../citm_catalog.json", "r");
 #endif
-  if (input == nullptr) { exit(EXIT_FAILURE); }
+  if (input == nullptr) {
+    exit(EXIT_FAILURE);
+  }
   neujson::FileReadStream is(input);
 
   neujson::Document doc;
@@ -29,11 +31,10 @@ int main() {
   }
 
   char writeBuffer[65536];
-  neujson::FileWriteStream os(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::FileWriteStream os(stdout, writeBuffer);
   neujson::PrettyWriter writer(os);
   writer.SetIndent(' ', 2);
   doc.WriteTo(writer);
 
   return 0;
 }
-

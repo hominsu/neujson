@@ -18,11 +18,10 @@ int main() {
   }
 
   char writeBuffer[65536];
-  neujson::FileWriteStream out(stdout, writeBuffer, sizeof(writeBuffer));
+  neujson::FileWriteStream out(stdout, writeBuffer);
   neujson::PrettyWriter pretty_writer(out);
   pretty_writer.SetIndent(' ', 2);
   doc.WriteTo(pretty_writer);
 
   return 0;
 }
-
