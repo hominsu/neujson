@@ -36,9 +36,7 @@
 
 namespace neujson {
 
-namespace required {
-
-namespace read_stream {
+namespace required::read_stream {
 namespace details {
 
 template <typename ReadStream>
@@ -68,78 +66,8 @@ concept HasAllRequiredFunctions =
     details::HasHasNext<T> && details::HasPeek<T> && details::HasNext<T> &&
     details::HasAssertNext<T>;
 
-} // namespace read_stream
+} // namespace required::read_stream
 
-namespace handler {
-namespace details {
-
-template <typename Handler>
-concept HasNull = requires(Handler handler) {
-  { handler.Null() } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasBool = requires(Handler handler, bool b) {
-  { handler.Bool(b) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasInt32 = requires(Handler handler, int32_t i32) {
-  { handler.Int32(i32) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasInt64 = requires(Handler handler, int64_t i64) {
-  { handler.Int64(i64) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasDouble = requires(Handler handler, internal::Double d) {
-  { handler.Double(d) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasString = requires(Handler handler, std::string_view sv) {
-  { handler.String(sv) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasKey = requires(Handler handler, std::string_view sv) {
-  { handler.Key(sv) } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasStartObject = requires(Handler handler) {
-  { handler.StartObject() } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasEndObject = requires(Handler handler) {
-  { handler.EndObject() } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasStartArray = requires(Handler handler) {
-  { handler.StartArray() } -> std::same_as<bool>;
-};
-
-template <typename Handler>
-concept HasEndArray = requires(Handler handler) {
-  { handler.EndArray() } -> std::same_as<bool>;
-};
-
-} // namespace details
-
-template <typename T>
-concept HasAllRequiredFunctions =
-    details::HasNull<T> && details::HasBool<T> && details::HasInt32<T> &&
-    details::HasInt64<T> && details::HasDouble<T> && details::HasString<T> &&
-    details::HasKey<T> && details::HasStartObject<T> &&
-    details::HasEndObject<T> && details::HasStartArray<T> &&
-    details::HasEndArray<T>;
-} // namespace handler
-
-} // namespace required
 
 class Reader : NonCopyable {
 public:

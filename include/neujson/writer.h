@@ -24,8 +24,35 @@ NEUJSON_DIAG_OFF(effc++)
 
 namespace neujson {
 
-template <typename WriteStream> class Writer : NonCopyable {
-private:
+namespace required::write_stream {
+namespace details {
+
+template <typename WriteStream>
+concept HasPut = requires(WriteStream os, char ch) {
+  { os.put(ch) } -> std::same_as<void>;
+};
+
+template <typename WriteStream>
+concept HasPuts =
+    requires(WriteStream os, const char *str, std::size_t length) {
+      { os.puts(str, length) } -> std::same_as<void>;
+    };
+
+template <typename WriteStream>
+concept HasFlush = requires(WriteStream os) {
+  { os.flush() } -> std::same_as<void>;
+};
+
+} // namespace details
+
+template <typename T>
+concept HasAllRequiredFunctions =
+    details::HasPut<T> && details::HasPuts<T> && details::HasFlush<T>;
+
+} // namespace required::write_stream
+
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+class Writer : NonCopyable {
   struct Level {
     bool in_array_flag_; // in array or object
     int value_count_;
@@ -127,7 +154,7 @@ protected:
   void Flush() { os_.flush(); }
 };
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 void Writer<WriteStream>::Prefix(const Type type) {
   (void)type;
   if (!stack_.empty()) {
@@ -150,18 +177,19 @@ void Writer<WriteStream>::Prefix(const Type type) {
   }
 }
 
-template <typename WriteStream> bool Writer<WriteStream>::WriteNull() {
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+bool Writer<WriteStream>::WriteNull() {
   os_.puts("null", 4);
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteBool(const bool b) {
   os_.puts(b ? "true" : "false", b ? 4 : 5);
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteInt32(const int32_t i32) {
   char buf[16]{};
   auto size = static_cast<std::size_t>(internal::i32toa(i32, buf) - buf);
@@ -169,7 +197,7 @@ bool Writer<WriteStream>::WriteInt32(const int32_t i32) {
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteInt64(const int64_t i64) {
   char buf[32]{};
   auto size = static_cast<std::size_t>(internal::i64toa(i64, buf) - buf);
@@ -177,7 +205,7 @@ bool Writer<WriteStream>::WriteInt64(const int64_t i64) {
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteDouble(const internal::Double d) {
   char buf[32];
   std::size_t size = 0;
@@ -196,7 +224,7 @@ bool Writer<WriteStream>::WriteDouble(const internal::Double d) {
 #endif
     size += 3;
   } else {
-    int n = snprintf(buf, sizeof(buf), "%.17g", d.Value());
+    const int n = snprintf(buf, sizeof(buf), "%.17g", d.Value());
     // type information loss if ".0" not added
     // "1.0" -> double 1 -> "1"
     NEUJSON_ASSERT(n > 0 && n < 32);
@@ -215,7 +243,7 @@ bool Writer<WriteStream>::WriteDouble(const internal::Double d) {
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteString(const std::string_view str) {
   os_.put('"');
   for (auto c : str) {
@@ -255,33 +283,37 @@ bool Writer<WriteStream>::WriteString(const std::string_view str) {
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::WriteKey(const std::string_view str) {
   WriteString(str);
   return true;
 }
 
-template <typename WriteStream> bool Writer<WriteStream>::WriteStartObject() {
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+bool Writer<WriteStream>::WriteStartObject() {
   os_.put('{');
   return true;
 }
 
-template <typename WriteStream> bool Writer<WriteStream>::WriteEndObject() {
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+bool Writer<WriteStream>::WriteEndObject() {
   os_.put('}');
   return true;
 }
 
-template <typename WriteStream> bool Writer<WriteStream>::WriteStartArray() {
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+bool Writer<WriteStream>::WriteStartArray() {
   os_.put('[');
   return true;
 }
 
-template <typename WriteStream> bool Writer<WriteStream>::WriteEndArray() {
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
+bool Writer<WriteStream>::WriteEndArray() {
   os_.put(']');
   return true;
 }
 
-template <typename WriteStream>
+template <required::write_stream::HasAllRequiredFunctions WriteStream>
 bool Writer<WriteStream>::EndValue(const bool ret) {
   // end of json text
   if (stack_.empty()) {

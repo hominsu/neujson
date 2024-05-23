@@ -9,6 +9,7 @@
 #include <cstring>
 
 #include <memory>
+#include <string_view>
 
 #include "internal/ieee754.h"
 #include "neujson.h"
@@ -16,12 +17,28 @@
 
 namespace neujson {
 
+namespace required::pretty_write_stream {
+namespace details {
+
+template <typename WriteStream>
+concept HasPutSV = requires(WriteStream os, const std::string_view sv) {
+  { os.put_sv(sv) } -> std::same_as<void>;
+};
+
+} // namespace details
+
+template <typename T>
+concept HasAllRequiredFunctions =
+    write_stream::HasAllRequiredFunctions<T> && details::HasPutSV<T>;
+
+} // namespace required::pretty_write_stream
+
 enum PrettyFormatOptions {
   kFormatDefault = 0,        //!< Default pretty formatting.
   kFormatSingleLineArray = 1 //!< Format arrays on a single line.
 };
 
-template <typename WriteStream>
+template <required::pretty_write_stream::HasAllRequiredFunctions WriteStream>
 class PrettyWriter : public Writer<WriteStream> {
 public:
   using Base = Writer<WriteStream>;
@@ -57,37 +74,37 @@ public:
     return Base::EndValue(Base::WriteNull());
   }
 
-  bool Bool(bool b) override {
+  bool Bool(const bool b) override {
     PrettyPrefix(NEU_BOOL);
     return Base::EndValue(Base::WriteBool(b));
   }
 
-  bool Int32(int32_t i32) override {
+  bool Int32(const int32_t i32) override {
     PrettyPrefix(NEU_INT32);
     return Base::EndValue(Base::WriteInt32(i32));
   }
 
-  bool Int64(int64_t i64) override {
+  bool Int64(const int64_t i64) override {
     PrettyPrefix(NEU_INT64);
     return Base::EndValue(Base::WriteInt64(i64));
   }
 
-  bool Double(double d) override {
+  bool Double(const double d) override {
     PrettyPrefix(NEU_DOUBLE);
     return Base::EndValue(Base::WriteDouble(internal::Double(d)));
   }
 
-  bool Double(internal::Double d) override {
+  bool Double(const internal::Double d) override {
     PrettyPrefix(NEU_DOUBLE);
     return Base::EndValue(Base::WriteDouble(d));
   }
 
-  bool String(std::string_view str) override {
+  bool String(const std::string_view str) override {
     PrettyPrefix(NEU_STRING);
     return Base::EndValue(Base::WriteString(str));
   }
 
-  bool Key(std::string_view str) override {
+  bool Key(const std::string_view str) override {
     PrettyPrefix(NEU_STRING);
     return Base::EndValue(Base::WriteKey(str));
   }
@@ -153,7 +170,7 @@ private:
   void WriteIndent();
 };
 
-template <typename WriteStream>
+template <required::pretty_write_stream::HasAllRequiredFunctions WriteStream>
 void PrettyWriter<WriteStream>::PrettyPrefix(const Type type) {
   (void)type;
   if (!Base::stack_.empty()) {
@@ -197,7 +214,7 @@ void PrettyWriter<WriteStream>::PrettyPrefix(const Type type) {
   }
 }
 
-template <typename WriteStream>
+template <required::pretty_write_stream::HasAllRequiredFunctions WriteStream>
 void PrettyWriter<WriteStream>::InitIndent(
     const char indent_char, const std::size_t indent_char_count) {
   indent_.clear();
@@ -207,7 +224,8 @@ void PrettyWriter<WriteStream>::InitIndent(
   indent_sv_ = std::string_view(indent_);
 }
 
-template <typename WriteStream> void PrettyWriter<WriteStream>::WriteIndent() {
+template <required::pretty_write_stream::HasAllRequiredFunctions WriteStream>
+void PrettyWriter<WriteStream>::WriteIndent() {
   const std::size_t count = Base::stack_.size();
   for (std::size_t i = 0; i < count; ++i) {
     Base::os_.put_sv(indent_sv_);

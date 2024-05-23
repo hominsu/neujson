@@ -29,8 +29,8 @@ class Double {
 
 public:
   Double() = default;
-  explicit Double(double d) { d_ = d; }   // NOLINT
-  explicit Double(uint64_t u) { u_ = u; } // NOLINT
+  explicit Double(const double d) { d_ = d; }
+  explicit Double(const uint64_t u) { u_ = u; }
 
   [[nodiscard]] double Value() const { return d_; }
   [[nodiscard]] uint64_t UInt64Value() const { return u_; }
