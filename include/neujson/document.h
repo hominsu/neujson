@@ -26,7 +26,6 @@ NEUJSON_DIAG_OFF(effc++)
 namespace neujson {
 
 class Document : public Value {
- private:
   struct Level {
     Value *value;
     int value_count;
@@ -37,19 +36,17 @@ class Document : public Value {
     [[nodiscard]] Value *lastValue() const;
   };
 
- private:
   std::vector<Level> stack_;
   Value key_;
   bool see_value_ = false;
 
- public:
+public:
   error::ParseError Parse(const char *_json, size_t _len);
   error::ParseError Parse(std::string_view _json);
 
-  template<typename ReadStream>
-  error::ParseError ParseStream(ReadStream &_rs);
+  template <typename ReadStream> error::ParseError ParseStream(ReadStream &_rs);
 
- public: // handler
+  // handler
   bool Null();
   bool Bool(bool _b);
   bool Int32(int32_t _i32);
@@ -62,15 +59,15 @@ class Document : public Value {
   bool StartArray();
   bool EndArray();
 
- private:
+private:
   Value *AddValue(Value &&_value);
 };
 
 inline Value *Document::Level::lastValue() const {
   if (type() == NEU_ARRAY) {
-    return &std::get<Value::NEU_ARRAY_TYPE>(value->data_)->back();
+    return &std::get<NEU_ARRAY_TYPE>(value->data_)->back();
   } else {
-    return &std::get<Value::NEU_OBJECT_TYPE>(value->data_)->back().value_;
+    return &std::get<NEU_OBJECT_TYPE>(value->data_)->back().value_;
   }
 }
 
@@ -83,8 +80,8 @@ inline error::ParseError Document::Parse(std::string_view _json) {
   return ParseStream(string_read_stream);
 }
 
-template<typename ReadStream>
-inline error::ParseError Document::ParseStream(ReadStream &_rs) {
+template <typename ReadStream>
+error::ParseError Document::ParseStream(ReadStream &_rs) {
   return Reader::Parse(_rs, *this);
 }
 
@@ -151,33 +148,43 @@ inline bool Document::EndArray() {
 
 inline Value *Document::AddValue(Value &&_value) {
   Type type = _value.GetType();
-  (void) type;
-  if (see_value_) { NEUJSON_ASSERT(!stack_.empty() && "root not singular"); }
-  else {
+  (void)type;
+  if (see_value_) {
+    NEUJSON_ASSERT(!stack_.empty() && "root not singular");
+  } else {
     NEUJSON_ASSERT(type_ == NEU_NULL);
     see_value_ = true;
     type_ = _value.type_;
 
     switch (type) {
-      case NEU_NULL: break;
-      case NEU_BOOL:data_ = std::get<NEU_BOOL_TYPE>(_value.data_);
-        break;
-      case NEU_INT32:data_ = std::get<NEU_INT32_TYPE>(_value.data_);
-        break;
-      case NEU_INT64:data_ = std::get<NEU_INT64_TYPE>(_value.data_);
-        break;
-      case NEU_DOUBLE:data_ = std::get<NEU_DOUBLE_TYPE>(_value.data_);
-        break;
-      case NEU_STRING:data_ = std::get<NEU_STRING_TYPE>(_value.data_);
-        std::get<NEU_STRING_TYPE>(_value.data_) = nullptr;
-        break;
-      case NEU_ARRAY:data_ = std::get<NEU_ARRAY_TYPE>(_value.data_);
-        std::get<NEU_ARRAY_TYPE>(_value.data_) = nullptr;
-        break;
-      case NEU_OBJECT:data_ = std::get<NEU_OBJECT_TYPE>(_value.data_);
-        std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
-        break;
-      default:break;
+    case NEU_NULL:
+      break;
+    case NEU_BOOL:
+      data_ = std::get<NEU_BOOL_TYPE>(_value.data_);
+      break;
+    case NEU_INT32:
+      data_ = std::get<NEU_INT32_TYPE>(_value.data_);
+      break;
+    case NEU_INT64:
+      data_ = std::get<NEU_INT64_TYPE>(_value.data_);
+      break;
+    case NEU_DOUBLE:
+      data_ = std::get<NEU_DOUBLE_TYPE>(_value.data_);
+      break;
+    case NEU_STRING:
+      data_ = std::get<NEU_STRING_TYPE>(_value.data_);
+      std::get<NEU_STRING_TYPE>(_value.data_) = nullptr;
+      break;
+    case NEU_ARRAY:
+      data_ = std::get<NEU_ARRAY_TYPE>(_value.data_);
+      std::get<NEU_ARRAY_TYPE>(_value.data_) = nullptr;
+      break;
+    case NEU_OBJECT:
+      data_ = std::get<NEU_OBJECT_TYPE>(_value.data_);
+      std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
+      break;
+    default:
+      break;
     }
     _value.type_ = NEU_NULL;
     return this;
@@ -209,4 +216,4 @@ inline Value *Document::AddValue(Value &&_value) {
 NEUJSON_DIAG_POP
 #endif // __GNUC__
 
-#endif //NEUJSON_NEUJSON_DOCUMENT_H_
+#endif // NEUJSON_NEUJSON_DOCUMENT_H_
