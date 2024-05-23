@@ -11,35 +11,27 @@
 
 namespace neujson {
 
-template<class Stream>
-class OStreamWrapper : NonCopyable {
- public:
+template <class Stream> class OStreamWrapper : NonCopyable {
+public:
   using Ch = typename Stream::char_type;
 
- private:
+private:
   Stream &stream_;
 
- public:
-  explicit OStreamWrapper(Stream &_stream) : stream_(_stream) {}
+public:
+  explicit OStreamWrapper(Stream &stream) : stream_(stream) {}
 
-  void put(Ch _ch) {
-    stream_.put(_ch);
+  void put(Ch ch) { stream_.put(ch); }
+
+  void puts(const char *str, std::streamsize length) {
+    stream_.write(str, length);
   }
 
-  void puts(const char *_str, std::streamsize _length) {
-    stream_.write(_str, _length);
-  }
+  void put_sv(std::string_view sv) const { stream_ << sv; }
 
-  void put_sv(std::string_view _sv) const {
-    stream_ << _sv;
-  }
-
-  void flush() {
-    stream_.flush();
-  }
-
+  void flush() { stream_.flush(); }
 };
 
 } // namespace neujson
 
-#endif //NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_
+#endif // NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_

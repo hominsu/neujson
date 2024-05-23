@@ -19,10 +19,10 @@ int main() {
   if (input == nullptr) {
     exit(EXIT_FAILURE);
   }
-  neujson::FileReadStream is(input);
+  neujson::fp is(input);
 
   neujson::Document doc;
-  auto err = doc.ParseStream(is);
+  const auto err = doc.ParseStream(is);
   fclose(input);
 
   if (err != neujson::error::OK) {

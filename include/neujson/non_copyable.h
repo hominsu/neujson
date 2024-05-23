@@ -8,15 +8,15 @@
 namespace neujson {
 
 class NonCopyable {
- public:
+public:
   NonCopyable(const NonCopyable &) = delete;
   NonCopyable &operator=(const NonCopyable &) = delete;
 
- protected:
+protected:
   NonCopyable() = default;
   ~NonCopyable() = default;
 };
 
 } // namespace neujson
 
-#endif //NEUJSON_NEUJSON_NON_COPYABLE_H_
+#endif // NEUJSON_NEUJSON_NON_COPYABLE_H_

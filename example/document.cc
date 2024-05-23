@@ -5,15 +5,14 @@
 #include <cstdio>
 
 #include "neujson/document.h"
-#include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
+#include "neujson/writer.h"
 #include "sample.h"
 
 int main() {
   // 1. Parse a JSON string into DOM.
   neujson::Document doc;
-  auto err = doc.Parse(kSample[0]);
-  if (err != neujson::error::OK) {
+  if (const auto err = doc.Parse(kSample[0]); err != neujson::error::OK) {
     puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }

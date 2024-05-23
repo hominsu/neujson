@@ -12,7 +12,7 @@
 
 namespace neujson {
 
-class FileReadStream : NonCopyable {
+class fp : NonCopyable {
   static constexpr std::size_t kInnerBufferSize = 256;
   std::FILE *fp_;
   char inner_buffer_[kInnerBufferSize]{};
@@ -25,17 +25,17 @@ class FileReadStream : NonCopyable {
   bool eof_;
 
 public:
-  explicit FileReadStream(FILE *_fp)
-      : fp_(_fp), buffer_(inner_buffer_), current_(inner_buffer_),
+  explicit fp(FILE *fp)
+      : fp_(fp), buffer_(inner_buffer_), current_(inner_buffer_),
         buffer_last_(nullptr), buffer_size_(kInnerBufferSize), read_count_(0),
         read_total_(0), eof_(false) {
     NEUJSON_ASSERT(fp_ != nullptr && "file pointer should not be empty");
     read();
   }
 
-  explicit FileReadStream(FILE *_fp, char *_buffer, const std::size_t _buffer_size)
-      : fp_(_fp), buffer_(_buffer), current_(_buffer), buffer_last_(nullptr),
-        buffer_size_(_buffer_size), read_count_(0), read_total_(0),
+  explicit fp(FILE *fp, char *buffer, const std::size_t buffer_size)
+      : fp_(fp), buffer_(buffer), current_(buffer), buffer_last_(nullptr),
+        buffer_size_(buffer_size), read_count_(0), read_total_(0),
         eof_(false) {
     NEUJSON_ASSERT(fp_ != nullptr && "file pointer should not be empty");
     NEUJSON_ASSERT(buffer_size_ >= 4 &&
@@ -44,8 +44,8 @@ public:
   }
 
   template <std::size_t N>
-  explicit FileReadStream(FILE *_fp, char (&_buffer)[N])
-      : fp_(_fp), buffer_(_buffer), current_(_buffer), buffer_last_(nullptr),
+  explicit fp(FILE *fp, char (&buffer)[N])
+      : fp_(fp), buffer_(buffer), current_(buffer), buffer_last_(nullptr),
         buffer_size_(N), read_count_(0), read_total_(0), eof_(false) {
     NEUJSON_ASSERT(fp_ != nullptr && "file pointer should not be empty");
     NEUJSON_ASSERT(buffer_size_ >= 4 &&
@@ -67,9 +67,9 @@ public:
 
   template <typename T>
     requires std::is_integral_v<T>
-  void next(T _n) {
-    NEUJSON_ASSERT(_n >= 0);
-    for (T i = 0; i < _n; ++i) {
+  void next(T n) {
+    NEUJSON_ASSERT(n >= 0);
+    for (T i = 0; i < n; ++i) {
       if (hasNext()) {
         read();
       } else {
@@ -78,9 +78,9 @@ public:
     }
   }
 
-  void assertNext(const char _ch) {
-    (void)_ch;
-    NEUJSON_ASSERT(peek() == _ch);
+  void assertNext(const char ch) {
+    (void)ch;
+    NEUJSON_ASSERT(peek() == ch);
     read();
   }
 

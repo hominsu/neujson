@@ -17,8 +17,8 @@ int main() {
   neujson::FileWriteStream out(stdout, writeBuffer);
   neujson::Writer writer(out);
 
-  auto err = neujson::Reader::Parse(in, writer);
-  if (err != neujson::error::OK) {
+  if (const auto err = neujson::Reader::Parse(in, writer);
+      err != neujson::error::OK) {
     puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }

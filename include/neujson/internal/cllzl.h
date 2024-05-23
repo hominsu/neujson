@@ -20,30 +20,33 @@
 
 namespace neujson::internal {
 
-inline uint32_t clzll(uint64_t _n) {
-  NEUJSON_ASSERT(_n != 0);
+inline uint32_t clzll(uint64_t n) {
+  NEUJSON_ASSERT(n != 0);
 
 #if defined(_MSC_VER) && !defined(UNDER_CE)
   unsigned long r = 0;
 #if defined(_WIN64)
-    _BitScanReverse64(&r, _n);
+  _BitScanReverse64(&r, n);
 #else
-    // scan the high 32 bits.
-    if (_BitScanReverse(&r, static_cast<uint32_t>(_n >> 32))) { return 63 - (r + 32); }
+  // scan the high 32 bits.
+  if (_BitScanReverse(&r, static_cast<uint32_t>(n >> 32))) {
+    return 63 - (r + 32);
+  }
 
-    // scan the low 32 bits.
-    _BitScanReverse(&r, static_cast<uint32_t>(_n & 0xFFFFFFFF));
+  // scan the low 32 bits.
+  _BitScanReverse(&r, static_cast<uint32_t>(n & 0xFFFFFFFF));
 #endif // _WIN64
 
-    return 63 - r;
-#elif (defined(__GNUC__) && __GNUC__ >= 4) || NEUJSON_HAS_BUILTIN(__builtin_clzll)
+  return 63 - r;
+#elif (defined(__GNUC__) && __GNUC__ >= 4) ||                                  \
+    NEUJSON_HAS_BUILTIN(__builtin_clzll)
   // __builtin_clzll wrapper
-  return static_cast<uint32_t>(__builtin_clzll(_n));
+  return static_cast<uint32_t>(__builtin_clzll(n));
 #else
   // naive version
   uint32_t r = 0;
-  while (!(_n & (static_cast<uint64_t>(1) << 63))) {
-    _n <<= 1;
+  while (!(n & (static_cast<uint64_t>(1) << 63))) {
+    n <<= 1;
     ++r;
   }
 
@@ -53,4 +56,4 @@ inline uint32_t clzll(uint64_t _n) {
 
 } // namespace neujson::internal
 
-#endif //NEUJSON_NEUJSON_INTERNAL_CLLZL_H_
+#endif // NEUJSON_NEUJSON_INTERNAL_CLLZL_H_

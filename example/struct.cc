@@ -11,7 +11,7 @@
 #include "neujson/value.h"
 
 struct SerialInfo {
-  ::std::string serial_port_;
+  std::string serial_port_;
   int32_t baud_rate_;
   int32_t data_bits_;
   int32_t stop_bits_;

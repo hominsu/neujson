@@ -56,7 +56,8 @@
  * @brief const array length
  */
 #ifndef NEUJSON_LENGTH
-#define NEUJSON_LENGTH(CONST_ARRAY) (sizeof(CONST_ARRAY) / sizeof(CONST_ARRAY[0]))
+#define NEUJSON_LENGTH(CONST_ARRAY)                                            \
+  (sizeof(CONST_ARRAY) / sizeof(CONST_ARRAY[0]))
 #endif // NEUJSON_LENGTH
 
 /**
@@ -81,17 +82,18 @@
 /**
  * @brief adopted from Boost
  */
-#define NEUJSON_VERSION_CODE(x,y,z) (((x)*100000) + ((y)*100) + (z))
+#define NEUJSON_VERSION_CODE(x, y, z) (((x) * 100000) + ((y) * 100) + (z))
 
 /**
  * @brief gnuc version
  */
 #if defined(__GNUC__)
-#define NEUJSON_GNUC \
-    NEUJSON_VERSION_CODE(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__)
+#define NEUJSON_GNUC                                                           \
+  NEUJSON_VERSION_CODE(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #endif
 
-#if defined(__clang__) || (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4,2,0))
+#if defined(__clang__) ||                                                      \
+    (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4, 2, 0))
 
 #define NEUJSON_PRAGMA(x) _Pragma(NEUJSON_STRINGIFY(x))
 #if defined(__clang__)
@@ -99,15 +101,17 @@
 #else
 #define NEUJSON_DIAG_PRAGMA(x) NEUJSON_PRAGMA(GCC diagnostic x)
 #endif
-#define NEUJSON_DIAG_OFF(x) NEUJSON_DIAG_PRAGMA(ignored NEUJSON_STRINGIFY(NEUJSON_JOIN(-W,x)))
+#define NEUJSON_DIAG_OFF(x)                                                    \
+  NEUJSON_DIAG_PRAGMA(ignored NEUJSON_STRINGIFY(NEUJSON_JOIN(-W, x)))
 
 // push/pop support in Clang and GCC>=4.6
-#if defined(__clang__) || (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4,6,0))
+#if defined(__clang__) ||                                                      \
+    (defined(NEUJSON_GNUC) && NEUJSON_GNUC >= NEUJSON_VERSION_CODE(4, 6, 0))
 #define NEUJSON_DIAG_PUSH NEUJSON_DIAG_PRAGMA(push)
-#define NEUJSON_DIAG_POP  NEUJSON_DIAG_PRAGMA(pop)
-#else // GCC >= 4.2, < 4.6
+#define NEUJSON_DIAG_POP NEUJSON_DIAG_PRAGMA(pop)
+#else                     // GCC >= 4.2, < 4.6
 #define NEUJSON_DIAG_PUSH /* ignored */
-#define NEUJSON_DIAG_POP /* ignored */
+#define NEUJSON_DIAG_POP  /* ignored */
 #endif
 
 #elif defined(_MSC_VER)
@@ -116,9 +120,9 @@
 #define NEUJSON_PRAGMA(x) __pragma(x)
 #define NEUJSON_DIAG_PRAGMA(x) NEUJSON_PRAGMA(warning(x))
 
-#define NEUJSON_DIAG_OFF(x) NEUJSON_DIAG_PRAGMA(disable: x)
+#define NEUJSON_DIAG_OFF(x) NEUJSON_DIAG_PRAGMA(disable : x)
 #define NEUJSON_DIAG_PUSH NEUJSON_DIAG_PRAGMA(push)
-#define NEUJSON_DIAG_POP  NEUJSON_DIAG_PRAGMA(pop)
+#define NEUJSON_DIAG_POP NEUJSON_DIAG_PRAGMA(pop)
 
 #else
 
@@ -132,7 +136,8 @@
  * @brief Avoid compiler warnings
  */
 #ifndef NEUJSON_UINT64_C2
-#define NEUJSON_UINT64_C2(high32, low32) ((static_cast<uint64_t>(high32) << 32) | static_cast<uint64_t>(low32))
+#define NEUJSON_UINT64_C2(high32, low32)                                       \
+  ((static_cast<uint64_t>(high32) << 32) | static_cast<uint64_t>(low32))
 #endif
 
-#endif //NEUJSON_NEUJSON_NEUJSON_H_
+#endif // NEUJSON_NEUJSON_NEUJSON_H_

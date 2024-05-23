@@ -7,7 +7,7 @@
 
 #include <string_view>
 
-constexpr ::std::string_view kSample[] = {
+constexpr std::string_view kSample[] = {
     R"(
 [
   {
@@ -31,7 +31,8 @@ constexpr ::std::string_view kSample[] = {
     "Country": "US"
   }
 ]
-)", R"(
+)",
+    R"(
 {
   "web-app": {
     "servlet": [
@@ -132,7 +133,6 @@ constexpr ::std::string_view kSample[] = {
     }
   }
 }
-)"
-};
+)"};
 
-#endif //NEUJSON_EXAMPLE_SAMPLE_H_
+#endif // NEUJSON_EXAMPLE_SAMPLE_H_

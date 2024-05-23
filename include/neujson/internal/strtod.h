@@ -11,22 +11,26 @@
 
 namespace neujson::internal {
 
-inline double FastPath(double _fraction, int _exponent) {
-  if (_exponent < -308) { return 0.0; }
-  else if (_exponent >= 0) { return _fraction * Pow10(_exponent); }
-  else { return _fraction * Pow10(-_exponent); }
+inline double FastPath(const double fraction, const int exponent) {
+  if (exponent < -308) {
+    return 0.0;
+  } else if (exponent >= 0) {
+    return fraction * Pow10(exponent);
+  } else {
+    return fraction * Pow10(-exponent);
+  }
 }
 
-inline double StrTodNormalPrecision(double _d, int _p) {
-  if (_p < -308) {
-    _d = FastPath(_d, -308);
-    _d = FastPath(_d, _p + 308);
+inline double StrTodNormalPrecision(double d, int p) {
+  if (p < -308) {
+    d = FastPath(d, -308);
+    d = FastPath(d, p + 308);
   } else {
-    _d = FastPath(_d, _p);
+    d = FastPath(d, p);
   }
-  return _d;
+  return d;
 }
 
 } // namespace neujson::internal
 
-#endif //NEUJSON_INCLUDE_NEUJSON_INTERNAL_STRTOD_H_
+#endif // NEUJSON_INCLUDE_NEUJSON_INTERNAL_STRTOD_H_

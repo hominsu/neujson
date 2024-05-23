@@ -17,61 +17,92 @@
 namespace neujson {
 
 enum PrettyFormatOptions {
-  kFormatDefault = 0,         //!< Default pretty formatting.
-  kFormatSingleLineArray = 1  //!< Format arrays on a single line.
+  kFormatDefault = 0,        //!< Default pretty formatting.
+  kFormatSingleLineArray = 1 //!< Format arrays on a single line.
 };
 
-template<typename WriteStream>
+template <typename WriteStream>
 class PrettyWriter : public Writer<WriteStream> {
- public:
+public:
   using Base = Writer<WriteStream>;
 
- protected:
+protected:
   PrettyFormatOptions format_options_;
 
- private:
+private:
   std::string indent_;
   std::string_view indent_sv_;
 
- public:
-  explicit PrettyWriter(WriteStream &_os) : Base(_os), format_options_(kFormatDefault) {
+public:
+  explicit PrettyWriter(WriteStream &os)
+      : Base(os), format_options_(kFormatDefault) {
     InitIndent(' ', 4);
   }
 
-  PrettyWriter &SetIndent(char _indent_char, std::size_t _indent_char_count) {
-    NEUJSON_ASSERT(_indent_char == ' ' || _indent_char == '\t' || _indent_char == '\n' || _indent_char == '\r');
-    InitIndent(_indent_char, _indent_char_count);
+  PrettyWriter &SetIndent(const char indent_char,
+                          const std::size_t indent_char_count) {
+    NEUJSON_ASSERT(indent_char == ' ' || indent_char == '\t' ||
+                   indent_char == '\n' || indent_char == '\r');
+    InitIndent(indent_char, indent_char_count);
     return *this;
   }
 
-  PrettyWriter &SetFormatOptions(PrettyFormatOptions _format_options) {
-    format_options_ = _format_options;
+  PrettyWriter &SetFormatOptions(const PrettyFormatOptions format_options) {
+    format_options_ = format_options;
     return *this;
   }
 
- public:
-  //@formatter:off
-  bool Null() { PrettyPrefix(NEU_NULL); return Base::EndValue(Base::WriteNull()); }
-  bool Bool(bool _b) { PrettyPrefix(NEU_BOOL); return Base::EndValue(Base::WriteBool(_b)); }
-  bool Int32(int32_t _i32) { PrettyPrefix(NEU_INT32); return Base::EndValue(Base::WriteInt32(_i32)); }
-  bool Int64(int64_t _i64) { PrettyPrefix(NEU_INT64); return Base::EndValue(Base::WriteInt64(_i64)); }
-  bool Double(double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(internal::Double(_d))); }
-  bool Double(internal::Double _d) { PrettyPrefix(NEU_DOUBLE); return Base::EndValue(Base::WriteDouble(_d)); }
-  bool String(std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteString(_str)); }
-  bool Key(std::string_view _str) { PrettyPrefix(NEU_STRING); return Base::EndValue(Base::WriteKey(_str)); }
-  //@formatter:on
+  bool Null() override {
+    PrettyPrefix(NEU_NULL);
+    return Base::EndValue(Base::WriteNull());
+  }
 
-  bool StartObject() {
+  bool Bool(bool b) override {
+    PrettyPrefix(NEU_BOOL);
+    return Base::EndValue(Base::WriteBool(b));
+  }
+
+  bool Int32(int32_t i32) override {
+    PrettyPrefix(NEU_INT32);
+    return Base::EndValue(Base::WriteInt32(i32));
+  }
+
+  bool Int64(int64_t i64) override {
+    PrettyPrefix(NEU_INT64);
+    return Base::EndValue(Base::WriteInt64(i64));
+  }
+
+  bool Double(double d) override {
+    PrettyPrefix(NEU_DOUBLE);
+    return Base::EndValue(Base::WriteDouble(internal::Double(d)));
+  }
+
+  bool Double(internal::Double d) override {
+    PrettyPrefix(NEU_DOUBLE);
+    return Base::EndValue(Base::WriteDouble(d));
+  }
+
+  bool String(std::string_view str) override {
+    PrettyPrefix(NEU_STRING);
+    return Base::EndValue(Base::WriteString(str));
+  }
+
+  bool Key(std::string_view str) override {
+    PrettyPrefix(NEU_STRING);
+    return Base::EndValue(Base::WriteKey(str));
+  }
+
+  bool StartObject() override {
     PrettyPrefix(NEU_OBJECT);
     Base::stack_.emplace_back(false);
     return Base::EndValue(Base::WriteStartObject());
   }
 
-  bool EndObject() {
+  bool EndObject() override {
     NEUJSON_ASSERT(!Base::stack_.empty());
     NEUJSON_ASSERT(!Base::stack_.back().in_array_flag_);
     NEUJSON_ASSERT(0 == Base::stack_.back().value_count_ % 2);
-    bool empty = Base::stack_.back().value_count_ == 0;
+    const bool empty = Base::stack_.back().value_count_ == 0;
     Base::stack_.pop_back();
 
     if (!empty) {
@@ -80,7 +111,7 @@ class PrettyWriter : public Writer<WriteStream> {
     }
 
     auto ret = Base::EndValue(Base::WriteEndObject());
-    (void) ret;
+    (void)ret;
     NEUJSON_ASSERT(ret == true);
     if (Base::stack_.empty()) {
       Base::Flush();
@@ -88,13 +119,13 @@ class PrettyWriter : public Writer<WriteStream> {
     return true;
   }
 
-  bool StartArray() {
+  bool StartArray() override {
     PrettyPrefix(NEU_ARRAY);
     Base::stack_.emplace_back(true);
     return Base::EndValue(Base::WriteStartArray());
   }
 
-  bool EndArray() {
+  bool EndArray() override {
     NEUJSON_ASSERT(!Base::stack_.empty());
     NEUJSON_ASSERT(Base::stack_.back().in_array_flag_);
     bool empty = Base::stack_.back().value_count_ == 0;
@@ -106,7 +137,7 @@ class PrettyWriter : public Writer<WriteStream> {
     }
 
     auto ret = Base::EndValue(Base::WriteEndArray());
-    (void) ret;
+    (void)ret;
     NEUJSON_ASSERT(ret == true);
     if (Base::stack_.empty()) {
       Base::Flush();
@@ -114,17 +145,17 @@ class PrettyWriter : public Writer<WriteStream> {
     return true;
   }
 
- protected:
-  void PrettyPrefix(Type type_);
+protected:
+  void PrettyPrefix(Type type);
 
- private:
-  void InitIndent(char _indent_char, std::size_t _indent_char_count);
+private:
+  void InitIndent(char indent_char, std::size_t indent_char_count);
   void WriteIndent();
 };
 
-template<typename WriteStream>
-void PrettyWriter<WriteStream>::PrettyPrefix(Type type_) {
-  (void) type_;
+template <typename WriteStream>
+void PrettyWriter<WriteStream>::PrettyPrefix(const Type type) {
+  (void)type;
   if (!Base::stack_.empty()) {
     auto &level = Base::stack_.back();
 
@@ -157,32 +188,32 @@ void PrettyWriter<WriteStream>::PrettyPrefix(Type type_) {
       }
     }
     if (!level.in_array_flag_ && level.value_count_ % 2 == 0) {
-      NEUJSON_ASSERT(type_ == NEU_STRING && "miss quotation mark");
+      NEUJSON_ASSERT(type == NEU_STRING && "miss quotation mark");
     }
-    level.value_count_++;
+    ++level.value_count_;
   } else {
     NEUJSON_ASSERT(!Base::has_root_ && "root not singular");
     Base::has_root_ = true;
   }
 }
 
-template<typename WriteStream>
-inline void PrettyWriter<WriteStream>::InitIndent(char _indent_char, size_t _indent_char_count) {
+template <typename WriteStream>
+void PrettyWriter<WriteStream>::InitIndent(
+    const char indent_char, const std::size_t indent_char_count) {
   indent_.clear();
-  for (size_t i = 0; i < _indent_char_count; ++i) {
-    indent_.push_back(_indent_char);
+  for (std::size_t i = 0; i < indent_char_count; ++i) {
+    indent_.push_back(indent_char);
   }
   indent_sv_ = std::string_view(indent_);
 }
 
-template<typename WriteStream>
-inline void PrettyWriter<WriteStream>::WriteIndent() {
-  size_t count = Base::stack_.size();
-  for (size_t i = 0; i < count; ++i) {
+template <typename WriteStream> void PrettyWriter<WriteStream>::WriteIndent() {
+  const std::size_t count = Base::stack_.size();
+  for (std::size_t i = 0; i < count; ++i) {
     Base::os_.put_sv(indent_sv_);
   }
 }
 
 } // namespace neujson
 
-#endif //NEUJSON_NEUJSON_PRETTY_WRITER_H_
+#endif // NEUJSON_NEUJSON_PRETTY_WRITER_H_

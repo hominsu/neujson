@@ -30,7 +30,7 @@ class Document : public Value {
     Value *value;
     int value_count;
 
-    explicit Level(Value *value_) : value(value_), value_count(0) {}
+    explicit Level(Value *value) : value(value), value_count(0) {}
 
     [[nodiscard]] Type type() const { return value->GetType(); }
     [[nodiscard]] Value *lastValue() const;
@@ -41,26 +41,27 @@ class Document : public Value {
   bool see_value_ = false;
 
 public:
-  error::ParseError Parse(const char *_json, size_t _len);
-  error::ParseError Parse(std::string_view _json);
+  error::ParseError Parse(const char *json, size_t len);
+  error::ParseError Parse(std::string_view json);
 
-  template <typename ReadStream> error::ParseError ParseStream(ReadStream &_rs);
+  template <required::read_stream::HasAllRequiredFunctions ReadStream>
+  error::ParseError ParseStream(ReadStream &rs);
 
   // handler
   bool Null();
-  bool Bool(bool _b);
-  bool Int32(int32_t _i32);
-  bool Int64(int64_t _i64);
-  bool Double(internal::Double _d);
-  bool String(std::string_view _str);
-  bool Key(std::string_view _str);
+  bool Bool(bool b);
+  bool Int32(int32_t i32);
+  bool Int64(int64_t i64);
+  bool Double(internal::Double d);
+  bool String(std::string_view str);
+  bool Key(std::string_view str);
   bool StartObject();
   bool EndObject();
   bool StartArray();
   bool EndArray();
 
 private:
-  Value *AddValue(Value &&_value);
+  Value *AddValue(Value &&value);
 };
 
 inline Value *Document::Level::lastValue() const {
@@ -71,18 +72,18 @@ inline Value *Document::Level::lastValue() const {
   }
 }
 
-inline error::ParseError Document::Parse(const char *_json, size_t _len) {
-  return Parse(std::string_view(_json, _len));
+inline error::ParseError Document::Parse(const char *json, const size_t len) {
+  return Parse(std::string_view(json, len));
 }
 
-inline error::ParseError Document::Parse(std::string_view _json) {
-  StringReadStream string_read_stream(_json);
+inline error::ParseError Document::Parse(const std::string_view json) {
+  StringReadStream string_read_stream(json);
   return ParseStream(string_read_stream);
 }
 
-template <typename ReadStream>
-error::ParseError Document::ParseStream(ReadStream &_rs) {
-  return Reader::Parse(_rs, *this);
+template <required::read_stream::HasAllRequiredFunctions ReadStream>
+error::ParseError Document::ParseStream(ReadStream &rs) {
+  return Reader::Parse(rs, *this);
 }
 
 inline bool Document::Null() {
@@ -90,33 +91,33 @@ inline bool Document::Null() {
   return true;
 }
 
-inline bool Document::Bool(bool _b) {
-  AddValue(Value(_b));
+inline bool Document::Bool(const bool b) {
+  AddValue(Value(b));
   return true;
 }
 
-inline bool Document::Int32(int32_t _i32) {
-  AddValue(Value(_i32));
+inline bool Document::Int32(const int32_t i32) {
+  AddValue(Value(i32));
   return true;
 }
 
-inline bool Document::Int64(int64_t _i64) {
-  AddValue(Value(_i64));
+inline bool Document::Int64(const int64_t i64) {
+  AddValue(Value(i64));
   return true;
 }
 
-inline bool Document::Double(internal::Double _d) {
-  AddValue(Value(_d));
+inline bool Document::Double(const internal::Double d) {
+  AddValue(Value(d));
   return true;
 }
 
-inline bool Document::String(std::string_view _str) {
-  AddValue(Value(_str));
+inline bool Document::String(const std::string_view str) {
+  AddValue(Value(str));
   return true;
 }
 
-inline bool Document::Key(std::string_view _str) {
-  AddValue(Value(_str));
+inline bool Document::Key(const std::string_view str) {
+  AddValue(Value(str));
   return true;
 }
 
@@ -146,64 +147,64 @@ inline bool Document::EndArray() {
   return true;
 }
 
-inline Value *Document::AddValue(Value &&_value) {
-  Type type = _value.GetType();
+inline Value *Document::AddValue(Value &&value) {
+  Type type = value.GetType();
   (void)type;
   if (see_value_) {
     NEUJSON_ASSERT(!stack_.empty() && "root not singular");
   } else {
     NEUJSON_ASSERT(type_ == NEU_NULL);
     see_value_ = true;
-    type_ = _value.type_;
+    type_ = value.type_;
 
     switch (type) {
     case NEU_NULL:
       break;
     case NEU_BOOL:
-      data_ = std::get<NEU_BOOL_TYPE>(_value.data_);
+      data_ = std::get<NEU_BOOL_TYPE>(value.data_);
       break;
     case NEU_INT32:
-      data_ = std::get<NEU_INT32_TYPE>(_value.data_);
+      data_ = std::get<NEU_INT32_TYPE>(value.data_);
       break;
     case NEU_INT64:
-      data_ = std::get<NEU_INT64_TYPE>(_value.data_);
+      data_ = std::get<NEU_INT64_TYPE>(value.data_);
       break;
     case NEU_DOUBLE:
-      data_ = std::get<NEU_DOUBLE_TYPE>(_value.data_);
+      data_ = std::get<NEU_DOUBLE_TYPE>(value.data_);
       break;
     case NEU_STRING:
-      data_ = std::get<NEU_STRING_TYPE>(_value.data_);
-      std::get<NEU_STRING_TYPE>(_value.data_) = nullptr;
+      data_ = std::get<NEU_STRING_TYPE>(value.data_);
+      std::get<NEU_STRING_TYPE>(value.data_) = nullptr;
       break;
     case NEU_ARRAY:
-      data_ = std::get<NEU_ARRAY_TYPE>(_value.data_);
-      std::get<NEU_ARRAY_TYPE>(_value.data_) = nullptr;
+      data_ = std::get<NEU_ARRAY_TYPE>(value.data_);
+      std::get<NEU_ARRAY_TYPE>(value.data_) = nullptr;
       break;
     case NEU_OBJECT:
-      data_ = std::get<NEU_OBJECT_TYPE>(_value.data_);
-      std::get<NEU_OBJECT_TYPE>(_value.data_) = nullptr;
+      data_ = std::get<NEU_OBJECT_TYPE>(value.data_);
+      std::get<NEU_OBJECT_TYPE>(value.data_) = nullptr;
       break;
     default:
       break;
     }
-    _value.type_ = NEU_NULL;
+    value.type_ = NEU_NULL;
     return this;
   }
 
   auto &top = stack_.back();
   if (top.type() == NEU_ARRAY) {
-    top.value->AddValue(std::move(_value));
+    top.value->AddValue(std::move(value));
     top.value_count++;
     return top.lastValue();
   } else {
     NEUJSON_ASSERT(top.type() == NEU_OBJECT);
     if (top.value_count % 2 == 0) {
       NEUJSON_ASSERT(type == NEU_STRING && "miss quotation mark");
-      key_ = std::move(_value);
+      key_ = std::move(value);
       top.value_count++;
       return &key_;
     } else {
-      top.value->AddMember(std::move(key_), std::move(_value));
+      top.value->AddMember(std::move(key_), std::move(value));
       top.value_count++;
       return top.lastValue();
     }

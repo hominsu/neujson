@@ -28,80 +28,125 @@ NEUJSON_DIAG_OFF(effc++)
 #endif
 
 class TestHandler : neujson::NonCopyable {
- private:
   neujson::Value value_;
   neujson::Type value_type_ = neujson::NEU_NULL;
 
   neujson::Type test_error_type_ = neujson::NEU_BOOL;
   bool test_error_ = false;
 
- public:
-  //@formatter:off
-  bool Null() { addValue(neujson::Value(neujson::NEU_NULL)); return true; }
-  bool Bool(bool _b) { addValue(neujson::Value(_b)); return true; }
-  bool Int32(int32_t _i32) { addValue(neujson::Value(_i32)); return true; }
-  bool Int64(int64_t _i64) { addValue(neujson::Value(_i64)); return true; }
-  bool Double(neujson::internal::Double _d) { addValue(neujson::Value(_d)); return true; }
-  bool String(std::string_view _str) { addValue(neujson::Value(_str)); return true; }
-  bool Key(std::string_view _str) { addValue(neujson::Value(_str)); return true; }
-  bool StartObject() { addValue(neujson::Value(neujson::NEU_OBJECT)); return true; }
-  bool EndObject() { addValue(neujson::Value(neujson::NEU_OBJECT)); return true; }
-  bool StartArray() { addValue(neujson::Value(neujson::NEU_ARRAY)); return true; }
-  bool EndArray() { addValue(neujson::Value(neujson::NEU_ARRAY)); return true; }
-  //@formatter:on
+public:
+  bool Null() {
+    addValue(neujson::Value(neujson::NEU_NULL));
+    return true;
+  }
+
+  bool Bool(const bool b) {
+    addValue(neujson::Value(b));
+    return true;
+  }
+
+  bool Int32(const int32_t i32) {
+    addValue(neujson::Value(i32));
+    return true;
+  }
+
+  bool Int64(const int64_t i64) {
+    addValue(neujson::Value(i64));
+    return true;
+  }
+
+  bool Double(const neujson::internal::Double d) {
+    addValue(neujson::Value(d));
+    return true;
+  }
+
+  bool String(const std::string_view str) {
+    addValue(neujson::Value(str));
+    return true;
+  }
+
+  bool Key(const std::string_view str) {
+    addValue(neujson::Value(str));
+    return true;
+  }
+
+  bool StartObject() {
+    addValue(neujson::Value(neujson::NEU_OBJECT));
+    return true;
+  }
+
+  bool EndObject() {
+    addValue(neujson::Value(neujson::NEU_OBJECT));
+    return true;
+  }
+
+  bool StartArray() {
+    addValue(neujson::Value(neujson::NEU_ARRAY));
+    return true;
+  }
+
+  bool EndArray() {
+    addValue(neujson::Value(neujson::NEU_ARRAY));
+    return true;
+  }
 
   [[nodiscard]] neujson::Type type() const { return value_type_; }
   [[nodiscard]] neujson::Value value() const { return value_; }
 
-  void set_test_error(bool _test_error) { test_error_ = _test_error; }
-  void set_test_error_type(neujson::Type _type) { test_error_type_ = _type; }
+  void set_test_error(const bool test_error) { test_error_ = test_error; }
+  void set_test_error_type(const neujson::Type type) {
+    test_error_type_ = type;
+  }
 
- private:
-  void addValue(neujson::Value &&_value) {
-    if (!test_error_) { value_type_ = _value.GetType(); }
-    value_ = std::move(_value);
+private:
+  void addValue(neujson::Value &&value) {
+    if (!test_error_) {
+      value_type_ = value.GetType();
+    }
+    value_ = std::move(value);
   }
 };
 
 TEST(parse, null) {
   neujson::StringWriteStream write_stream;
-  neujson::Writer<neujson::StringWriteStream> writer(write_stream);
+  neujson::Writer writer(write_stream);
 
   writer.Null();
 
   neujson::StringReadStream read_stream(write_stream.get());
   TestHandler test_handler;
 
-  EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler));
+  EXPECT_EQ(neujson::error::ParseError::OK,
+            neujson::Reader::Parse(read_stream, test_handler));
   EXPECT_EQ(neujson::NEU_NULL, test_handler.type());
 }
 
-#define TEST_BOOL(_expect, _json) \
-  do {                            \
-    std::string_view ss((_json)); \
-    neujson::StringReadStream read_stream(ss); \
-    TestHandler test_handler;     \
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler)); \
-    EXPECT_EQ(neujson::NEU_BOOL, test_handler.type());                                            \
-    EXPECT_EQ((_expect), test_handler.value().GetBool());                                         \
-  } while (0)                     \
-  //
+#define TEST_BOOL(_expect, _json)                                              \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ(neujson::error::ParseError::OK,                                  \
+              neujson::Reader::Parse(read_stream, test_handler));              \
+    EXPECT_EQ(neujson::NEU_BOOL, test_handler.type());                         \
+    EXPECT_EQ((_expect), test_handler.value().GetBool());                      \
+  } while (0) //
 
 TEST(parse, bool) {
   TEST_BOOL(true, "true");
   TEST_BOOL(false, "false");
 }
 
-#define TEST_INT32(_expect, _json) \
-  do {                             \
-    std::string_view ss((_json));  \
-    neujson::StringReadStream read_stream(ss); \
-    TestHandler test_handler;      \
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler)); \
-    EXPECT_EQ(neujson::NEU_INT32, test_handler.type());                                           \
-    EXPECT_EQ((_expect), test_handler.value().GetInt32());                                        \
-  } while (0)                      \
-  //
+#define TEST_INT32(_expect, _json)                                             \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ(neujson::error::ParseError::OK,                                  \
+              neujson::Reader::Parse(read_stream, test_handler));              \
+    EXPECT_EQ(neujson::NEU_INT32, test_handler.type());                        \
+    EXPECT_EQ((_expect), test_handler.value().GetInt32());                     \
+  } while (0) //
 
 TEST(parse, int32) {
   TEST_INT32(0, "0");
@@ -111,16 +156,17 @@ TEST(parse, int32) {
   TEST_INT32(INT32_MIN, "-2147483648");
 }
 
-#define TEST_INT64(_expect, _json) \
-  do {                             \
-    std::string_view ss((_json));  \
-    neujson::StringReadStream read_stream(ss); \
-    TestHandler test_handler;      \
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler)); \
-    EXPECT_TRUE(neujson::NEU_INT64 == test_handler.type() || neujson::NEU_INT32 == test_handler.type()); \
-    EXPECT_EQ((_expect), test_handler.value().GetInt64());                                        \
-  } while (0)                      \
-  //
+#define TEST_INT64(_expect, _json)                                             \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ(neujson::error::ParseError::OK,                                  \
+              neujson::Reader::Parse(read_stream, test_handler));              \
+    EXPECT_TRUE(neujson::NEU_INT64 == test_handler.type() ||                   \
+                neujson::NEU_INT32 == test_handler.type());                    \
+    EXPECT_EQ((_expect), test_handler.value().GetInt64());                     \
+  } while (0) //
 
 TEST(parse, int64) {
   TEST_INT64(0, "0");
@@ -130,16 +176,16 @@ TEST(parse, int64) {
   TEST_INT64(INT64_MIN, "-9223372036854775808");
 }
 
-#define TEST_DOUBLE(_expect, _json) \
-  do {                              \
-    std::string_view ss((_json));   \
-    neujson::StringReadStream read_stream(ss); \
-    TestHandler test_handler;       \
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler)); \
-    EXPECT_EQ(neujson::NEU_DOUBLE, test_handler.type());                                          \
-    EXPECT_DOUBLE_EQ((_expect), test_handler.value().GetDouble());                                \
-  } while (0)                       \
-  //
+#define TEST_DOUBLE(_expect, _json)                                            \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ(neujson::error::ParseError::OK,                                  \
+              neujson::Reader::Parse(read_stream, test_handler));              \
+    EXPECT_EQ(neujson::NEU_DOUBLE, test_handler.type());                       \
+    EXPECT_DOUBLE_EQ((_expect), test_handler.value().GetDouble());             \
+  } while (0) //
 
 TEST(parse, double) {
   TEST_DOUBLE(0.0, "0.0");
@@ -160,28 +206,31 @@ TEST(parse, double) {
   TEST_DOUBLE(1.234E+10, "1.234E+10");
   TEST_DOUBLE(1.234E-10, "1.234E-10");
 
-//  TEST_DOUBLE(0.0, "1e-10000"); /* must underflow */
-//  TEST_DOUBLE(1.0000000000000002, "1.0000000000000002"); /* the smallest number > 1 */
-//  TEST_DOUBLE(4.9406564584124654e-324, "4.9406564584124654e-324"); /* minimum denormal */
-//  TEST_DOUBLE(-4.9406564584124654e-324, "-4.9406564584124654e-324");
-//  TEST_DOUBLE(2.2250738585072009e-308, "2.2250738585072009e-308");  /* Max subnormal double */
-//  TEST_DOUBLE(-2.2250738585072009e-308, "-2.2250738585072009e-308");
-//  TEST_DOUBLE(2.2250738585072014e-308, "2.2250738585072014e-308");  /* Min normal positive double */
-//  TEST_DOUBLE(-2.2250738585072014e-308, "-2.2250738585072014e-308");
-//  TEST_DOUBLE(1.7976931348623157e+308, "1.7976931348623157e+308");  /* Max double */
-//  TEST_DOUBLE(-1.7976931348623157e+308, "-1.7976931348623157e+308");
+  //  TEST_DOUBLE(0.0, "1e-10000"); /* must underflow */
+  //  TEST_DOUBLE(1.0000000000000002, "1.0000000000000002"); /* the smallest
+  //  number > 1 */ TEST_DOUBLE(4.9406564584124654e-324,
+  //  "4.9406564584124654e-324"); /* minimum denormal */
+  //  TEST_DOUBLE(-4.9406564584124654e-324, "-4.9406564584124654e-324");
+  //  TEST_DOUBLE(2.2250738585072009e-308, "2.2250738585072009e-308");  /* Max
+  //  subnormal double */ TEST_DOUBLE(-2.2250738585072009e-308,
+  //  "-2.2250738585072009e-308"); TEST_DOUBLE(2.2250738585072014e-308,
+  //  "2.2250738585072014e-308");  /* Min normal positive double */
+  //  TEST_DOUBLE(-2.2250738585072014e-308, "-2.2250738585072014e-308");
+  //  TEST_DOUBLE(1.7976931348623157e+308, "1.7976931348623157e+308");  /* Max
+  //  double */ TEST_DOUBLE(-1.7976931348623157e+308,
+  //  "-1.7976931348623157e+308");
 }
 
-#define TEST_STRING(_expect, _json) \
-  do {                              \
-    std::string_view ss((_json));   \
-    neujson::StringReadStream read_stream(ss); \
-    TestHandler test_handler;       \
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler)); \
-    EXPECT_EQ(neujson::NEU_STRING, test_handler.type());                                          \
-    EXPECT_STREQ((_expect), test_handler.value().GetString().c_str());                            \
-  } while (0)                       \
-  //
+#define TEST_STRING(_expect, _json)                                            \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ(neujson::error::ParseError::OK,                                  \
+              neujson::Reader::Parse(read_stream, test_handler));              \
+    EXPECT_EQ(neujson::NEU_STRING, test_handler.type());                       \
+    EXPECT_STREQ((_expect), test_handler.value().GetString().c_str());         \
+  } while (0) //
 
 TEST(parse, string) {
   TEST_STRING("", R"("")");
@@ -192,8 +241,10 @@ TEST(parse, string) {
   TEST_STRING("\x24", R"("\u0024")");         /* Dollar sign U+0024 */
   TEST_STRING("\xC2\xA2", R"("\u00A2")");     /* Cents sign U+00A2 */
   TEST_STRING("\xE2\x82\xAC", R"("\u20AC")"); /* Euro sign U+20AC */
-  TEST_STRING("\xF0\x9D\x84\x9E", R"("\uD834\uDD1E")");  /* G clef sign U+1D11E */
-  TEST_STRING("\xF0\x9D\x84\x9E", R"("\ud834\udd1e")");  /* G clef sign U+1D11E */
+  TEST_STRING("\xF0\x9D\x84\x9E",
+              R"("\uD834\uDD1E")"); /* G clef sign U+1D11E */
+  TEST_STRING("\xF0\x9D\x84\x9E",
+              R"("\ud834\udd1e")"); /* G clef sign U+1D11E */
 }
 
 TEST(parse, array) {
@@ -201,7 +252,8 @@ TEST(parse, array) {
     std::string_view ss("[ ]");
     neujson::StringReadStream read_stream(ss);
     TestHandler test_handler;
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler));
+    EXPECT_EQ(neujson::error::ParseError::OK,
+              neujson::Reader::Parse(read_stream, test_handler));
     EXPECT_EQ(neujson::NEU_ARRAY, test_handler.type());
     EXPECT_EQ(0UL, test_handler.value().GetArray()->size());
   }
@@ -245,7 +297,8 @@ TEST(parse, object) {
     std::string_view ss(" { } ");
     neujson::StringReadStream read_stream(ss);
     TestHandler test_handler;
-    EXPECT_EQ(neujson::error::ParseError::OK, neujson::Reader::Parse(read_stream, test_handler));
+    EXPECT_EQ(neujson::error::ParseError::OK,
+              neujson::Reader::Parse(read_stream, test_handler));
     EXPECT_EQ(neujson::NEU_OBJECT, test_handler.type());
     EXPECT_EQ(0UL, test_handler.value().GetObject()->size());
   }
@@ -299,7 +352,8 @@ TEST(parse, object) {
     EXPECT_EQ(3UL, doc.GetObject()->at(6).value_.GetObject()->size());
     for (std::size_t i = 0; i < 3; i++) {
       auto object_key = doc.GetObject()->at(6).value_.GetObject()->at(i).key_;
-      auto object_value = doc.GetObject()->at(6).value_.GetObject()->at(i).value_;
+      auto object_value =
+          doc.GetObject()->at(6).value_.GetObject()->at(i).value_;
       char s[2]{};
       s[0] = static_cast<char>('1' + i);
       EXPECT_STREQ(s, object_key.GetString().c_str());
@@ -310,14 +364,13 @@ TEST(parse, object) {
   }
 }
 
-#define TEST_PARSE_ERROR(_error, _json) \
-  do {                                  \
-  std::string_view ss((_json));         \
-  neujson::StringReadStream read_stream(ss); \
-  TestHandler test_handler;             \
-  EXPECT_EQ((_error), neujson::Reader::Parse(read_stream, test_handler)); \
-  } while (0)                           \
-  //
+#define TEST_PARSE_ERROR(_error, _json)                                        \
+  do {                                                                         \
+    std::string_view ss((_json));                                              \
+    neujson::StringReadStream read_stream(ss);                                 \
+    TestHandler test_handler;                                                  \
+    EXPECT_EQ((_error), neujson::Reader::Parse(read_stream, test_handler));    \
+  } while (0) //
 
 TEST(parse, expect_value) {
   TEST_PARSE_ERROR(neujson::error::EXPECT_VALUE, "");
@@ -331,8 +384,10 @@ TEST(parse, bad_value) {
   // invalid number
   TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "+0");
   TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "+1");
-  TEST_PARSE_ERROR(neujson::error::BAD_VALUE, ".123"); // at least one digit before '.'
-  TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "1.");   // at least one digit after '.'
+  TEST_PARSE_ERROR(neujson::error::BAD_VALUE,
+                   ".123"); // at least one digit before '.'
+  TEST_PARSE_ERROR(neujson::error::BAD_VALUE,
+                   "1."); // at least one digit after '.'
   TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "INF");
   TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "inf");
   TEST_PARSE_ERROR(neujson::error::BAD_VALUE, "NAN");
@@ -347,7 +402,8 @@ TEST(parse, root_not_singular) {
   TEST_PARSE_ERROR(neujson::error::ROOT_NOT_SINGULAR, "null x");
 
   // invalid number
-  TEST_PARSE_ERROR(neujson::error::ROOT_NOT_SINGULAR, "0123"); // after zero should be '.' , 'E' , 'e' or nothing
+  TEST_PARSE_ERROR(neujson::error::ROOT_NOT_SINGULAR,
+                   "0123"); // after zero should be '.' , 'E' , 'e' or nothing
   TEST_PARSE_ERROR(neujson::error::ROOT_NOT_SINGULAR, "0x0");
   TEST_PARSE_ERROR(neujson::error::ROOT_NOT_SINGULAR, "0x123");
 }
@@ -424,7 +480,8 @@ TEST(parse, miss_colon) {
 TEST(parse, miss_comma_or_curly_bracket) {
   TEST_PARSE_ERROR(neujson::error::MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1)");
   TEST_PARSE_ERROR(neujson::error::MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1])");
-  TEST_PARSE_ERROR(neujson::error::MISS_COMMA_OR_CURLY_BRACKET, R"({"a":1 "b")");
+  TEST_PARSE_ERROR(neujson::error::MISS_COMMA_OR_CURLY_BRACKET,
+                   R"({"a":1 "b")");
   TEST_PARSE_ERROR(neujson::error::MISS_COMMA_OR_CURLY_BRACKET, R"({"a":{})");
 }
 

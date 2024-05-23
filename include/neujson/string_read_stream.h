@@ -21,8 +21,8 @@ private:
   Iterator iter_;
 
 public:
-  explicit StringReadStream(std::string_view _json)
-      : json_(_json), iter_(json_.begin()) {}
+  explicit StringReadStream(const std::string_view json)
+      : json_(json), iter_(json_.begin()) {}
 
   [[nodiscard]] bool hasNext() const { return iter_ != json_.end(); }
 
@@ -39,18 +39,18 @@ public:
 
   template <typename T>
     requires std::is_integral_v<T>
-  void next(T _n) {
-    NEUJSON_ASSERT(_n >= 0);
-    for (T i = 0; i < _n; ++i) {
+  void next(T n) {
+    NEUJSON_ASSERT(n >= 0);
+    for (T i = 0; i < n; ++i) {
       if (hasNext()) {
         iter_++;
       }
     }
   }
 
-  void assertNext(const char _ch) {
-    (void)_ch;
-    NEUJSON_ASSERT(peek() == _ch);
+  void assertNext(const char ch) {
+    (void)ch;
+    NEUJSON_ASSERT(peek() == ch);
     next();
   }
 };

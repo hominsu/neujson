@@ -28,16 +28,16 @@ private:
   bool eof_;
 
 public:
-  explicit IStreamWrapper(Stream &_stream)
-      : stream_(_stream), buffer_(inner_buffer_), current_(inner_buffer_),
+  explicit IStreamWrapper(Stream &stream)
+      : stream_(stream), buffer_(inner_buffer_), current_(inner_buffer_),
         buffer_last_(nullptr), buffer_size_(kInnerBufferSize), read_count_(0),
         read_total_(0), eof_(false) {
     read();
   }
 
-  IStreamWrapper(Stream &_stream, char *_buffer, const std::size_t _buffer_size)
-      : stream_(_stream), buffer_(_buffer), current_(buffer_),
-        buffer_last_(nullptr), buffer_size_(_buffer_size), read_count_(0),
+  IStreamWrapper(Stream &stream, char *buffer, const std::size_t buffer_size)
+      : stream_(stream), buffer_(buffer), current_(buffer_),
+        buffer_last_(nullptr), buffer_size_(buffer_size), read_count_(0),
         read_total_(0), eof_(false) {
     NEUJSON_ASSERT(buffer_size_ >= 4 &&
                    "buffer size should be bigger then four");
@@ -45,8 +45,8 @@ public:
   }
 
   template <std::size_t N>
-  IStreamWrapper(Stream &_stream, char (&_buffer)[N])
-      : stream_(_stream), buffer_(_buffer), current_(buffer_),
+  IStreamWrapper(Stream &stream, char (&buffer)[N])
+      : stream_(stream), buffer_(buffer), current_(buffer_),
         buffer_last_(nullptr), buffer_size_(N), read_count_(0), read_total_(0),
         eof_(false) {
     NEUJSON_ASSERT(buffer_size_ >= 4 &&
@@ -68,8 +68,8 @@ public:
 
   template <typename T>
     requires std::is_integral_v<T>
-  void next(T _n) {
-    for (T i = 0; i < _n; ++i) {
+  void next(T n) {
+    for (T i = 0; i < n; ++i) {
       if (hasNext()) {
         read();
       } else {
@@ -78,9 +78,9 @@ public:
     }
   }
 
-  void assertNext(const char _ch) {
-    (void)_ch;
-    NEUJSON_ASSERT(peek() == _ch);
+  void assertNext(const char ch) {
+    (void)ch;
+    NEUJSON_ASSERT(peek() == ch);
     read();
   }
 

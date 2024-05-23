@@ -29,14 +29,14 @@ private:
 public:
   StringWriteStream() { buffer_.reserve(kInnerBufferSize); }
 
-  void put(Ch _ch) { buffer_.push_back(_ch); }
+  void put(const Ch ch) { buffer_.push_back(ch); }
 
-  void puts(const Ch *_str, const std::size_t _length) {
-    buffer_.insert(buffer_.end(), _str, _str + _length);
+  void puts(const Ch *str, const std::size_t length) {
+    buffer_.insert(buffer_.end(), str, str + length);
   }
 
-  void put_sv(const std::string_view _str) {
-    buffer_.insert(buffer_.end(), _str.begin(), _str.end());
+  void put_sv(const std::string_view str) {
+    buffer_.insert(buffer_.end(), str.begin(), str.end());
   }
 
   [[nodiscard]] std::string_view get() const {
