@@ -32,7 +32,7 @@ option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
 option(NEUJSON_BUILD_TESTS "Build neujson unittests." ON)
 option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 message("")
