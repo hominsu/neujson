@@ -21,7 +21,7 @@
 <h3 align="center">neujson</h3>
 
   <p align="center">
-    JSON parser/generator in C++17
+    JSON parser/generator in C++20
     <br/>
     <a href="https://me.hauhau.cn/zh/projects/neujson/"><strong>Explore the docs »</strong></a>
     <br/>

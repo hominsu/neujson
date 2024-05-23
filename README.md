@@ -21,7 +21,7 @@
 <h3 align="center">neujson</h3>
 
   <p align="center">
-    A header-only JSON parser/generator in C++17. It supports both SAX and DOM style API.
+    A header-only JSON parser/generator in C++20. It supports both SAX and DOM style API.
     <br/>
     <a href="https://me.hauhau.cn/projects/neujson/"><strong>Explore the docs »</strong></a>
     <br/>

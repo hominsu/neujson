@@ -28,8 +28,8 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." OFF)
-option(NEUJSON_BUILD_TESTS "Build neujson unittests." OFF)
+option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
+option(NEUJSON_BUILD_TESTS "Build neujson unittests." ON)
 option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
 
 set(CMAKE_CXX_STANDARD 20)
