@@ -107,19 +107,18 @@ sudo make uninstall
 
 此简单例子解析一个 JSON 字符串至一个 document (DOM)，对 DOM 作出简单修改，最终把 DOM 转换（stringify）至 JSON 字符串。
 
-```cpp
+```c++
 #include <cstdio>
 
 #include "neujson/document.h"
-#include "neujson/writer.h"
 #include "neujson/string_write_stream.h"
-#include "../sample.h"
+#include "neujson/writer.h"
+#include "sample.h"
 
 int main() {
   // 1. Parse a JSON string into DOM.
   neujson::Document doc;
-  auto err = doc.Parse(kSample[0]);
-  if (err != neujson::error::OK) {
+  if (const auto err = doc.Parse(kSample[0]); err != neujson::error::OK) {
     puts(neujson::ParseErrorStr(err));
     return EXIT_FAILURE;
   }
@@ -130,7 +129,7 @@ int main() {
 
   // 3. Stringify the DOM
   neujson::StringWriteStream os;
-  neujson::Writer<neujson::StringWriteStream> writer(os);
+  neujson::Writer writer(os);
   doc.WriteTo(writer);
 
   // Output
