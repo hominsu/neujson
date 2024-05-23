@@ -11,7 +11,7 @@ variable "AUTHOR_EMAIL" {
 }
 
 variable "ALPINE_VERSION" {
-  default = "3.16"
+  default = "latest"
 }
 
 variable "VERSION" {
@@ -34,8 +34,8 @@ target "neujson-alpine" {
     VERSION        = "${VERSION}"
   }
   tags = [
-    "${REPO}/neujson:alpine-${ALPINE_VERSION}-latest",
-    notequal("", VERSION) ? "${REPO}/neujson:alpine-${ALPINE_VERSION}-${VERSION}" : "",
+    "${REPO}/neujson:latest",
+    notequal("", VERSION) ? "${REPO}/neujson:${VERSION}" : "",
   ]
   platforms = ["linux/amd64"]
 }
