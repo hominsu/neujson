@@ -11,13 +11,12 @@
 
 namespace neujson {
 
-template<class Stream>
-class IStreamWrapper : NonCopyable {
- public:
+template <class Stream> class IStreamWrapper : NonCopyable {
+public:
   using Ch = typename Stream::char_type;
 
- private:
-  static const std::size_t kInnerBufferSize = 256;
+private:
+  static constexpr std::size_t kInnerBufferSize = 256;
   Stream &stream_;
   Ch inner_buffer_[kInnerBufferSize]{};
   Ch *buffer_;
@@ -28,33 +27,36 @@ class IStreamWrapper : NonCopyable {
   std::size_t read_total_;
   bool eof_;
 
- public:
+public:
   explicit IStreamWrapper(Stream &_stream)
-      : stream_(_stream),
-        buffer_(inner_buffer_),
-        current_(inner_buffer_),
-        buffer_last_(nullptr),
-        buffer_size_(kInnerBufferSize),
-        read_count_(0),
-        read_total_(0),
-        eof_(false) {
+      : stream_(_stream), buffer_(inner_buffer_), current_(inner_buffer_),
+        buffer_last_(nullptr), buffer_size_(kInnerBufferSize), read_count_(0),
+        read_total_(0), eof_(false) {
     read();
   }
 
-  IStreamWrapper(Stream &_stream, char *_buffer, std::size_t _buffer_size)
-      : stream_(_stream),
-        buffer_(_buffer),
-        current_(buffer_),
-        buffer_last_(nullptr),
-        buffer_size_(_buffer_size),
-        read_count_(0),
-        read_total_(0),
-        eof_(false) {
-    NEUJSON_ASSERT(buffer_size_ >= 4 && "buffer size should be bigger then four");
+  IStreamWrapper(Stream &_stream, char *_buffer, const std::size_t _buffer_size)
+      : stream_(_stream), buffer_(_buffer), current_(buffer_),
+        buffer_last_(nullptr), buffer_size_(_buffer_size), read_count_(0),
+        read_total_(0), eof_(false) {
+    NEUJSON_ASSERT(buffer_size_ >= 4 &&
+                   "buffer size should be bigger then four");
     read();
   }
 
-  [[nodiscard]] bool hasNext() const { return !eof_ || (current_ + 1 - !eof_ <= buffer_last_); }
+  template <std::size_t N>
+  IStreamWrapper(Stream &_stream, char (&_buffer)[N])
+      : stream_(_stream), buffer_(_buffer), current_(buffer_),
+        buffer_last_(nullptr), buffer_size_(N), read_count_(0), read_total_(0),
+        eof_(false) {
+    NEUJSON_ASSERT(buffer_size_ >= 4 &&
+                   "buffer size should be bigger then four");
+    read();
+  }
+
+  [[nodiscard]] bool hasNext() const {
+    return !eof_ || (current_ + 1 - !eof_ <= buffer_last_);
+  }
 
   Ch peek() { return *current_; }
 
@@ -64,24 +66,29 @@ class IStreamWrapper : NonCopyable {
     return ch;
   }
 
-  template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
-  void next(Tint _n) {
-    for (Tint i = 0; i < _n; ++i) {
-      if (hasNext()) { read(); }
-      else { break; }
+  template <typename T>
+    requires std::is_integral_v<T>
+  void next(T _n) {
+    for (T i = 0; i < _n; ++i) {
+      if (hasNext()) {
+        read();
+      } else {
+        break;
+      }
     }
   }
 
-  void assertNext(char _ch) {
-    (void) _ch;
+  void assertNext(const char _ch) {
+    (void)_ch;
     NEUJSON_ASSERT(peek() == _ch);
     read();
   }
 
- private:
+private:
   void read() {
-    if (current_ < buffer_last_) { ++current_; }
-    else if (!eof_) {
+    if (current_ < buffer_last_) {
+      ++current_;
+    } else if (!eof_) {
       read_total_ += read_count_;
 
       // if no eof
@@ -100,4 +107,4 @@ class IStreamWrapper : NonCopyable {
 
 } // namespace neujson
 
-#endif //NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
+#endif // NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_

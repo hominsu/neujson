@@ -19,25 +19,23 @@ NEUJSON_DIAG_OFF(effc++)
 namespace neujson {
 
 class StringWriteStream : public NonCopyable {
- public:
+public:
   using Ch = char;
 
- private:
-  static const std::size_t kInnerBufferSize = 256;
+private:
+  static constexpr std::size_t kInnerBufferSize = 256;
   std::vector<Ch> buffer_;
 
- public:
+public:
   StringWriteStream() { buffer_.reserve(kInnerBufferSize); }
 
-  void put(Ch _ch) {
-    buffer_.push_back(_ch);
-  }
+  void put(Ch _ch) { buffer_.push_back(_ch); }
 
-  void puts(const Ch *_str, std::size_t _length) {
+  void puts(const Ch *_str, const std::size_t _length) {
     buffer_.insert(buffer_.end(), _str, _str + _length);
   }
 
-  void put_sv(std::string_view _str) {
+  void put_sv(const std::string_view _str) {
     buffer_.insert(buffer_.end(), _str.begin(), _str.end());
   }
 
@@ -46,7 +44,6 @@ class StringWriteStream : public NonCopyable {
   }
 
   void flush() {}
-
 };
 
 } // namespace neujson
@@ -55,4 +52,4 @@ class StringWriteStream : public NonCopyable {
 NEUJSON_DIAG_POP
 #endif
 
-#endif //NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_
+#endif // NEUJSON_NEUJSON_STRING_WRITE_STREAM_H_

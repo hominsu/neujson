@@ -7,16 +7,13 @@
 
 #include <cstdio>
 
-#include <vector>
-
 #include "neujson.h"
 #include "non_copyable.h"
 
 namespace neujson {
 
 class FileReadStream : NonCopyable {
-private:
-  static const std::size_t kInnerBufferSize = 256;
+  static constexpr std::size_t kInnerBufferSize = 256;
   std::FILE *fp_;
   char inner_buffer_[kInnerBufferSize]{};
   char *buffer_;
@@ -36,7 +33,7 @@ public:
     read();
   }
 
-  explicit FileReadStream(FILE *_fp, char *_buffer, std::size_t _buffer_size)
+  explicit FileReadStream(FILE *_fp, char *_buffer, const std::size_t _buffer_size)
       : fp_(_fp), buffer_(_buffer), current_(_buffer), buffer_last_(nullptr),
         buffer_size_(_buffer_size), read_count_(0), read_total_(0),
         eof_(false) {
@@ -60,19 +57,19 @@ public:
     return !eof_ || (current_ + 1 - !eof_ <= buffer_last_);
   }
 
-  char peek() { return *current_; }
+  [[nodiscard]] char peek() const { return *current_; }
 
   char next() {
-    char ch = *current_;
+    const char ch = *current_;
     read();
     return ch;
   }
 
-  template <typename Tint, class = typename std::enable_if_t<std::is_integral_v<
-                               std::remove_reference_t<Tint>>>>
-  void next(Tint _n) {
+  template <typename T>
+    requires std::is_integral_v<T>
+  void next(T _n) {
     NEUJSON_ASSERT(_n >= 0);
-    for (Tint i = 0; i < _n; ++i) {
+    for (T i = 0; i < _n; ++i) {
       if (hasNext()) {
         read();
       } else {
@@ -81,7 +78,7 @@ public:
     }
   }
 
-  void assertNext(char _ch) {
+  void assertNext(const char _ch) {
     (void)_ch;
     NEUJSON_ASSERT(peek() == _ch);
     read();

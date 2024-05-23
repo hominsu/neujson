@@ -5,7 +5,6 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_
 #define NEUJSON_INCLUDE_NEUJSON_OSTREAM_WRAPPER_H_
 
-#include <iosfwd>
 #include <sstream>
 
 #include "non_copyable.h"
@@ -31,7 +30,7 @@ class OStreamWrapper : NonCopyable {
     stream_.write(_str, _length);
   }
 
-  void put_sv(std::string_view _sv) {
+  void put_sv(std::string_view _sv) const {
     stream_ << _sv;
   }
 

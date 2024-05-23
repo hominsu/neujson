@@ -31,7 +31,7 @@ public:
   }
 
   explicit FileWriteStream(std::FILE *_fp, char *_buffer,
-                           std::size_t _buffer_size)
+                           const std::size_t _buffer_size)
       : fp_(_fp), buffer_(_buffer), buffer_end_(_buffer + _buffer_size),
         current_(buffer_) {
     NEUJSON_ASSERT(_fp != nullptr && "FILE pointer equal zero");
@@ -50,14 +50,14 @@ public:
     }
   }
 
-  void put(char _ch) {
+  void put(const char _ch) {
     if (current_ >= buffer_end_) {
       flush();
     }
     *current_++ = _ch;
   }
 
-  void put_n(char _ch, std::size_t _n) {
+  void put_n(const char _ch, std::size_t _n) {
     auto avail = static_cast<std::size_t>(buffer_end_ - current_);
     while (_n > avail) {
       std::memset(current_, _ch, avail);
@@ -92,7 +92,7 @@ public:
     }
   }
 
-  void put_sv(std::string_view _sv) {
+  void put_sv(const std::string_view _sv) {
     auto avail = static_cast<std::size_t>(buffer_end_ - current_);
     std::size_t length = _sv.length();
     std::size_t copy = 0;

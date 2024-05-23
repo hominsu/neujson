@@ -13,40 +13,43 @@
 namespace neujson {
 
 class StringReadStream : public NonCopyable {
- public:
-  using Ch = std::string_view::value_type;
+public:
   using Iterator = std::string_view::iterator;
 
- private:
+private:
   std::string_view json_;
   Iterator iter_;
 
- public:
-  explicit StringReadStream(std::string_view _json) : json_(_json), iter_(json_.begin()) {}
+public:
+  explicit StringReadStream(std::string_view _json)
+      : json_(_json), iter_(json_.begin()) {}
 
   [[nodiscard]] bool hasNext() const { return iter_ != json_.end(); }
 
-  Ch peek() { return hasNext() ? *iter_ : '\0'; }
+  [[nodiscard]] char peek() const { return hasNext() ? *iter_ : '\0'; }
 
-  Ch next() {
+  char next() {
     if (hasNext()) {
-      Ch ch = *iter_;
+      const char ch = *iter_;
       iter_++;
       return ch;
     }
     return '\0';
   }
 
-  template<typename Tint, class = typename std::enable_if_t<std::is_integral_v<std::remove_reference_t<Tint>>>>
-  void next(Tint _n) {
+  template <typename T>
+    requires std::is_integral_v<T>
+  void next(T _n) {
     NEUJSON_ASSERT(_n >= 0);
-    for (Tint i = 0; i < _n; ++i) {
-      if (hasNext()) { iter_++; }
+    for (T i = 0; i < _n; ++i) {
+      if (hasNext()) {
+        iter_++;
+      }
     }
   }
 
-  void assertNext(Ch _ch) {
-    (void) _ch;
+  void assertNext(const char _ch) {
+    (void)_ch;
     NEUJSON_ASSERT(peek() == _ch);
     next();
   }
@@ -54,4 +57,4 @@ class StringReadStream : public NonCopyable {
 
 } // namespace neujson
 
-#endif //NEUJSON_NEUJSON_STRING_READ_STREAM_H_
+#endif // NEUJSON_NEUJSON_STRING_READ_STREAM_H_
