@@ -16,7 +16,8 @@ function(ExtProjectGit repourl tag destination)
 
     message(STATUS "Get external project from: ${repourl} : ${tag}")
 
-    string(REGEX MATCH "([^\\/]+)[.]git$" _name ${repourl})
+    string(REGEX MATCH "([^\\/]+)[/]([^\\/]+)[.]git" _match_result ${repourl})
+    string(REGEX REPLACE "([^\\/]+)[/]([^\\/]+)[.]git" "\\1_\\2.git" _name ${_match_result})
     message(STATUS "_name = ${_name}")
 
     set(options)
@@ -26,19 +27,19 @@ function(ExtProjectGit repourl tag destination)
 
     set(cmake_cli_args -DCMAKE_INSTALL_PREFIX=${destination}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-    if(CMAKE_TOOLCHAIN_FILE)
+    if (CMAKE_TOOLCHAIN_FILE)
         get_filename_component(_ft_path ${CMAKE_TOOLCHAIN_FILE} ABSOLUTE)
         get_filename_component(_cm_rt_opath ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ABSOLUTE)
         set(cmake_cli_args ${cmake_cli_args}
                 -DCMAKE_TOOLCHAIN_FILE=${_ft_path}
                 -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${_cm_rt_opath})
-    endif()
+    endif ()
 
-    foreach(cmake_key ${ExtProjectGit_CMAKE_ARGS})
+    foreach (cmake_key ${ExtProjectGit_CMAKE_ARGS})
         set(cmake_cli_args ${cmake_key} ${cmake_cli_args})
-    endforeach()
+    endforeach ()
 
-    message(STATUS "ARGS for ExternalProject_Add(${name}): ${cmake_cli_args}")
+    message(STATUS "ARGS for ExternalProject_Add(${_name}): ${cmake_cli_args}")
     message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 
     ExternalProject_Add(${_name}

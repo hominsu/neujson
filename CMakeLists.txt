@@ -28,9 +28,11 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." ON)
-option(NEUJSON_BUILD_TESTS "Build neujson unittests." ON)
-option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" ON)
+option(NEUJSON_BUILD_BENCHMARKS "Build neujson benchmarks." OFF)
+option(NEUJSON_BUILD_EXAMPLES "Build neujson examples." OFF)
+option(NEUJSON_BUILD_TESTS "Build neujson unittests." OFF)
+
+option(NEUJSON_ENABLE_INSTRUMENTATION_OPT "Build neujson with -march or -mcpu options" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -88,9 +90,30 @@ endif ()
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-#add extra search paths for libraries and includes
+# add extra search paths for libraries and includes
 set(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
 set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Directory where lib will install")
+
+# benchmarks
+if (NEUJSON_BUILD_BENCHMARKS)
+    ExtProjectGit("https://github.com/google/benchmark.git" "v1.8.4" ${DEPS_ROOT} CMAKE_ARGS "-DBENCHMARK_DOWNLOAD_DEPENDENCIES=ON" "${_OPT_CMAKE_ARGS}")
+    add_library(google-benchmark IMPORTED STATIC GLOBAL)
+    add_dependencies(google-benchmark "google_benchmark.git")
+    set_target_properties(google-benchmark PROPERTIES
+            IMPORTED_LOCATION ${DEPS_ROOT}/lib/libbenchmark.a
+    )
+
+    enable_testing()
+    file(GLOB BENCHMARK_SRC_FILES ${PROJECT_SOURCE_DIR}/benchmark/*.cc)
+    foreach (_benchmark_file ${BENCHMARK_SRC_FILES})
+        get_filename_component(_benchmark_name ${_benchmark_file} NAME_WE)
+        add_executable(${_benchmark_name} ${_benchmark_file})
+        add_dependencies(${_benchmark_name} google-benchmark)
+        target_compile_definitions(${_benchmark_name} PRIVATE RESOURCES_DIR=\"${PROJECT_SOURCE_DIR}/benchmark/resources\")
+        target_include_directories(${_benchmark_name} PRIVATE "${DEPS_ROOT}/include")
+        target_link_libraries(${_benchmark_name} PRIVATE google-benchmark)
+    endforeach ()
+endif ()
 
 # example
 if (NEUJSON_BUILD_EXAMPLES)
@@ -112,7 +135,7 @@ if (NEUJSON_BUILD_TESTS)
     foreach (_test_file ${TEST_SRC_FILES})
         get_filename_component(_test_name ${_test_file} NAME_WE)
         add_executable(${_test_name} ${_test_file})
-        add_dependencies(${_test_name} "googletest.git")
+        add_dependencies(${_test_name} "google_googletest.git")
         target_include_directories(${_test_name} PRIVATE "${DEPS_ROOT}/include")
         target_link_directories(${_test_name} PRIVATE "${DEPS_ROOT}/lib")
         target_link_libraries(${_test_name} gtest gtest_main ${CMAKE_THREAD_LIBS_INIT})
