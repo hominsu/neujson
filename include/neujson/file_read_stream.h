@@ -35,8 +35,7 @@ public:
 
   explicit fp(FILE *fp, char *buffer, const std::size_t buffer_size)
       : fp_(fp), buffer_(buffer), current_(buffer), buffer_last_(nullptr),
-        buffer_size_(buffer_size), read_count_(0), read_total_(0),
-        eof_(false) {
+        buffer_size_(buffer_size), read_count_(0), read_total_(0), eof_(false) {
     NEUJSON_ASSERT(fp_ != nullptr && "file pointer should not be empty");
     NEUJSON_ASSERT(buffer_size_ >= 4 &&
                    "buffer size should be bigger then four");
@@ -65,11 +64,14 @@ public:
     return ch;
   }
 
-  template <typename T>
-    requires std::is_integral_v<T>
-  void next(T n) {
-    NEUJSON_ASSERT(n >= 0);
-    for (T i = 0; i < n; ++i) {
+  std::string next(const std::size_t n) {
+    auto str = std::make_shared<std::string>();
+    auto ret = read(str, n);
+    return {ret->c_str(), ret->size()};
+  }
+
+  void skip(const std::size_t n) {
+    for (std::size_t i = 0; i < n; ++i) {
       if (hasNext()) {
         read();
       } else {
@@ -100,6 +102,39 @@ private:
         eof_ = true;
       }
     }
+  }
+
+  std::shared_ptr<std::string> &read(std::shared_ptr<std::string> &str,
+                                     const std::size_t n = 1) {
+    if (current_ + n <= buffer_last_) {
+      str->append(current_, n);
+      current_ += n;
+      return str;
+    } else if (!eof_) {
+      const std::size_t remaining = n - (buffer_last_ - current_ + 1);
+      const std::size_t need_read = n - remaining;
+      str->append(current_, buffer_last_ - current_ + 1);
+
+      read_total_ += read_count_;
+      read_count_ = std::fread(buffer_, 1, buffer_size_, fp_);
+      buffer_last_ = buffer_ + read_count_ - 1;
+      current_ = buffer_;
+
+      if (read_count_ < buffer_size_) {
+        buffer_[read_count_] = '\0';
+        ++buffer_last_;
+        eof_ = true;
+      }
+
+      if (eof_ && need_read > read_count_) {
+        str->append(current_, read_count_);
+        return str;
+      }
+
+      return read(str, need_read);
+    }
+
+    return str;
   }
 };
 

@@ -37,14 +37,17 @@ public:
     return '\0';
   }
 
-  template <typename T>
-    requires std::is_integral_v<T>
-  void next(T n) {
-    NEUJSON_ASSERT(n >= 0);
-    for (T i = 0; i < n; ++i) {
-      if (hasNext()) {
-        iter_++;
-      }
+  std::string_view next(const std::size_t n) {
+    auto start = iter_;
+    if (static_cast<std::size_t>(std::distance(iter_, json_.end())) >= n) {
+      std::advance(iter_, n);
+    }
+    return {start, iter_};
+  }
+
+  void skip(const std::size_t n) {
+    if (static_cast<std::size_t>(std::distance(iter_, json_.end())) >= n) {
+      std::advance(iter_, n);
     }
   }
 

@@ -5,23 +5,28 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 #define NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 
-#include "sstream"
+#include <sstream>
 
 #include "non_copyable.h"
 
 namespace neujson {
 
-template <class Stream> class IStreamWrapper : NonCopyable {
-public:
-  using Ch = typename Stream::char_type;
+namespace required {
 
-private:
+template <typename Stream>
+concept StreamCharTypeIsChar =
+    requires { std::same_as<typename Stream::char_type, char>; };
+
+} // namespace required
+
+template <required::StreamCharTypeIsChar Stream>
+class IStreamWrapper : NonCopyable {
   static constexpr std::size_t kInnerBufferSize = 256;
   Stream &stream_;
-  Ch inner_buffer_[kInnerBufferSize]{};
-  Ch *buffer_;
-  Ch *current_;
-  Ch *buffer_last_;
+  char inner_buffer_[kInnerBufferSize]{};
+  char *buffer_;
+  char *current_;
+  char *buffer_last_;
   std::size_t buffer_size_;
   std::size_t read_count_;
   std::size_t read_total_;
@@ -58,18 +63,22 @@ public:
     return !eof_ || (current_ + 1 - !eof_ <= buffer_last_);
   }
 
-  Ch peek() { return *current_; }
+  [[nodiscard]] char peek() const { return *current_; }
 
-  Ch next() {
-    Ch ch = *current_;
+  char next() {
+    const char ch = *current_;
     read();
     return ch;
   }
 
-  template <typename T>
-    requires std::is_integral_v<T>
-  void next(T n) {
-    for (T i = 0; i < n; ++i) {
+  std::string next(const std::size_t n) {
+    auto str = std::make_shared<std::string>();
+    auto ret = read(str, n);
+    return {ret->c_str(), ret->size()};
+  }
+
+  void skip(const std::size_t n) {
+    for (std::size_t i = 0; i < n; ++i) {
       if (hasNext()) {
         read();
       } else {
@@ -102,6 +111,41 @@ private:
         eof_ = true;
       }
     }
+  }
+
+  std::shared_ptr<std::string> &read(std::shared_ptr<std::string> &str,
+                                     const std::size_t n = 1) {
+    if (current_ + n <= buffer_last_) {
+      str->append(current_, n);
+      current_ += n;
+      return str;
+    } else if (!eof_) {
+      const std::size_t remaining = n - (buffer_last_ - current_ + 1);
+      const std::size_t need_read = n - remaining;
+      str->append(current_, remaining);
+
+      read_total_ += read_count_;
+
+      // if no eof
+      buffer_last_ = buffer_ + buffer_size_ - 1;
+      current_ = buffer_;
+
+      // eof
+      if (!stream_.read(buffer_, static_cast<std::streamsize>(buffer_size_))) {
+        read_count_ = static_cast<std::size_t>(stream_.gcount());
+        *(buffer_last_ = buffer_ + read_count_) = '\0';
+        eof_ = true;
+      }
+
+      if (eof_ && need_read > read_count_) {
+        str->append(current_, read_count_);
+        return str;
+      }
+
+      return read(str, need_read);
+    }
+
+    return str;
   }
 };
 

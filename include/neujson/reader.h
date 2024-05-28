@@ -54,6 +54,13 @@ concept HasNext = requires(ReadStream rs) {
   { rs.next() } -> std::same_as<char>;
 };
 
+#if defined(NEUJSON_SSE42) || defined(NEUJSON_SSE2) || defined(NEUJSON_NEON)
+template <typename ReadStream>
+concept HasSkip = requires(ReadStream rs, std::size_t n) {
+  { rs.skip(n) } -> std::same_as<void>;
+};
+#endif
+
 template <typename ReadStream>
 concept HasAssertNext = requires(ReadStream rs, char ch) {
   { rs.assertNext(ch) } -> std::same_as<void>;
@@ -64,10 +71,12 @@ concept HasAssertNext = requires(ReadStream rs, char ch) {
 template <typename T>
 concept HasAllRequiredFunctions =
     details::HasHasNext<T> && details::HasPeek<T> && details::HasNext<T> &&
+#if defined(NEUJSON_SSE42) || defined(NEUJSON_SSE2) || defined(NEUJSON_NEON)
+    details::HasSkip<T> &&
+#endif
     details::HasAssertNext<T>;
 
 } // namespace required::read_stream
-
 
 class Reader : NonCopyable {
 public:
@@ -194,7 +203,7 @@ void Reader::ParseWhitespaceSSE42(ReadStream &rs) {
   const __m128i w =
       _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespace[0]));
 
-  for (;; p += 16, rs.next(16)) {
+  for (;; p += 16, rs.skip(16)) {
     const __m128i s = _mm_load_si128(reinterpret_cast<const __m128i *>(p));
     const int r =
         _mm_cmpistri(w, s,
@@ -202,7 +211,7 @@ void Reader::ParseWhitespaceSSE42(ReadStream &rs) {
                          _SIDD_LEAST_SIGNIFICANT | _SIDD_NEGATIVE_POLARITY);
     // some characters are non-whitespace
     if (r != 16) {
-      rs.next(r);
+      rs.skip(r);
       return;
     }
   }
@@ -252,7 +261,7 @@ void Reader::ParseWhitespaceSSE2(ReadStream &rs) {
   const __m128i w3 =
       _mm_loadu_si128(reinterpret_cast<const __m128i *>(&whitespaces[3][0]));
 
-  for (;; p += 16, rs.next(16)) {
+  for (;; p += 16, rs.skip(16)) {
     const __m128i s = _mm_load_si128(reinterpret_cast<const __m128i *>(p));
     __m128i x = _mm_cmpeq_epi8(s, w0);
     x = _mm_or_si128(x, _mm_cmpeq_epi8(s, w1));
@@ -263,10 +272,10 @@ void Reader::ParseWhitespaceSSE2(ReadStream &rs) {
 #ifdef _MSC_VER // Find the index of first non-whitespace
       unsigned long offset;
       _BitScanForward(&offset, r);
-      rs.next(offset);
+      rs.skip(offset);
       return;
 #else
-      rs.next(__builtin_ffs(r) - 1);
+      rs.skip(__builtin_ffs(r) - 1);
       return;
 #endif
     }
@@ -306,7 +315,7 @@ void Reader::ParseWhitespaceNEON(ReadStream &rs) {
   const uint8x16_t w2 = vmovq_n_u8('\r');
   const uint8x16_t w3 = vmovq_n_u8('\t');
 
-  for (;; p += 16, rs.next(16)) {
+  for (;; p += 16, rs.skip(16)) {
     const uint8x16_t s = vld1q_u8(reinterpret_cast<const uint8_t *>(p));
     uint8x16_t x = vceqq_u8(s, w0);
     x = vorrq_u8(x, vceqq_u8(s, w1));
@@ -321,12 +330,12 @@ void Reader::ParseWhitespaceNEON(ReadStream &rs) {
     if (low == 0) {
       if (high != 0) {
         uint32_t lz = internal::clzll(high);
-        rs.next(8 + (lz >> 3));
+        rs.skip(8 + (lz >> 3));
         return;
       }
     } else {
       uint32_t lz = internal::clzll(low);
-      rs.next(lz >> 3);
+      rs.skip(lz >> 3);
       return;
     }
   }
