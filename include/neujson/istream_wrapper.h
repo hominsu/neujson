@@ -5,6 +5,7 @@
 #ifndef NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 #define NEUJSON_INCLUDE_NEUJSON_ISTREAM_WRAPPER_H_
 
+#include <concepts>
 #include <sstream>
 
 #include "non_copyable.h"
@@ -14,8 +15,7 @@ namespace neujson {
 namespace required {
 
 template <typename Stream>
-concept StreamCharTypeIsChar =
-    requires { std::same_as<typename Stream::char_type, char>; };
+concept StreamCharTypeIsChar = std::same_as<typename Stream::char_type, char>;
 
 } // namespace required
 

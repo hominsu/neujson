@@ -1,0 +1,15 @@
+if (CMAKE_VERSION VERSION_LESS 3.21)
+    get_property(not_top DIRECTORY PROPERTY PARENT_DIRECTORY)
+    if (not_top)
+        set(${PROJECT_NAME}_IS_TOP_LEVEL false)
+    else ()
+        set(${PROJECT_NAME}_IS_TOP_LEVEL true)
+    endif ()
+endif ()
+
+include(CMakeDependentOption)
+
+cmake_dependent_option(${PROJECT_NAME_UPPER}_BUILD_TESTS "Build ${PROJECT_NAME} tests." ON "${PROJECT_NAME}_IS_TOP_LEVEL" OFF)
+cmake_dependent_option(${PROJECT_NAME_UPPER}_BUILD_EXAMPLES "Build ${PROJECT_NAME} examples." ON "${PROJECT_NAME}_IS_TOP_LEVEL" OFF)
+cmake_dependent_option(${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS "Build ${PROJECT_NAME} benchmarks." ON "${PROJECT_NAME}_IS_TOP_LEVEL" OFF)
+cmake_dependent_option(${PROJECT_NAME_UPPER}_ENABLE_INSTRUMENTATION_OPT "Build ${PROJECT_NAME} with -march or -mcpu options" ON "${PROJECT_NAME}_IS_TOP_LEVEL" OFF)
