@@ -26,22 +26,21 @@ target_include_directories(${PROJECT_NAME} INTERFACE
         $<INSTALL_INTERFACE:include>
 )
 
-if (${PROJECT_NAME_UPPER}_BUILD_EXAMPLES OR ${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS OR ${PROJECT_NAME_UPPER}_BUILD_TESTS)
-    # compile in release by default
-    if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-    endif ()
+if (${PROJECT_NAME_UPPER}_BUILD_TESTS OR ${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS)
+    add_subdirectory(third_party)
+endif ()
 
-    if (${PROJECT_NAME_UPPER}_BUILD_TESTS OR ${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS)
-        add_subdirectory(third_party)
-    endif ()
+if (${PROJECT_NAME_UPPER}_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif ()
 
-    if (${PROJECT_NAME_UPPER}_BUILD_TESTS)
-        enable_testing()
-        add_subdirectory(test)
-    endif ()
-
+if (${PROJECT_NAME_UPPER}_BUILD_EXAMPLES)
     add_subdirectory(example)
+endif ()
+
+if (${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS)
+    add_subdirectory(benchmark)
 endif ()
 
 # add extra search paths for libraries and includes

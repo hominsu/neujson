@@ -1,7 +1,18 @@
 set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -w)
 
-set(gtest_build_tests OFF CACHE BOOL "" FORCE)
-set(gtest_build_samples OFF CACHE BOOL "" FORCE)
-# Use shared (DLL) run-time lib even when Google Test is built as static lib.
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-add_subdirectory(googletest EXCLUDE_FROM_ALL)
+if (${PROJECT_NAME_UPPER}_BUILD_TESTS)
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+    set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+    set(gtest_build_tests OFF CACHE BOOL "" FORCE)
+    set(gtest_build_samples OFF CACHE BOOL "" FORCE)
+
+    add_subdirectory(googletest EXCLUDE_FROM_ALL)
+endif ()
+
+if (${PROJECT_NAME_UPPER}_BUILD_BENCHMARKS)
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+
+    add_subdirectory(benchmark EXCLUDE_FROM_ALL)
+endif ()
